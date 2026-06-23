@@ -451,6 +451,22 @@
   .comment-add button{padding:10px 18px;background:var(--gold-deep);color:#fff;border:none;border-radius:8px;font-family:"Nanum Myeongjo",serif;font-size:13px;cursor:pointer;white-space:nowrap;}
   .bs-empty{text-align:center;color:rgba(110,80,40,.5);font-size:13px;padding:60px 0;pointer-events:none;}
   .notion-sync-badge{font-size:10px;background:rgba(0,0,0,.08);border-radius:10px;padding:1px 7px;color:rgba(0,0,0,.4);margin-left:4px;}
+  .postit{cursor:pointer;}
+  .postit:hover{box-shadow:3px 7px 20px rgba(0,0,0,.42),0 1px 3px rgba(0,0,0,.2);transform:rotate(0deg) scale(1.04)!important;z-index:5;}
+  .postit-cmt-badge{position:absolute;top:5px;right:6px;font-size:10px;background:rgba(0,0,0,.1);color:rgba(0,0,0,.55);border-radius:10px;padding:1px 6px;font-family:"Nanum Myeongjo",serif;}
+  /* 포스트잇 상세 모달 */
+  .postit-detail-overlay{display:none;position:fixed;inset:0;z-index:9000;background:rgba(10,8,4,.85);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px;}
+  .postit-detail-overlay.show{display:flex;}
+  .postit-detail-box{background:var(--card);border-radius:14px;width:min(560px,96vw);max-height:90vh;overflow-y:auto;box-shadow:0 12px 50px rgba(0,0,0,.5);}
+  .postit-detail-head{position:relative;padding:30px 26px 22px;border-radius:14px 14px 0 0;}
+  .postit-detail-head .pin{position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#e87070 0%,#a01010 70%);box-shadow:0 2px 7px rgba(0,0,0,.45);}
+  .postit-detail-title{font-family:"Nanum Myeongjo",serif;font-weight:700;font-size:19px;color:#2a2a2a;word-break:keep-all;}
+  .postit-detail-body{font-size:14.5px;color:#3a3a3a;line-height:1.75;margin-top:10px;white-space:pre-wrap;word-break:keep-all;}
+  .postit-detail-meta{font-size:12px;color:rgba(0,0,0,.5);margin-top:14px;font-family:"Nanum Myeongjo",serif;}
+  .postit-detail-close{position:absolute;top:12px;right:14px;background:rgba(0,0,0,.12);border:none;color:rgba(0,0,0,.55);width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;line-height:1;}
+  .postit-detail-close:hover{background:rgba(0,0,0,.2);}
+  .postit-detail-comments{padding:18px 22px 22px;background:rgba(255,255,255,.5);border-radius:0 0 14px 14px;}
+  .postit-detail-comments h4{font-family:"Nanum Myeongjo",serif;font-size:14px;color:var(--ink);margin:0 0 10px;}
 
   /* 공지사항 */
   .notice-list{display:flex;flex-direction:column;gap:8px;}
@@ -616,7 +632,7 @@
         <p class="desc">한눈에 보는 지표</p>
         <div class="widgets">
           <div class="mini"><div class="k">남은 할 일</div><div class="v" id="wTodo">0<small>건</small></div></div>
-          <div class="mini"><div class="k">이번 주</div><div class="v" id="wWeek">D-?</div></div>
+          <div class="mini"><div class="k">다음 일정</div><div class="v" id="wWeek">D-?</div></div>
           <div class="mini"><div class="k">감사 기록</div><div class="v" id="wGrat">0<small>/3</small></div></div>
           <div class="mini"><div class="k">함께하는</div><div class="v">6<small>명</small></div></div>
         </div>
@@ -841,13 +857,35 @@
       <button class="archive-toggle" id="archiveToggleModal">▸ 보관된 포스트잇 <span id="archiveCountModal">0</span>개</button>
       <div class="archive-list" id="archiveListModal" style="display:none"></div>
     </div>
-    <!-- 아이디어·의견 나눔 (칠판 아래 토론 공간) -->
+    <!-- 보드 전체 의견 (칠판 아래 토론 공간) -->
     <div class="bs-comments">
-      <h4 style="font-family:'Nanum Myeongjo',serif;font-size:15px;color:var(--ink);margin:0 0 10px">💬 아이디어 · 의견 나눔</h4>
+      <h4 style="font-family:'Nanum Myeongjo',serif;font-size:15px;color:var(--ink);margin:0 0 4px">💬 보드 전체 의견</h4>
+      <p style="font-size:11.5px;color:var(--ink-soft);margin:0 0 10px">특정 아이디어에 답글을 달려면 포스트잇을 눌러보세요.</p>
       <div id="bsCommentList"></div>
       <div class="comment-add">
-        <input id="bsCommentInput" placeholder="이 보드에 대한 아이디어나 의견을 남겨보세요 — Enter" />
+        <input id="bsCommentInput" placeholder="보드 전체에 대한 의견을 남겨보세요 — Enter" />
         <button id="bsCommentSend">보내기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 포스트잇 상세 + 댓글 모달 -->
+<div class="postit-detail-overlay" id="postitDetailOverlay">
+  <div class="postit-detail-box">
+    <div class="postit-detail-head" id="postitDetailCard">
+      <div class="pin"></div>
+      <button class="postit-detail-close" id="postitDetailClose">✕</button>
+      <div class="postit-detail-title" id="postitDetailTitle"></div>
+      <div class="postit-detail-body" id="postitDetailBody"></div>
+      <div class="postit-detail-meta" id="postitDetailMeta"></div>
+    </div>
+    <div class="postit-detail-comments">
+      <h4>💬 이 아이디어에 대한 댓글</h4>
+      <div id="postitCmtList"></div>
+      <div class="comment-add">
+        <input id="postitCmtInput" placeholder="이 아이디어에 답글 남기기 — Enter" />
+        <button id="postitCmtSend">답글</button>
       </div>
     </div>
   </div>
@@ -1016,6 +1054,7 @@ function enterDash(){
   subscribeNotices();
   subscribeTeamGrats();
   subscribeBrainstorm();
+  subscribeBsComments();
   const nat=document.getElementById('noticeAddToggle');
   if(nat) nat.style.display=(CUR&&CUR.code==='CEO')?'inline-block':'none';
   renderDash();
@@ -1883,7 +1922,9 @@ document.getElementById('gratShareBtn').addEventListener('click',async()=>{
 const BS_NOTION_DB='2441cb468b4e4a0da29c9993824973ad';
 const NOTE_COLORS={'노랑':'#fef9c3','핑크':'#fce7f3','파랑':'#dbeafe','초록':'#dcfce7','주황':'#ffedd5','보라':'#f3e8ff'};
 let bsCache=[];let bsUnsub=null;let bsCmtUnsub=null;
+let bsCommentsCache=[];let curPostitId=null;
 let selNoteColor='노랑';
+function bsCommentCount(postitId){return bsCommentsCache.filter(c=>c.postitId===postitId).length;}
 
 function seedN(id,salt){
   let h=0;const s=id+(salt||'');
@@ -1912,8 +1953,11 @@ function makePosts(notes,containerW,containerH){
     const timeStr=`${ts.getMonth()+1}/${ts.getDate()} ${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}`;
     const canCheck=CUR&&(CUR.id===n.authorEmail||CUR.code==='CEO');
     const notionBadge=n.notionId?`<span class="notion-sync-badge">N✓</span>`:'';
-    return`<div class="postit" style="background:${bg};left:${p.x}%;top:${p.y}%;transform:rotate(${tilt}deg)" data-id="${n.id}">
+    const cc=bsCommentCount(n.id);
+    const cmtBadge=cc?`<span class="postit-cmt-badge">💬 ${cc}</span>`:'';
+    return`<div class="postit" style="background:${bg};left:${p.x}%;top:${p.y}%;transform:rotate(${tilt}deg)" data-id="${n.id}" onclick="openPostit('${n.id}',event)">
       <div class="postit-pin"></div>
+      ${cmtBadge}
       <div class="postit-title">${esc(n.title)}${notionBadge}</div>
       <div class="postit-body">${esc(n.content||'')}</div>
       <div class="postit-meta">${esc(n.authorName)} · ${timeStr}</div>
@@ -2042,36 +2086,85 @@ document.getElementById('archiveToggleModal').addEventListener('click',()=>{
 function subscribeBsComments(){
   if(!_db||bsCmtUnsub)return;
   bsCmtUnsub=_db.collection('ws_bscomments').orderBy('createdAt').onSnapshot(snap=>{
-    const el=document.getElementById('bsCommentList');if(!el)return;
-    const docs=snap.docs;
-    if(!docs.length){el.innerHTML='<div style="font-size:13px;color:var(--ink-soft);padding:8px 0">아직 의견이 없어요. 첫 의견을 남겨보세요!</div>';return;}
-    el.innerHTML=docs.map(d=>{
-      const c=d.data();
-      const ts=c.createdAt?.toDate?c.createdAt.toDate():new Date(c.createdAt||0);
-      const timeStr=`${ts.getMonth()+1}/${ts.getDate()} ${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}`;
-      return`<div class="comment-item">
-        <div class="comment-avatar">${(c.authorName||'?')[0]}</div>
-        <div class="comment-body">
-          <div class="comment-meta">${esc(c.authorName||'')} <span style="font-weight:400;color:var(--ink-soft)">· ${esc(c.authorCode||'')}</span></div>
-          <div class="comment-text">${esc(c.text||'')}</div>
-          <div class="comment-time">${timeStr}</div>
-        </div>
-      </div>`;
-    }).join('');
-    el.scrollTop=el.scrollHeight;
+    bsCommentsCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderBoardComments();
+    if(curPostitId)renderPostitComments(curPostitId);
+    renderBoardPreview();
+    renderBoardFull();
   },err=>console.error('bs-comments',err));
+}
+function commentHtml(c){
+  const ts=c.createdAt?.toDate?c.createdAt.toDate():new Date(c.createdAt||0);
+  const timeStr=`${ts.getMonth()+1}/${ts.getDate()} ${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}`;
+  return`<div class="comment-item">
+    <div class="comment-avatar">${(c.authorName||'?')[0]}</div>
+    <div class="comment-body">
+      <div class="comment-meta">${esc(c.authorName||'')} <span style="font-weight:400;color:var(--ink-soft)">· ${esc(c.authorCode||'')}</span></div>
+      <div class="comment-text">${esc(c.text||'')}</div>
+      <div class="comment-time">${timeStr}</div>
+    </div>
+  </div>`;
+}
+function renderBoardComments(){
+  const el=document.getElementById('bsCommentList');if(!el)return;
+  const list=bsCommentsCache.filter(c=>!c.postitId||c.postitId==='board');
+  if(!list.length){el.innerHTML='<div style="font-size:13px;color:var(--ink-soft);padding:8px 0">아직 의견이 없어요. 첫 의견을 남겨보세요!</div>';return;}
+  el.innerHTML=list.map(commentHtml).join('');
+  el.scrollTop=el.scrollHeight;
+}
+function renderPostitComments(pid){
+  const el=document.getElementById('postitCmtList');if(!el)return;
+  const list=bsCommentsCache.filter(c=>c.postitId===pid);
+  if(!list.length){el.innerHTML='<div style="font-size:13px;color:var(--ink-soft);padding:8px 0">첫 댓글을 남겨보세요!</div>';return;}
+  el.innerHTML=list.map(commentHtml).join('');
+  el.scrollTop=el.scrollHeight;
+}
+function openPostit(id,ev){
+  ev&&ev.stopPropagation();
+  const n=bsCache.find(x=>x.id===id);if(!n)return;
+  curPostitId=id;
+  const bg=NOTE_COLORS[n.color]||'#fef9c3';
+  const ts=n.createdAt?.toDate?n.createdAt.toDate():new Date(n.createdAt||0);
+  const timeStr=`${ts.getMonth()+1}/${ts.getDate()} ${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}`;
+  document.getElementById('postitDetailCard').style.background=bg;
+  document.getElementById('postitDetailTitle').textContent=n.title||'';
+  document.getElementById('postitDetailBody').textContent=n.content||'';
+  document.getElementById('postitDetailMeta').textContent=`${n.authorName||''} · ${timeStr}`;
+  document.getElementById('postitDetailOverlay').classList.add('show');
+  document.body.style.overflow='hidden';
+  subscribeBsComments();
+  renderPostitComments(id);
+  setTimeout(()=>document.getElementById('postitCmtInput').focus(),120);
+}
+function closePostit(){
+  document.getElementById('postitDetailOverlay').classList.remove('show');
+  curPostitId=null;
+  if(!document.getElementById('boardOverlay').classList.contains('show'))document.body.style.overflow='';
 }
 async function sendBsComment(){
   const inp=document.getElementById('bsCommentInput');
   const text=inp.value.trim();if(!text||!_db||!CUR)return;
   await _db.collection('ws_bscomments').add({
-    text,authorName:CUR.name,authorEmail:CUR.id,authorCode:CUR.code||'',
+    text,postitId:'board',authorName:CUR.name,authorEmail:CUR.id,authorCode:CUR.code||'',
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  inp.value='';
+}
+async function sendPostitComment(){
+  const inp=document.getElementById('postitCmtInput');
+  const text=inp.value.trim();if(!text||!_db||!CUR||!curPostitId)return;
+  await _db.collection('ws_bscomments').add({
+    text,postitId:curPostitId,authorName:CUR.name,authorEmail:CUR.id,authorCode:CUR.code||'',
     createdAt:firebase.firestore.FieldValue.serverTimestamp()
   });
   inp.value='';
 }
 document.getElementById('bsCommentSend').addEventListener('click',sendBsComment);
 document.getElementById('bsCommentInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendBsComment();}});
+document.getElementById('postitCmtSend').addEventListener('click',sendPostitComment);
+document.getElementById('postitCmtInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendPostitComment();}});
+document.getElementById('postitDetailClose').addEventListener('click',closePostit);
+document.getElementById('postitDetailOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closePostit();});
 
 /* Notion 동기화 */
 async function notionSyncNote(id,data){
