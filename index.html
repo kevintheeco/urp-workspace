@@ -730,12 +730,12 @@
         <div class="proj-empty" id="projEmpty" style="display:none">등록된 항목이 없어요. 위에서 추가해보세요.</div>
       </div>
 
-      <!-- 브레인스토밍 보드 -->
-      <div class="panel col-12">
+      <!-- 브레인스토밍 보드 (= 아이디어 나눔 통합) -->
+      <div class="panel col-8">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
           <div>
             <h3 style="margin:0"><span class="ic">◈</span> 브레인스토밍 보드</h3>
-            <p class="desc" style="margin:4px 0 0">코르크보드에 아이디어를 핀으로 고정하세요 — 클릭하면 전체 화면</p>
+            <p class="desc" style="margin:4px 0 0">떠오르는 아이디어를 포스트잇으로 붙이세요 — 보드를 누르면 펼쳐지고 아래에서 의견을 나눠요</p>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <button class="proj-add-btn" id="bsNotionBtn" title="Notion 🧠 브레인스토밍 보드에 동기화">📋 Notion 내보내기</button>
@@ -776,31 +776,6 @@
           <button class="archive-toggle" id="archiveToggle">▸ 보관된 포스트잇 <span id="archiveCount">0</span>개</button>
           <div class="archive-list" id="archiveList" style="display:none"></div>
         </div>
-      </div>
-
-      <!-- 아이디어 게시판 -->
-      <div class="panel col-8">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-          <div>
-            <h3 style="margin:0"><span class="ic">☼</span> 아이디어 나눔</h3>
-            <p class="desc" style="margin:4px 0 0">팀원이면 누구나 아이디어를 올릴 수 있어요</p>
-          </div>
-          <button class="proj-add-btn" id="ideaAddToggle">＋ 아이디어 올리기</button>
-        </div>
-        <div class="idea-form" id="ideaForm">
-          <div class="idea-form-row">
-            <input id="ifTitle" placeholder="제목 *" style="flex:1;min-width:140px" />
-          </div>
-          <div class="idea-form-row">
-            <textarea id="ifContent" placeholder="어떤 아이디어인지 자유롭게 적어주세요"></textarea>
-          </div>
-          <div class="proj-form-btns">
-            <button class="ok" id="ifSave">올리기</button>
-            <button class="cancel" id="ifCancel">취소</button>
-          </div>
-        </div>
-        <div class="idea-grid" id="ideaGrid"></div>
-        <div class="idea-empty" id="ideaEmpty" style="display:none">아직 아이디어가 없어요. 첫 아이디어를 올려보세요!</div>
       </div>
 
       <!-- 팀 감사 나눔 피드 -->
@@ -866,12 +841,12 @@
       <button class="archive-toggle" id="archiveToggleModal">▸ 보관된 포스트잇 <span id="archiveCountModal">0</span>개</button>
       <div class="archive-list" id="archiveListModal" style="display:none"></div>
     </div>
-    <!-- 댓글 -->
+    <!-- 아이디어·의견 나눔 (칠판 아래 토론 공간) -->
     <div class="bs-comments">
-      <h4 style="font-family:'Nanum Myeongjo',serif;font-size:15px;color:var(--ink);margin:0 0 10px">💬 팀 의견</h4>
+      <h4 style="font-family:'Nanum Myeongjo',serif;font-size:15px;color:var(--ink);margin:0 0 10px">💬 아이디어 · 의견 나눔</h4>
       <div id="bsCommentList"></div>
       <div class="comment-add">
-        <input id="bsCommentInput" placeholder="의견을 남겨보세요 — Enter" />
+        <input id="bsCommentInput" placeholder="이 보드에 대한 아이디어나 의견을 남겨보세요 — Enter" />
         <button id="bsCommentSend">보내기</button>
       </div>
     </div>
@@ -1039,7 +1014,6 @@ function enterDash(){
   subscribeMeeting();
   subscribeFiles();
   subscribeNotices();
-  subscribeIdeas();
   subscribeTeamGrats();
   subscribeBrainstorm();
   const nat=document.getElementById('noticeAddToggle');
@@ -1861,73 +1835,6 @@ document.getElementById('nfSave').addEventListener('click',async()=>{
   document.getElementById('nfTitle').value='';
   document.getElementById('nfContent').value='';
   document.getElementById('noticeForm').classList.remove('show');
-});
-
-/* ===== 아이디어 게시판 (ws_ideas) ===== */
-let ideasUnsub=null;
-function subscribeIdeas(){
-  if(!_db||ideasUnsub)return;
-  ideasUnsub=_db.collection('ws_ideas').orderBy('createdAt','desc').onSnapshot(snap=>{
-    const grid=document.getElementById('ideaGrid');
-    const empty=document.getElementById('ideaEmpty');
-    if(!grid)return;
-    const docs=snap.docs;
-    if(docs.length===0){grid.innerHTML='';empty.style.display='block';return;}
-    empty.style.display='none';
-    grid.innerHTML=docs.map(d=>{
-      const n=d.data();const id=d.id;
-      const likes=n.likes||[];
-      const liked=CUR&&likes.includes(CUR.email);
-      const ts=n.createdAt?.toDate?n.createdAt.toDate():new Date();
-      const dateStr=`${ts.getMonth()+1}/${ts.getDate()}`;
-      const canDel=CUR&&(CUR.email===n.authorEmail||CUR.code==='CEO');
-      return`<div class="idea-card">
-        <div class="idea-title">${esc(n.title)}</div>
-        <div class="idea-content">${esc(n.content||'')}</div>
-        <div class="idea-footer">
-          <span class="idea-author">${esc(n.authorName)} · ${dateStr}${canDel?` &nbsp;<button onclick="deleteIdea('${id}')" style="font-size:11px;color:#a03030;background:none;border:none;cursor:pointer;padding:0">삭제</button>`:''}</span>
-          <button class="like-btn${liked?' liked':''}" onclick="toggleLike('${id}')">👍 ${likes.length}</button>
-        </div>
-      </div>`;
-    }).join('');
-  },err=>console.error('ideas',err));
-}
-function toggleLike(id){
-  if(!_db||!CUR)return;
-  const ref=_db.collection('ws_ideas').doc(id);
-  ref.get().then(snap=>{
-    if(!snap.exists)return;
-    const likes=snap.data().likes||[];
-    const idx=likes.indexOf(CUR.email);
-    if(idx>=0)likes.splice(idx,1);else likes.push(CUR.email);
-    ref.update({likes});
-  });
-}
-function deleteIdea(id){if(!_db||!confirm('아이디어를 삭제할까요?'))return;_db.collection('ws_ideas').doc(id).delete();}
-
-document.getElementById('ideaAddToggle').addEventListener('click',()=>{
-  const f=document.getElementById('ideaForm');
-  f.classList.toggle('show');
-  if(f.classList.contains('show'))document.getElementById('ifTitle').focus();
-});
-document.getElementById('ifCancel').addEventListener('click',()=>{
-  document.getElementById('ideaForm').classList.remove('show');
-  document.getElementById('ifTitle').value='';
-  document.getElementById('ifContent').value='';
-});
-document.getElementById('ifSave').addEventListener('click',async()=>{
-  if(!_db||!CUR)return;
-  const title=document.getElementById('ifTitle').value.trim();
-  const content=document.getElementById('ifContent').value.trim();
-  if(!title){alert('제목을 입력해주세요.');return;}
-  await _db.collection('ws_ideas').add({
-    title,content,likes:[],
-    authorName:CUR.name,authorEmail:CUR.email,
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  });
-  document.getElementById('ifTitle').value='';
-  document.getElementById('ifContent').value='';
-  document.getElementById('ideaForm').classList.remove('show');
 });
 
 /* ===== 팀 감사 나눔 (ws_grats) ===== */
