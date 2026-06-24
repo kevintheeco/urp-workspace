@@ -451,6 +451,19 @@
   .comment-add button{padding:10px 18px;background:var(--gold-deep);color:#fff;border:none;border-radius:8px;font-family:"Nanum Myeongjo",serif;font-size:13px;cursor:pointer;white-space:nowrap;}
   .bs-empty{text-align:center;color:rgba(110,80,40,.5);font-size:13px;padding:60px 0;pointer-events:none;}
   .notion-sync-badge{font-size:10px;background:rgba(0,0,0,.08);border-radius:10px;padding:1px 7px;color:rgba(0,0,0,.4);margin-left:4px;}
+  /* 니가 교수 앱 선택 모달 */
+  .app-picker-overlay{display:none;position:fixed;inset:0;z-index:9200;background:rgba(10,8,4,.82);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px;}
+  .app-picker-overlay.show{display:flex;}
+  .app-picker-box{position:relative;background:var(--card);border-radius:16px;width:min(460px,96vw);padding:30px 28px 28px;box-shadow:0 16px 56px rgba(0,0,0,.5);text-align:center;}
+  .app-picker-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;color:var(--ink-soft);cursor:pointer;line-height:1;}
+  .app-picker-title{font-family:"Nanum Myeongjo",serif;font-size:21px;color:var(--ink);margin:0 0 4px;}
+  .app-picker-sub{font-size:13px;color:var(--ink-soft);margin:0 0 20px;}
+  .app-picker-opts{display:flex;gap:14px;flex-wrap:wrap;}
+  .app-picker-opt{flex:1;min-width:160px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:22px 14px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.45);text-decoration:none;transition:.18s;}
+  .app-picker-opt:hover{border-color:var(--gold);background:rgba(168,132,63,.08);transform:translateY(-2px);}
+  .app-picker-opt .api-ic{font-size:30px;}
+  .app-picker-opt .api-t{font-family:"Nanum Myeongjo",serif;font-weight:700;font-size:16px;color:var(--ink);}
+  .app-picker-opt .api-d{font-size:11.5px;color:var(--ink-soft);line-height:1.4;}
   .postit{cursor:pointer;}
   .postit:hover{box-shadow:3px 7px 20px rgba(0,0,0,.42),0 1px 3px rgba(0,0,0,.2);transform:rotate(0deg) scale(1.04)!important;z-index:5;}
   .postit-cmt-badge{position:absolute;top:5px;right:6px;font-size:10px;background:rgba(0,0,0,.1);color:rgba(0,0,0,.55);border-radius:10px;padding:1px 6px;font-family:"Nanum Myeongjo",serif;}
@@ -824,7 +837,7 @@
         <div class="links">
           <a href="https://kevintheeco.github.io/urp-invitation/briefing.html" target="_blank"><span class="t">사업 브리핑</span><span class="d">우리가 만드는 것, 가는 길</span></a>
           <a href="https://kevintheeco.github.io/urp-invitation/" target="_blank"><span class="t">초대장</span><span class="d">함께할 사람을 부르는 편지</span></a>
-          <a href="#" onclick="alert('니가 교수 앱은 곧 연결됩니다.');return false;"><span class="t">니가 교수 앱 <span class="lock">준비중</span></span><span class="d">손글씨 채점 · 능동학습 제품</span></a>
+          <a href="#" onclick="openAppPicker();return false;"><span class="t">니가 교수 앱</span><span class="d">손글씨 채점 · 능동학습 제품 (개인용 · 학원용)</span></a>
           <a href="#" onclick="alert('사내 위키는 곧 연결됩니다.');return false;"><span class="t">사내 위키 <span class="lock">준비중</span></span><span class="d">문서 · 회의록 · 정책</span></a>
         </div>
       </div>
@@ -886,6 +899,27 @@
         <input id="postitCmtInput" placeholder="이 아이디어에 답글 남기기 — Enter" />
         <button id="postitCmtSend">답글</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- 니가 교수 앱 선택 모달 -->
+<div class="app-picker-overlay" id="appPickerOverlay">
+  <div class="app-picker-box">
+    <button class="app-picker-close" id="appPickerClose">✕</button>
+    <h2 class="app-picker-title">🎓 니가 교수 앱</h2>
+    <p class="app-picker-sub">어떤 버전을 열까요?</p>
+    <div class="app-picker-opts">
+      <a class="app-picker-opt" href="https://kevintheeco.github.io/YouareProfessor/" target="_blank" onclick="closeAppPicker()">
+        <span class="api-ic">👤</span>
+        <span class="api-t">개인용</span>
+        <span class="api-d">손글씨 채점 · 능동학습 학습앱</span>
+      </a>
+      <a class="app-picker-opt" href="https://kevintheeco.github.io/YouareProfessor/#academy" target="_blank" onclick="closeAppPicker()">
+        <span class="api-ic">🏫</span>
+        <span class="api-t">학원용</span>
+        <span class="api-d">중·고등 수학 학원용 (academy)</span>
+      </a>
     </div>
   </div>
 </div>
@@ -1136,6 +1170,12 @@ async function delMember(email){
   catch(e){ alert('삭제 실패: '+((e&&e.message)||e)); }
 }
 const _adminBtn=document.getElementById('adminBtn'); if(_adminBtn)_adminBtn.addEventListener('click',openAdmin);
+
+/* ===== 니가 교수 앱 선택 모달 ===== */
+function openAppPicker(){document.getElementById('appPickerOverlay').classList.add('show');}
+function closeAppPicker(){document.getElementById('appPickerOverlay').classList.remove('show');}
+document.getElementById('appPickerClose').addEventListener('click',closeAppPicker);
+document.getElementById('appPickerOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeAppPicker();});
 
 /* ===== 시계 ===== */
 function tick(){
