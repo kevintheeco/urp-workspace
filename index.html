@@ -632,7 +632,6 @@
         <p class="desc">한눈에 보는 지표</p>
         <div class="widgets">
           <div class="mini"><div class="k">남은 할 일</div><div class="v" id="wTodo">0<small>건</small></div></div>
-          <div class="mini"><div class="k">다음 일정</div><div class="v" id="wWeek">D-?</div></div>
           <div class="mini"><div class="k">감사 기록</div><div class="v" id="wGrat">0<small>/3</small></div></div>
           <div class="mini"><div class="k">함께하는</div><div class="v">6<small>명</small></div></div>
         </div>
@@ -1263,21 +1262,6 @@ function renderCal(){
   html+='</tr>';
   document.getElementById('calBody').innerHTML=html;
   document.querySelectorAll('.cal .day').forEach(el=>el.addEventListener('click',()=>selDay(el.dataset.d)));
-  // D-day 위젯
-  let nearest=null;
-  const today0=new Date().setHours(0,0,0,0);
-  Object.keys(calCache).forEach(k=>{
-    if(!calCache[k]||!calCache[k].length)return;
-    const dt=ds2date(k);
-    const diff=Math.ceil((dt-today0)/86400000);
-    if(diff>=0&&(nearest===null||diff<nearest))nearest=diff;
-  });
-  calRangeEvents.forEach(e=>{
-    const dt=ds2date(e.date);
-    const diff=Math.ceil((dt-today0)/86400000);
-    if(diff>=0&&(nearest===null||diff<nearest))nearest=diff;
-  });
-  document.getElementById('wWeek').textContent=nearest===null?'—':(nearest===0?'D-day':'D-'+nearest);
   if(calSelDate)document.querySelectorAll('.cal .day').forEach(el=>{if(el.dataset.d===calSelDate)el.style.boxShadow='0 0 0 2px var(--gold) inset';});
 }
 
