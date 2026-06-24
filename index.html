@@ -1434,8 +1434,20 @@ function subscribeDM(){
   if(!_db)return;
   if(dmUnsubRecv)dmUnsubRecv();
   if(dmUnsubSent)dmUnsubSent();
+  let firstRecv=true;
   dmUnsubRecv=_db.collection('ws_messages').where('to','==',CUR.id)
-    .onSnapshot(snap=>{dmRecv=snap.docs.map(d=>({id:d.id,...d.data()}));refreshDM();},err=>console.error('DM recv',err));
+    .onSnapshot(snap=>{
+      if(!firstRecv){
+        snap.docChanges().forEach(ch=>{
+          if(ch.type!=='added')return;
+          const m={id:ch.doc.id,...ch.doc.data()};
+          const viewing=document.getElementById('dmModal').classList.contains('show')&&dmPeer===m.from;
+          if(!m.read&&!viewing) fireNotif('💬 '+(m.fromName||'새 메시지'),m.text||'',()=>openDMWith(m.from));
+        });
+      }
+      firstRecv=false;
+      dmRecv=snap.docs.map(d=>({id:d.id,...d.data()}));refreshDM();
+    },err=>console.error('DM recv',err));
   dmUnsubSent=_db.collection('ws_messages').where('from','==',CUR.id)
     .onSnapshot(snap=>{dmSent=snap.docs.map(d=>({id:d.id,...d.data()}));refreshDM();},err=>console.error('DM sent',err));
 }
@@ -1538,10 +1550,19 @@ document.getElementById('dmClose').addEventListener('click',()=>document.getElem
 let tasksCache=[];
 let tasksUnsub=null;
 
-function fireNotif(title,body){
+function fireNotif(title,body,onClick){
   if(typeof Notification!=='undefined'&&Notification.permission==='granted'){
-    try{new Notification(title,{body,icon:'assets/forest.jpg'});}catch(e){}
+    try{
+      const n=new Notification(title,{body,icon:'assets/forest.jpg'});
+      if(onClick)n.onclick=()=>{try{window.focus();}catch(_){}try{onClick();}catch(_){}try{n.close();}catch(_){}};
+    }catch(e){}
   }
+}
+async function openDMWith(email){
+  document.getElementById('dmModal').classList.add('show');
+  await loadDMMembers();
+  const m=dmMembers.find(x=>x.email===email)||{};
+  await selectPeer(email,m.name||'');
 }
 
 function subscribeTeamTasks(){
