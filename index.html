@@ -1434,9 +1434,9 @@ function subscribeDM(){
   if(!_db)return;
   if(dmUnsubRecv)dmUnsubRecv();
   if(dmUnsubSent)dmUnsubSent();
-  dmUnsubRecv=_db.collection('ws_messages').where('to','==',CUR.id).orderBy('createdAt')
+  dmUnsubRecv=_db.collection('ws_messages').where('to','==',CUR.id)
     .onSnapshot(snap=>{dmRecv=snap.docs.map(d=>({id:d.id,...d.data()}));refreshDM();},err=>console.error('DM recv',err));
-  dmUnsubSent=_db.collection('ws_messages').where('from','==',CUR.id).orderBy('createdAt')
+  dmUnsubSent=_db.collection('ws_messages').where('from','==',CUR.id)
     .onSnapshot(snap=>{dmSent=snap.docs.map(d=>({id:d.id,...d.data()}));refreshDM();},err=>console.error('DM sent',err));
 }
 
