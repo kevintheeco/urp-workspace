@@ -465,6 +465,18 @@
   .app-picker-opt .api-ic{font-size:30px;}
   .app-picker-opt .api-t{font-family:"Nanum Myeongjo",serif;font-weight:700;font-size:16px;color:var(--ink);}
   .app-picker-opt .api-d{font-size:11.5px;color:var(--ink-soft);line-height:1.4;}
+  /* 지난 감사 기록 모달 */
+  .grat-hist-overlay{display:none;position:fixed;inset:0;z-index:9200;background:rgba(10,8,4,.82);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px;}
+  .grat-hist-overlay.show{display:flex;}
+  .grat-hist-box{background:var(--card);border-radius:16px;width:min(520px,96vw);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 16px 56px rgba(0,0,0,.5);}
+  .grat-hist-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 14px;border-bottom:1px solid var(--line);}
+  .grat-hist-head h2{font-family:"Nanum Myeongjo",serif;font-size:19px;color:var(--ink);margin:0;}
+  .grat-hist-close{background:none;border:none;font-size:22px;color:var(--ink-soft);cursor:pointer;line-height:1;}
+  .grat-hist-list{overflow-y:auto;padding:18px 24px 24px;display:flex;flex-direction:column;gap:14px;}
+  .gh-day{border:1px solid var(--line);border-radius:11px;padding:14px 16px;background:rgba(255,255,255,.45);}
+  .gh-date{font-family:"Nanum Myeongjo",serif;font-weight:700;font-size:13.5px;color:var(--gold-deep);margin-bottom:8px;}
+  .gh-items{font-size:13.5px;color:var(--ink);line-height:1.9;}
+  .grat-hist-empty{text-align:center;color:var(--ink-soft);font-size:13.5px;padding:40px 0;}
   .postit{cursor:pointer;}
   .postit:hover{box-shadow:3px 7px 20px rgba(0,0,0,.42),0 1px 3px rgba(0,0,0,.2);transform:rotate(0deg) scale(1.04)!important;z-index:5;}
   .postit-cmt-badge{position:absolute;top:5px;right:6px;font-size:10px;background:rgba(0,0,0,.1);color:rgba(0,0,0,.55);border-radius:10px;padding:1px 6px;font-family:"Nanum Myeongjo",serif;}
@@ -686,6 +698,7 @@
         <div class="field"><span class="n">3</span><input id="g3" placeholder="세 번째 감사" /></div>
         <button class="save" id="gratSave">오늘의 감사 저장</button>
         <button class="grat-share-btn" id="gratShareBtn">🌿 팀과 감사 나누기</button>
+        <button class="grat-share-btn" id="gratHistoryBtn" style="margin-top:4px">📖 지난 감사 보기</button>
         <div class="done" id="gratDone"></div>
       </div>
 
@@ -925,6 +938,17 @@
   </div>
 </div>
 
+<!-- 지난 감사 기록 모달 -->
+<div class="grat-hist-overlay" id="gratHistOverlay">
+  <div class="grat-hist-box">
+    <div class="grat-hist-head">
+      <h2>📖 나의 감사 기록</h2>
+      <button class="grat-hist-close" id="gratHistClose">✕</button>
+    </div>
+    <div class="grat-hist-list" id="gratHistList"></div>
+  </div>
+</div>
+
 <div class="admin-modal" id="admin"><div class="admin-box" id="adminBox"></div></div>
 
 <div class="ceo-modal" id="ceoModal">
@@ -1089,6 +1113,8 @@ function enterDash(){
   subscribeTeamGrats();
   subscribeBrainstorm();
   subscribeBsComments();
+  backfillGrats();
+  loadTodayGratCloud();
   const nat=document.getElementById('noticeAddToggle');
   if(nat) nat.style.display=(CUR&&CUR.code==='CEO')?'inline-block':'none';
   renderDash();
@@ -1224,10 +1250,70 @@ document.getElementById('gratSave').addEventListener('click',()=>{
   const g=[g1.value.trim(),g2.value.trim(),g3.value.trim()];
   LS.set(gratKey(),g);
   updGratWidget(g);
+  saveGratCloud(today(),g);
   const d=document.getElementById('gratDone');
   d.textContent='오늘의 감사가 저장되었어요. 고마운 하루.';
   setTimeout(()=>d.textContent='',2600);
 });
+/* 개인 감사 기록 — Firestore 저장(어느 기기서든 보임) */
+async function saveGratCloud(date,items){
+  if(!_db||!CUR)return;
+  try{
+    await _db.collection('ws_mygrats').doc(`${CUR.id}__${date}`).set({
+      email:CUR.id,date,items,updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+  }catch(e){console.warn('감사 클라우드 저장 실패',e);}
+}
+/* 기존 localStorage 감사 기록을 한 번 Firestore로 이전 */
+async function backfillGrats(){
+  if(!_db||!CUR)return;
+  const flag=KEY(CUR.id,'gratMigrated');
+  if(LS.get(flag,false))return;
+  const prefix=`ws:${CUR.id}:grat:`;
+  const tasks=[];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k&&k.indexOf(prefix)===0){
+      const date=k.slice(prefix.length);
+      const items=LS.get(k,['','','']);
+      if((items||[]).some(x=>x&&x.trim())) tasks.push(saveGratCloud(date,items));
+    }
+  }
+  try{await Promise.all(tasks);LS.set(flag,true);}catch(e){console.warn('감사 이전 실패',e);}
+}
+async function loadTodayGratCloud(){
+  if(!_db||!CUR)return;
+  const local=LS.get(gratKey(),['','','']);
+  if(local.some(x=>x&&x.trim()))return;
+  try{
+    const doc=await _db.collection('ws_mygrats').doc(`${CUR.id}__${today()}`).get();
+    if(doc.exists){
+      const items=doc.data().items||['','',''];
+      if(items.some(x=>x&&x.trim())){LS.set(gratKey(),items);renderGrat();}
+    }
+  }catch(e){}
+}
+function fmtGratDate(ds){const p=(ds||'').split('-');return p.length===3?`${p[0]}년 ${p[1]}월 ${p[2]}일`:ds;}
+async function openGratHistory(){
+  const ov=document.getElementById('gratHistOverlay');
+  const list=document.getElementById('gratHistList');
+  ov.classList.add('show');
+  list.innerHTML='<div class="grat-hist-empty">불러오는 중…</div>';
+  if(!_db||!CUR){list.innerHTML='<div class="grat-hist-empty">로그인이 필요해요.</div>';return;}
+  try{
+    const snap=await _db.collection('ws_mygrats').where('email','==',CUR.id).get();
+    let days=snap.docs.map(d=>d.data()).filter(d=>(d.items||[]).some(x=>x&&x.trim()));
+    days.sort((a,b)=>ds2date(b.date)-ds2date(a.date));
+    if(!days.length){list.innerHTML='<div class="grat-hist-empty">아직 기록된 감사가 없어요.<br>오늘의 감사를 저장해보세요 🌿</div>';return;}
+    list.innerHTML=days.map(d=>{
+      const items=(d.items||[]).filter(x=>x&&x.trim());
+      return `<div class="gh-day"><div class="gh-date">${fmtGratDate(d.date)}</div><div class="gh-items">${items.map((t,i)=>`${i+1}. ${esc(t)}`).join('<br>')}</div></div>`;
+    }).join('');
+  }catch(e){list.innerHTML='<div class="grat-hist-empty">불러오기 실패: '+esc((e&&e.message)||String(e))+'</div>';}
+}
+document.getElementById('gratHistoryBtn').addEventListener('click',openGratHistory);
+document.getElementById('gratHistClose').addEventListener('click',()=>document.getElementById('gratHistOverlay').classList.remove('show'));
+document.getElementById('gratHistOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('show');});
 
 /* ===== 할일 ===== */
 function todoKey(){return KEY(CUR.id,'todo');}
