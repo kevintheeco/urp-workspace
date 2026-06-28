@@ -1528,6 +1528,7 @@ let dmRecv=[],dmSent=[];
 let dmUnsubRecv=null,dmUnsubSent=null;
 let dmPeer=null;
 let dmMembers=[];
+const _appStart=Date.now();   // 이 시점 이후 도착한 메시지만 알림(예전 메시지 재전달로 인한 무한 알림 차단)
 
 function subscribeDM(){
   if(!_db)return;
@@ -1540,6 +1541,9 @@ function subscribeDM(){
         snap.docChanges().forEach(ch=>{
           if(ch.type!=='added')return;
           const m={id:ch.doc.id,...ch.doc.data()};
+          if(m.from===CUR.id)return;                         // 내가 보낸 건 알림 안 함
+          const ts=(m.createdAt&&m.createdAt.toMillis)?m.createdAt.toMillis():0;
+          if(ts&&ts<_appStart)return;                        // 로그인 전 메시지(재전달분)는 알림 안 함
           const viewing=document.getElementById('dmModal').classList.contains('show')&&dmPeer===m.from;
           if(!m.read&&!viewing) fireNotif('💬 '+(m.fromName||'새 메시지'),m.text||'',()=>openDMWith(m.from),'dm:'+m.id);
         });
