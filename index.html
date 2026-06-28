@@ -983,16 +983,6 @@
 <div class="stamp">완성 · ①계정 ②공유캘린더 ③프로젝트보드 ④DM ⑤CEO전체뷰+업무지시 ⑥회의카운트다운 ⑦약속·보고 ⑧연기요청·승인</div>
 
 <script>
-/* ===== 구성: 멤버 ===== */
-const MEMBERS = [
-  {id:"soomin", name:"수민", role:"대표 · CEO", color:"#7c2d2a"},
-  {id:"jueun",  name:"정주은", role:"운영 총괄 · COO"},
-  {id:"jimin",  name:"최지민", role:"기술 총괄 · CTO"},
-  {id:"eunwoo", name:"김은우", role:"성장 총괄 · CGO"},
-  {id:"junseo", name:"임준서", role:"재무 총괄 · CFO"},
-  {id:"sebin",  name:"윤세빈", role:"브랜드 총괄 · CBO"},
-];
-
 /* ===== 오늘의 말씀 (날짜별 순환) ===== */
 const VERSES = [
   {kr:"내 은혜가 네게 족하도다 이는 내 능력이 약한 데서 온전하여짐이라", en:"My grace is sufficient for you, for my power is made perfect in weakness.", ref:"고린도후서 12:9"},
@@ -1048,10 +1038,10 @@ const FB_CONFIG = {
 const BOOTSTRAP_ADMIN = "soomin020114@gmail.com"; // 첫 CEO(관리자). 첫 로그인 시 자동 등록.
 const ROLES = [
   {code:"CEO", label:"대표 · CEO"},
-  {code:"COO", label:"운영 총괄 · COO"},
   {code:"CTO", label:"기술 총괄 · CTO"},
-  {code:"CGO", label:"성장 총괄 · CGO"},
-  {code:"CFO", label:"재무 총괄 · CFO"},
+  {code:"CSO", label:"전략 총괄 · CSO"},
+  {code:"해외", label:"해외 총괄"},
+  {code:"재무전략", label:"재무·전략 총괄"},
   {code:"CBO", label:"브랜드 총괄 · CBO"},
 ];
 let _auth=null,_db=null,_storage=null;
@@ -1341,7 +1331,7 @@ let calY,calM,calSelDate=null;
 let calCache={}; // 단일 일정: date → [{...}]
 let calRangeEvents=[]; // 기간 일정 배열
 let calUnsub=null;
-const MEMBER_COLORS={CEO:'#7c2d2a',COO:'#1a7a6e',CTO:'#2a4e8c',CGO:'#3a6b38',CFO:'#8c6a2a',CBO:'#5e2a8c'};
+const MEMBER_COLORS={CEO:'#7c2d2a',CTO:'#2a4e8c',CSO:'#1a7a6e','해외':'#3a6b38','재무전략':'#8c6a2a',CBO:'#5e2a8c'};
 function ds2date(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
 function inRange(ds,s,e){const D=ds2date(ds);return D>=ds2date(s)&&D<=ds2date(e);}
 
