@@ -1543,7 +1543,7 @@ function subscribeDM(){
           if(ch.type!=='added')return;
           const m={id:ch.doc.id,...ch.doc.data()};
           const viewing=document.getElementById('dmModal').classList.contains('show')&&dmPeer===m.from;
-          if(!m.read&&!viewing) fireNotif('💬 '+(m.fromName||'새 메시지'),m.text||'',()=>openDMWith(m.from));
+          if(!m.read&&!viewing) fireNotif('💬 '+(m.fromName||'새 메시지'),m.text||'',()=>openDMWith(m.from),'dm:'+m.id);
         });
       }
       firstRecv=false;
@@ -1657,10 +1657,12 @@ document.getElementById('dmClose').addEventListener('click',()=>document.getElem
 let tasksCache=[];
 let tasksUnsub=null;
 
-function fireNotif(title,body,onClick){
+const _notified=new Set();   // 이미 알린 건(key) 기억 → 같은 건 재알림 방지
+function fireNotif(title,body,onClick,key){
+  if(key){ if(_notified.has(key))return; _notified.add(key); }
   if(typeof Notification!=='undefined'&&Notification.permission==='granted'){
     try{
-      const n=new Notification(title,{body,icon:'assets/forest.jpg'});
+      const n=new Notification(title,{body,icon:'assets/forest.jpg',tag:key||undefined});
       if(onClick)n.onclick=()=>{try{window.focus();}catch(_){}try{onClick();}catch(_){}try{n.close();}catch(_){}};
     }catch(e){}
   }
@@ -1683,17 +1685,17 @@ function subscribeTeamTasks(){
         const prev=tasksCache.find(x=>x.id===t.id);
         if(ch.type==='added'){
           if(CUR&&t.assigneeEmail===CUR.id)
-            fireNotif('새 업무 지시',`${t.fromName||''}님: ${t.title||''}`);
+            fireNotif('새 업무 지시',`${t.fromName||''}님: ${t.title||''}`,null,'task:'+t.id);
         }
         if(ch.type==='modified'&&prev){
           if(CUR&&CUR.code==='CEO'){
             if(t.promise&&!prev.promise)
-              fireNotif('약속 등록',`${t.assigneeName||''}: ${t.title||''} — ${t.promise}까지`);
+              fireNotif('약속 등록',`${t.assigneeName||''}: ${t.title||''} — ${t.promise}까지`,null,'promise:'+t.id+':'+t.promise);
             if(t.postponeStatus==='요청중'&&prev.postponeStatus!=='요청중')
-              fireNotif('연기 요청',`${t.assigneeName||''}: ${t.title||''} → ${t.postponeReqDeadline||''}`);
+              fireNotif('연기 요청',`${t.assigneeName||''}: ${t.title||''} → ${t.postponeReqDeadline||''}`,null,'postpone:'+t.id+':'+(t.postponeReqDeadline||''));
           }
           if(CUR&&t.assigneeEmail===CUR.id&&t.postponeStatus&&t.postponeStatus!=='요청중'&&prev.postponeStatus!==t.postponeStatus)
-            fireNotif('연기 '+t.postponeStatus,`"${t.title||''}" 연기 요청이 ${t.postponeStatus}되었습니다.`);
+            fireNotif('연기 '+t.postponeStatus,`"${t.title||''}" 연기 요청이 ${t.postponeStatus}되었습니다.`,null,'postres:'+t.id+':'+t.postponeStatus);
         }
       });
     }
