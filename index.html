@@ -634,9 +634,7 @@
       <div>
         <button class="mb-set-btn" id="mbSetBtn">⚙ 회의 일정 설정</button>
         <div class="mb-set-form" id="mbSetForm">
-          <select id="mtDay"><option value="0">일요일</option><option value="1">월요일</option><option value="2">화요일</option><option value="3" selected>수요일</option><option value="4">목요일</option><option value="5">금요일</option><option value="6">토요일</option></select>
-          <input id="mtHour" type="number" min="0" max="23" value="22" style="width:54px" /><span>시</span>
-          <input id="mtMinute" type="number" min="0" max="59" value="0" style="width:54px" /><span>분</span>
+          <input id="mtWhen" type="datetime-local" />
           <button class="mb-save-btn" id="mbSave">저장</button>
         </div>
       </div>
@@ -1918,7 +1916,30 @@ function updateMeetingBanner(){
 
 function calcCountdown(){
   if(!meetingConfig)return;
+  const el=document.getElementById('mbCountdown');
+  const sl=document.getElementById('mbSub');
+  const DAYS=['일','월','화','수','목','금','토'];
+  // 신규: 특정 날짜+시간(달력에서 선택)
+  if(meetingConfig.at){
+    const d=new Date(meetingConfig.at);
+    const lbl=`${d.getMonth()+1}월 ${d.getDate()}일 (${DAYS[d.getDay()]}) ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const ms=meetingConfig.at-Date.now();
+    if(ms<=0){
+      if(el)el.textContent='회의 시간!';
+      if(sl)sl.textContent=lbl+' · 지났어요, 새 일정을 설정하세요';
+      return;
+    }
+    const totalMin=Math.floor(ms/60000);
+    const days=Math.floor(totalMin/1440);
+    const h=Math.floor((totalMin%1440)/60);
+    const m=totalMin%60;
+    if(el)el.textContent=days>0?`${days}일 ${h}시간 후`:(h>0?`${h}시간 ${m}분 후`:`${m}분 후`);
+    if(sl)sl.textContent=lbl;
+    return;
+  }
+  // 레거시: 매주 요일 반복(이전에 저장된 설정 호환)
   const {day,hour,minute}=meetingConfig;
+  if(day===undefined)return;
   const now=new Date();
   const target=new Date(now);
   target.setHours(hour,minute,0,0);
@@ -1928,27 +1949,33 @@ function calcCountdown(){
   const ms=target-now;
   const h=Math.floor(ms/3600000);
   const m=Math.floor((ms%3600000)/60000);
-  const DAYS=['일','월','화','수','목','금','토'];
-  const lbl=`매주 ${DAYS[day]}요일 ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
-  const el=document.getElementById('mbCountdown');
-  const sl=document.getElementById('mbSub');
   if(el)el.textContent=h>0?`${h}시간 ${m}분 후`:`${m}분 후`;
-  if(sl)sl.textContent=lbl;
+  if(sl)sl.textContent=`매주 ${DAYS[day]}요일 ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
 }
 
 async function saveMeetingConfig(){
-  const day=parseInt(document.getElementById('mtDay').value)||3;
-  const hour=parseInt(document.getElementById('mtHour').value)||22;
-  const minute=parseInt(document.getElementById('mtMinute').value)||0;
+  const v=document.getElementById('mtWhen').value;   // "2026-07-01T22:00"
+  if(!v){alert('회의 날짜와 시간을 선택해주세요.');return;}
+  const at=new Date(v).getTime();
+  if(isNaN(at)){alert('올바른 날짜가 아니에요.');return;}
   try{
-    await _db.collection('ws_meta').doc('meeting').set({day,hour,minute});
+    await _db.collection('ws_meta').doc('meeting').set({at,iso:v});
     document.getElementById('mbSetForm').style.display='none';
   }catch(e){alert('저장 실패: '+((e&&e.message)||e));}
 }
 
 document.getElementById('mbSetBtn').addEventListener('click',()=>{
   const f=document.getElementById('mbSetForm');
-  f.style.display=f.style.display==='none'||!f.style.display?'flex':'none';
+  const opening=f.style.display==='none'||!f.style.display;
+  if(opening){
+    const inp=document.getElementById('mtWhen');
+    if(inp&&!inp.value){
+      if(meetingConfig&&meetingConfig.iso){ inp.value=meetingConfig.iso; }
+      else{ const d=new Date(Date.now()+86400000); d.setMinutes(0,0,0); // 기본값: 내일 정각
+        inp.value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:00`; }
+    }
+  }
+  f.style.display=opening?'flex':'none';
 });
 document.getElementById('mbSave').addEventListener('click',saveMeetingConfig);
 
