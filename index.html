@@ -1625,14 +1625,18 @@ function renderDMConvo(peerName){
     <div class="dm-input-row"><input id="dmIn" placeholder="메시지를 입력하세요" /><button id="dmSend">전송</button></div>`;
   const ml=document.getElementById('dmMsgList');if(ml)ml.scrollTop=ml.scrollHeight;
   document.getElementById('dmSend').addEventListener('click',sendDM);
-  document.getElementById('dmIn').addEventListener('keydown',e=>{if(e.key==='Enter')sendDM();});
+  document.getElementById('dmIn').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing)sendDM();});
 }
 
+let _dmSending=false;
 async function sendDM(){
+  if(_dmSending)return;                       // 재진입 방지(이중 전송 차단)
   const inp=document.getElementById('dmIn');
   const text=(inp&&inp.value.trim())||'';
   if(!text||!dmPeer)return;
   const peer=dmMembers.find(m=>m.email===dmPeer)||{};
+  _dmSending=true;
+  if(inp)inp.value='';                        // await 전에 즉시 비워 같은 글이 두 번 안 나가게
   try{
     await _db.collection('ws_messages').add({
       from:CUR.id,fromName:CUR.name,fromCode:CUR.code||'',
@@ -1640,8 +1644,10 @@ async function sendDM(){
       text,read:false,
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    if(inp)inp.value='';
-  }catch(e){alert('전송 실패: '+((e&&e.message)||e));}
+  }catch(e){
+    alert('전송 실패: '+((e&&e.message)||e));
+    if(inp)inp.value=text;                     // 실패 시 입력 복원
+  }finally{_dmSending=false;}
 }
 
 document.getElementById('dmBtn').addEventListener('click',openDM);
