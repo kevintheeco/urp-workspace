@@ -360,6 +360,18 @@
   .task-form-row input:focus,.task-form-row select:focus{outline:none;border-color:var(--gold);}
   .task-send-btn{padding:10px 22px;border:none;border-radius:8px;background:var(--seal);color:#f3e6c8;font-family:"Nanum Myeongjo",serif;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;}
   .task-send-btn:hover{background:#8f352f;}
+  /* DACI 역할 배정 */
+  .daci-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+  .daci-lbl{flex:none;width:128px;padding-top:8px;font-size:12.5px;font-weight:700;color:var(--ink);}
+  .daci-row select{flex:1;min-width:140px;padding:9px 11px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;color:var(--ink);background:#fff;}
+  .daci-row select:focus{outline:none;border-color:var(--gold);}
+  .chip-group{flex:1;min-width:140px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+  .mchip{padding:6px 12px;border:1px solid var(--line);border-radius:20px;background:#fff;font-size:12.5px;color:var(--ink-soft);cursor:pointer;transition:.12s;font-family:inherit;}
+  .mchip:hover{border-color:var(--gold);}
+  .mchip.on{background:var(--seal);border-color:var(--seal);color:#f3e6c8;font-weight:700;}
+  .role-tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:700;letter-spacing:.4px;vertical-align:middle;}
+  .role-driving{background:rgba(124,45,42,.12);color:#7c2d2a;}
+  .role-line{font-size:11.5px;color:var(--ink-soft);margin-top:3px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
 
   /* 업무지시함 패널 */
   /* 업무지시 카드 */
@@ -954,15 +966,30 @@
     <div class="ceo-head"><h2>팀 전체뷰 · 숲 전체 보기</h2><button class="x" id="ceoClose">×</button></div>
     <div class="ceo-cards" id="ceoCards"><div style="padding:20px;color:var(--ink-soft)">불러오는 중…</div></div>
     <div class="task-send-area">
-      <h4><span style="color:var(--gold)">◉</span> 업무 지시 발송</h4>
+      <h4><span style="color:var(--gold)">◉</span> 새 업무 만들기 (DACI)</h4>
       <div class="task-form-row">
-        <select id="tsTo"><option value="">대상 선택 *</option></select>
-        <input id="tsTitle" placeholder="지시 제목 *" style="flex:2;min-width:180px" />
+        <input id="tsTitle" placeholder="업무 이름 * (예: 브랜드 로고 제작)" style="flex:2;min-width:180px" />
         <input id="tsDeadline" type="date" title="기한 (선택)" />
+      </div>
+      <div class="daci-row">
+        <span class="daci-lbl">🚗 D 끌고갈 사람 *</span>
+        <select id="tsTo"><option value="">담당자 선택 *</option></select>
+      </div>
+      <div class="daci-row">
+        <span class="daci-lbl">✅ A 승인</span>
+        <select id="tsApprover"></select>
+      </div>
+      <div class="daci-row">
+        <span class="daci-lbl">💬 C 자문 (여러명)</span>
+        <div class="chip-group" id="tsConsulted"></div>
+      </div>
+      <div class="daci-row">
+        <span class="daci-lbl">👀 I 공유 (여러명)</span>
+        <div class="chip-group" id="tsInformed"></div>
       </div>
       <div class="task-form-row">
         <input id="tsNote" placeholder="상세 내용 (선택)" style="flex:1" />
-        <button class="task-send-btn" id="tsSend">전달하기</button>
+        <button class="task-send-btn" id="tsSend">업무 만들기</button>
       </div>
     </div>
   </div>
@@ -1685,9 +1712,13 @@ function subscribeTeamTasks(){
       snap.docChanges().forEach(ch=>{
         const t={id:ch.doc.id,...ch.doc.data()};
         const prev=tasksCache.find(x=>x.id===t.id);
-        if(ch.type==='added'){
-          if(CUR&&t.assigneeEmail===CUR.id)
-            fireNotif('새 업무 지시',`${t.fromName||''}님: ${t.title||''}`,null,'task:'+t.id);
+        if(ch.type==='added'&&CUR){
+          if(t.assigneeEmail===CUR.id)
+            fireNotif('🚗 새 업무 (내가 담당)',`${t.title||''} — ${t.fromName||''}님이 맡김`,null,'task:'+t.id);
+          else if((t.consultedEmails||[]).includes(CUR.id))
+            fireNotif('💬 자문 요청',`${t.title||''} — 의견 줄 사람으로 지정됨`,null,'taskc:'+t.id);
+          else if((t.informedEmails||[]).includes(CUR.id))
+            fireNotif('👀 업무 공유',`${t.title||''} — 참고로 공유됨`,null,'taski:'+t.id);
         }
         if(ch.type==='modified'&&prev){
           if(CUR&&CUR.code==='CEO'){
@@ -1708,14 +1739,23 @@ function subscribeTeamTasks(){
   },err=>console.error('tasks 구독 오류',err));
 }
 
+function daciLine(t){
+  const parts=[];
+  if(t.approverName)parts.push('✅ 승인 '+esc(t.approverName));
+  if(t.consulted&&t.consulted.length)parts.push('💬 자문 '+t.consulted.map(x=>esc(x.name)).join('·'));
+  if(t.informed&&t.informed.length)parts.push('👀 공유 '+t.informed.map(x=>esc(x.name)).join('·'));
+  if(t.note)parts.push('📝 '+esc(t.note));
+  return parts.join('<span style="opacity:.35"> | </span>');
+}
+
 function renderTaskPanel(){
   const isCEO=CUR&&CUR.code==='CEO';
   const desc=document.getElementById('taskPanelDesc');
   const list=document.getElementById('taskList');
   const empty=document.getElementById('taskEmpty');
   if(!list)return;
-  const items=isCEO?tasksCache:tasksCache.filter(t=>t.assigneeEmail===CUR.id);
-  if(desc)desc.textContent=isCEO?'전체 업무 지시 현황':'나에게 온 업무 지시';
+  const items=tasksCache;   // 전원 공개 — 모두가 모든 업무를 봄
+  if(desc)desc.textContent='팀 전체 업무 · 모두 공개';
   if(!items.length){list.innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
   const TCYCLE=['대기','진행중','완료'];
@@ -1766,8 +1806,8 @@ function renderTaskPanel(){
       <div class="tr-main">
         ${canChange?`<button class="proj-badge badge-${esc(st)}" data-id="${t.id}" data-st="${esc(st)}">${esc(st)}</button>`:`<span class="proj-badge badge-${esc(st)}">${esc(st)}</span>`}
         <div class="tr-info">
-          <div class="tr-title">${esc(t.title||'')}</div>
-          <div class="tr-sub">${esc(t.fromName||'')} → ${esc(t.assigneeName||'')} · ${esc(t.assigneeCode||'')}${t.note?' · '+esc(t.note):''}</div>
+          <div class="tr-title">🚗 ${esc(t.assigneeName||'')} · ${esc(t.title||'')} <span class="role-tag role-driving">Driving</span></div>
+          <div class="role-line">${daciLine(t)}</div>
         </div>
         <div class="tr-dl">${t.deadline?esc(t.deadline):'기한 없음'}</div>
         ${isCEO?`<button class="proj-del" data-id="${t.id}">삭제</button>`:''}
@@ -1831,9 +1871,20 @@ async function openCeoView(){
   try{
     const snap=await _db.collection('ws_members').orderBy('createdAt').get();
     const members=snap.docs.map(d=>d.data()).filter(m=>m.email!==CUR.id);
+    // 🚗 D 담당자
     const sel=document.getElementById('tsTo');
-    sel.innerHTML='<option value="">대상 선택 *</option>'+
+    sel.innerHTML='<option value="">담당자 선택 *</option>'+
       members.map(m=>`<option value="${esc(m.email||'')}" data-name="${esc(m.name||'')}" data-code="${esc(m.code||'')}">${esc(m.name||'')} · ${esc(m.code||'')}</option>`).join('');
+    // ✅ A 승인 (대표 자동 채움 + 변경 가능)
+    const apr=document.getElementById('tsApprover');
+    const aprList=[{email:CUR.id,name:CUR.name},...members];
+    apr.innerHTML=aprList.map(m=>`<option value="${esc(m.email||'')}" data-name="${esc(m.name||'')}">${esc(m.name||'')}${m.email===CUR.id?' (나)':''}</option>`).join('');
+    apr.value=CUR.id;
+    // 💬 C 자문 / 👀 I 공유 (멤버 칩, 여러 명 토글)
+    const chipHtml=members.map(m=>`<button type="button" class="mchip" data-email="${esc(m.email||'')}" data-name="${esc(m.name||'')}">${esc(m.name||'')}</button>`).join('');
+    const cg=document.getElementById('tsConsulted'); cg.innerHTML=chipHtml;
+    const ig=document.getElementById('tsInformed'); ig.innerHTML=chipHtml;
+    [cg,ig].forEach(g=>g.querySelectorAll('.mchip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on'))));
     renderCeoCards(members);
   }catch(e){console.error('전체뷰 오류',e);}
 }
@@ -1867,11 +1918,25 @@ async function sendTask(){
   const title=document.getElementById('tsTitle').value.trim();
   const deadline=document.getElementById('tsDeadline').value||'';
   const note=document.getElementById('tsNote').value.trim();
-  if(!assigneeEmail){alert('대상을 선택해주세요.');return;}
-  if(!title){alert('지시 제목을 입력해주세요.');return;}
+  if(!assigneeEmail){alert('🚗 끌고 갈 담당자(D)를 선택해주세요.');return;}
+  if(!title){alert('업무 이름을 입력해주세요.');return;}
+  // ✅ A 승인자
+  const aprSel=document.getElementById('tsApprover');
+  const aprOpt=aprSel.options[aprSel.selectedIndex];
+  const approverEmail=aprSel.value||CUR.id;
+  const approverName=aprOpt?(aprOpt.dataset.name||CUR.name):CUR.name;
+  // 💬👀 자문·공유 (켜진 칩 수집)
+  const collect=id=>Array.from(document.querySelectorAll('#'+id+' .mchip.on')).map(b=>({email:b.dataset.email,name:b.dataset.name}));
+  const consulted=collect('tsConsulted');
+  const informed=collect('tsInformed');
   try{
     await _db.collection('ws_tasks').add({
       title,assigneeEmail,assigneeName,assigneeCode,
+      driverEmail:assigneeEmail,driverName:assigneeName,
+      approverEmail,approverName,
+      consulted,informed,
+      consultedEmails:consulted.map(x=>x.email),
+      informedEmails:informed.map(x=>x.email),
       fromEmail:CUR.id,fromName:CUR.name,fromCode:CUR.code||'',
       status:'대기',deadline,note,
       createdAt:firebase.firestore.FieldValue.serverTimestamp(),
@@ -1879,7 +1944,8 @@ async function sendTask(){
     });
     ['tsTitle','tsDeadline','tsNote'].forEach(id=>document.getElementById(id).value='');
     sel.value='';
-    alert(`${assigneeName}에게 업무 지시를 전달했습니다.`);
+    document.querySelectorAll('#tsConsulted .mchip.on,#tsInformed .mchip.on').forEach(b=>b.classList.remove('on'));
+    alert(`"${title}" 업무를 만들었습니다. 🚗 ${assigneeName} 담당.`);
   }catch(e){alert('전달 실패: '+((e&&e.message)||e));}
 }
 
