@@ -640,6 +640,11 @@
   .later-share:hover{opacity:1;}
   .later-ck-static{font-size:13px;flex-shrink:0;line-height:1.5;}
   .later-author{color:var(--gold-deep);font-size:11px;margin-left:4px;white-space:nowrap;}
+  .later-label,.later-label-static{display:inline-block;background:rgba(187,146,74,.18);border:1px solid rgba(187,146,74,.4);color:var(--gold-deep);font-family:inherit;font-size:10.5px;font-weight:700;padding:0 7px;border-radius:20px;margin-right:5px;vertical-align:middle;line-height:1.7;}
+  .later-label{cursor:pointer;}
+  .later-label:hover{background:rgba(187,146,74,.32);}
+  .later-label-add{background:none;border:1px dashed rgba(168,132,63,.45);color:var(--ink-soft);font-weight:400;opacity:.6;}
+  .later-label-add:hover{opacity:1;color:var(--gold-deep);}
   .later-team-title{list-style:none;font-family:"Nanum Myeongjo",serif;font-weight:700;font-size:12.5px;color:var(--gold-deep);margin:14px 0 2px;padding-top:10px;border-top:1px dashed rgba(168,132,63,.3);}
   .later-empty{font-size:12.5px;color:var(--ink-soft);text-align:center;padding:18px 8px;line-height:1.7;}
   .later-done-wrap{margin-top:12px;}
@@ -2998,16 +3003,20 @@ function linkify(s){return esc(s).replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" t
 function laterRow(d,mode){
   if(mode==='team'){
     const canDel=CUR.code==='CEO';
+    const chip=d.label?`<span class="later-label-static">${esc(d.label)}</span>`:'';
     return `<li class="later-item" data-id="${d.id}">
       <span class="later-ck-static">🔗</span>
-      <span class="later-text">${linkify(d.content||'')}<span class="later-author">· ${esc(d.authorName||'')}</span></span>
+      <span class="later-text">${chip}${linkify(d.content||'')}<span class="later-author">· ${esc(d.authorName||'')}</span></span>
       ${canDel?`<button class="later-del" data-del="${d.id}" title="삭제">✕</button>`:''}
     </li>`;
   }
+  const chip=d.label
+    ?`<button class="later-label" data-label="${d.id}" title="라벨 수정">${esc(d.label)}</button>`
+    :(d.done?'':`<button class="later-label later-label-add" data-label="${d.id}" title="라벨 달기">＋라벨</button>`);
   const shareBtn=`<button class="later-share" data-share="${d.id}" title="${d.shared?'팀 공유 중 — 누르면 나만 보기':'나만 보임 — 누르면 팀과 공유'}">${d.shared?'👥':'🔒'}</button>`;
   return `<li class="later-item${d.done?' done':''}" data-id="${d.id}">
     <button class="later-ck" data-ck="${d.id}" title="${d.done?'아직 안 봄으로':'봤어요'}">${d.done?'✅':'⬜'}</button>
-    <span class="later-text">${linkify(d.content||'')}</span>
+    <span class="later-text">${chip}${linkify(d.content||'')}</span>
     ${d.done?'':shareBtn}
     <button class="later-del" data-del="${d.id}" title="삭제">✕</button>
   </li>`;
@@ -3028,7 +3037,14 @@ function renderLater(){
   else wrap.style.display='none';
   document.querySelectorAll('#panelLater .later-ck').forEach(b=>b.onclick=()=>laterToggle(b.dataset.ck));
   document.querySelectorAll('#panelLater .later-share').forEach(b=>b.onclick=()=>laterToggleShare(b.dataset.share));
+  document.querySelectorAll('#panelLater .later-label').forEach(b=>b.onclick=()=>laterEditLabel(b.dataset.label));
   document.querySelectorAll('#panelLater .later-del').forEach(b=>b.onclick=()=>laterDelete(b.dataset.del));
+}
+async function laterEditLabel(id){
+  const d=laterCache.find(x=>x.id===id);if(!d)return;
+  const v=prompt('짧은 라벨 (예: 공부, 영상, 참고)',d.label||'');
+  if(v===null)return;
+  try{await _db.collection('ws_later').doc(id).update({label:v.trim().slice(0,12)});}catch(e){alert('라벨 저장 실패: '+((e&&e.message)||e));}
 }
 async function laterAddItem(){
   const inp=document.getElementById('laterIn');const v=(inp.value||'').trim();
@@ -3054,6 +3070,22 @@ async function laterDelete(id){
   if(add)add.addEventListener('click',laterAddItem);
   if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter')laterAddItem();});
   if(tg)tg.addEventListener('click',()=>{laterDoneOpen=!laterDoneOpen;renderLater();});
+})();
+
+/* ===== 맞춤법 빨간 줄 끄기 (모든 입력칸 + Surf In 에디터) ===== */
+function killSpellcheck(root){
+  (root||document).querySelectorAll('input,textarea,[contenteditable]').forEach(el=>el.setAttribute('spellcheck','false'));
+}
+(function(){
+  killSpellcheck();
+  const ob=new MutationObserver(muts=>{
+    for(const m of muts)m.addedNodes.forEach(n=>{
+      if(n.nodeType!==1)return;
+      if(n.matches&&n.matches('input,textarea,[contenteditable]'))n.setAttribute('spellcheck','false');
+      if(n.querySelectorAll)killSpellcheck(n);
+    });
+  });
+  ob.observe(document.body,{childList:true,subtree:true});
 })();
 
 function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
