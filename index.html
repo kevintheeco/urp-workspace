@@ -584,11 +584,61 @@
   .mb-set-form select,.mb-set-form input[type=number]{padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:13px;color:var(--ink);background:#fff;}
   .mb-set-form span{font-size:13px;color:var(--ink-soft);}
   .mb-save-btn{padding:7px 16px;border:none;border-radius:7px;background:var(--seal);color:#f3e6c8;font-family:"Nanum Myeongjo",serif;font-size:13px;cursor:pointer;}
+
+  /* ===== Surf In (작업 공간) ===== */
+  .surf-mini{font-family:inherit;cursor:pointer;transition:.2s;display:flex;flex-direction:column;justify-content:center;}
+  .surf-mini:hover{border-color:var(--gold);background:rgba(168,132,63,.12);transform:translateY(-1px);}
+  .surf-mini .surf-mini-v{color:var(--gold-deep);}
+  .surf-mini .surf-mini-v small{font-size:13px;color:var(--gold-deep);font-weight:700;}
+  .surf-overlay{display:none;position:fixed;inset:0;z-index:8600;background:rgba(10,8,4,.92);backdrop-filter:blur(4px);flex-direction:column;}
+  .surf-overlay.show{display:flex;}
+  .surf-head-btn{padding:7px 14px;border:1px solid rgba(246,238,214,.35);border-radius:8px;background:transparent;color:#f6eed6;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;}
+  .surf-head-btn:hover{background:rgba(246,238,214,.12);}
+  .surf-head-btn.primary{background:var(--seal);border-color:var(--seal);}
+  #surfSaveState{font-size:12px;color:rgba(246,238,214,.7);margin-left:4px;align-self:center;}
+  #surfBody{flex:1;overflow-y:auto;background:#efe6d2;}
+  /* 목록뷰 */
+  .surf-list-wrap{max-width:1000px;margin:0 auto;padding:34px 28px 60px;}
+  .surf-list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-top:20px;}
+  .surf-card{background:var(--card);border:1px solid #e3d5b4;border-radius:14px;padding:18px 18px 16px;cursor:pointer;transition:.2s;box-shadow:0 8px 22px rgba(0,0,0,.12);position:relative;min-height:120px;display:flex;flex-direction:column;}
+  .surf-card:hover{transform:translateY(-2px);border-color:var(--gold);box-shadow:0 14px 30px rgba(0,0,0,.18);}
+  .surf-card .sc-title{font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:16px;color:var(--ink);margin:0 0 8px;line-height:1.4;word-break:keep-all;}
+  .surf-card .sc-excerpt{font-size:12.5px;color:var(--ink-soft);line-height:1.6;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}
+  .surf-card .sc-meta{font-size:11px;color:var(--gold-deep);margin-top:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .surf-card .sc-badge{font-size:10.5px;padding:2px 8px;border-radius:20px;border:1px solid var(--line);}
+  .surf-card .sc-badge.shared{background:rgba(58,107,56,.12);border-color:#3a6b38;color:#3a6b38;}
+  .surf-card .sc-del{position:absolute;top:10px;right:10px;background:none;border:none;color:#b08;opacity:0;font-size:15px;cursor:pointer;transition:.2s;color:var(--ink-soft);}
+  .surf-card:hover .sc-del{opacity:.7;}
+  .surf-card .sc-del:hover{opacity:1;color:var(--seal);}
+  .surf-list-empty{text-align:center;color:var(--ink-soft);padding:80px 20px;font-size:14px;line-height:1.9;}
+  /* 에디터뷰 */
+  .surf-editor-wrap{max-width:820px;margin:0 auto;padding:32px 24px 120px;}
+  .surf-title-input{width:100%;border:none;background:transparent;font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:34px;color:var(--ink);outline:none;padding:6px 0;line-height:1.3;}
+  .surf-title-input::placeholder{color:#c2b189;}
+  .surf-meta{font-size:12px;color:var(--gold-deep);margin:6px 0 18px;padding-bottom:14px;border-bottom:1px solid rgba(168,132,63,.22);}
+  .surf-editor{background:transparent;color:var(--ink);font-size:16px;line-height:1.8;}
+  .surf-editor .ce-block__content,.surf-editor .ce-toolbar__content{max-width:100%;}
+  .surf-editor .cdx-block{padding:5px 0;}
+  .surf-editor h1,.surf-editor h2,.surf-editor h3,.surf-editor .ce-header{font-family:"Nanum Myeongjo",serif;color:var(--ink);}
+  .surf-editor .codex-editor__redactor{padding-bottom:200px !important;}
+  .surf-editor a{color:var(--gold-deep);}
+  .surf-editor .cdx-marker{background:rgba(187,146,74,.32);}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<!-- Surf In 에디터 (Editor.js + 플러그인 + 내보내기) -->
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/nested-list@1"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@1"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/image@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@1"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@1"></script>
+<script src="https://cdn.jsdelivr.net/npm/editorjs-toggle-block@0"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0/dist/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -670,6 +720,10 @@
           <div class="mini"><div class="k">남은 할 일</div><div class="v" id="wTodo">0<small>건</small></div></div>
           <div class="mini"><div class="k">감사 기록</div><div class="v" id="wGrat">0<small>/3</small></div></div>
           <div class="mini"><div class="k">함께하는</div><div class="v">6<small>명</small></div></div>
+          <button class="mini surf-mini" id="surfInBtn" title="Surf In — 나만의 작업 공간">
+            <div class="k">작업 공간</div>
+            <div class="v surf-mini-v">＋ <small>Surf In</small></div>
+          </button>
         </div>
       </div>
 
@@ -906,6 +960,48 @@
   </div>
 </div>
 
+<!-- Surf In 작업 공간 모달 -->
+<div class="surf-overlay" id="surfOverlay">
+  <div class="board-modal-head">
+    <span class="board-modal-head-title" id="surfHeadTitle">🏄 Surf In · 작업 공간</span>
+    <div class="board-modal-head-btns">
+      <!-- 목록뷰 버튼 -->
+      <span id="surfListBtns">
+        <button class="surf-head-btn primary" id="surfNewBtn">＋ 새 문서</button>
+      </span>
+      <!-- 에디터뷰 버튼 -->
+      <span id="surfEditorBtns" style="display:none">
+        <button class="surf-head-btn" id="surfBackBtn">← 목록</button>
+        <button class="surf-head-btn" id="surfShareToggle">🔒 개인</button>
+        <button class="surf-head-btn" id="surfExportPdf">PDF</button>
+        <button class="surf-head-btn" id="surfExportWord">Word</button>
+        <button class="surf-head-btn" id="surfExportNotion">Notion용 복사</button>
+        <span id="surfSaveState"></span>
+      </span>
+      <button class="board-modal-close" id="surfClose">✕</button>
+    </div>
+  </div>
+  <div id="surfBody">
+    <!-- 목록뷰 -->
+    <div id="surfListView">
+      <div class="surf-list-wrap">
+        <h2 style="font-family:'Nanum Myeongjo',serif;font-size:22px;color:var(--ink);margin:0;">나의 작업 공간</h2>
+        <p style="font-size:13px;color:var(--ink-soft);margin:6px 0 0;">노션처럼 깔끔하게 기록하세요. 제목과 내용만 있으면 충분해요. 저장은 자동, 클라우드에 보관됩니다.</p>
+        <div class="surf-list-grid" id="surfListGrid"></div>
+        <div class="surf-list-empty" id="surfListEmpty" style="display:none">아직 문서가 없어요.<br>오른쪽 위 <b>＋ 새 문서</b>로 첫 글을 시작해보세요. 🏄</div>
+      </div>
+    </div>
+    <!-- 에디터뷰 -->
+    <div id="surfEditorView" style="display:none">
+      <div class="surf-editor-wrap">
+        <input id="surfDocTitle" class="surf-title-input" placeholder="제목 없음" />
+        <div class="surf-meta" id="surfDocMeta"></div>
+        <div id="surfEditor" class="surf-editor"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- 포스트잇 상세 + 댓글 모달 -->
 <div class="postit-detail-overlay" id="postitDetailOverlay">
   <div class="postit-detail-box">
@@ -1128,6 +1224,7 @@ function enterDash(){
   subscribeTeamGrats();
   subscribeBrainstorm();
   subscribeBsComments();
+  subscribeDocs();
   backfillGrats();
   loadTodayGratCloud();
   const nat=document.getElementById('noticeAddToggle');
@@ -2537,6 +2634,312 @@ document.getElementById('driveFileIn').addEventListener('change',e=>{
     e.target.value='';
   }
 });
+
+/* ===== Surf In · 작업 공간 (ws_docs + Editor.js) ===== */
+let surfDocs=[], surfUnsub=null, surfEditor=null, surfCurId=null, surfCurDoc=null, surfSaveTimer=null;
+
+function subscribeDocs(){
+  if(!_db)return;
+  if(surfUnsub)surfUnsub();
+  surfUnsub=_db.collection('ws_docs').orderBy('updatedAt','desc').onSnapshot(snap=>{
+    surfDocs=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(surfCurId){const cur=surfDocs.find(d=>d.id===surfCurId);if(cur)surfCurDoc=cur;}
+    const ov=document.getElementById('surfOverlay');
+    if(ov&&ov.classList.contains('show')&&document.getElementById('surfListView').style.display!=='none')renderSurfList();
+  },err=>console.error('docs 구독 오류',err));
+}
+
+function stripHtml(h){const d=document.createElement('div');d.innerHTML=h||'';return d.textContent||'';}
+
+function surfExcerpt(data){
+  if(!data||!data.blocks)return '내용 없음';
+  let out=[];
+  for(const b of data.blocks){
+    const d=b.data||{};
+    if(b.type==='paragraph'||b.type==='header'||b.type==='toggle')out.push(stripHtml(d.text));
+    else if(b.type==='list')out.push((d.items||[]).map(it=>typeof it==='string'?it:stripHtml(it.content||'')).join(' '));
+    else if(b.type==='checklist')out.push((d.items||[]).map(it=>stripHtml(it.text||'')).join(' '));
+    else if(b.type==='image')out.push('🖼 사진');
+    else if(b.type==='table')out.push('▦ 표');
+    if(out.join(' ').length>140)break;
+  }
+  const s=out.join(' ').trim();
+  return s?(s.length>140?s.slice(0,140)+'…':s):'내용 없음';
+}
+
+function fmtSurfDate(ts){
+  const d=ts&&ts.toDate?ts.toDate():new Date(ts||Date.now());
+  const now=new Date();
+  const hh=String(d.getHours()).padStart(2,'0'),mm=String(d.getMinutes()).padStart(2,'0');
+  if(d.toDateString()===now.toDateString())return `오늘 ${hh}:${mm}`;
+  return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()} ${hh}:${mm}`;
+}
+
+function renderSurfList(){
+  const grid=document.getElementById('surfListGrid'),empty=document.getElementById('surfListEmpty');
+  if(!grid||!CUR)return;
+  const mine=surfDocs.filter(d=>d.authorEmail===CUR.id||d.shared);
+  if(!mine.length){grid.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  grid.innerHTML=mine.map(d=>{
+    const canDel=d.authorEmail===CUR.id||CUR.code==='CEO';
+    const badge=d.shared?'<span class="sc-badge shared">👥 팀 공유</span>':'<span class="sc-badge">🔒 개인</span>';
+    return `<div class="surf-card" data-id="${d.id}">
+      ${canDel?`<button class="sc-del" data-del="${d.id}" title="삭제">🗑</button>`:''}
+      <div class="sc-title">${esc(d.title||'제목 없음')}</div>
+      <div class="sc-excerpt">${esc(surfExcerpt(d.data))}</div>
+      <div class="sc-meta">${badge}<span>${esc(d.authorName||'')}</span><span>· ${fmtSurfDate(d.updatedAt)}</span></div>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.surf-card').forEach(c=>c.addEventListener('click',e=>{if(e.target.closest('.sc-del'))return;surfOpenDoc(c.dataset.id);}));
+  grid.querySelectorAll('.sc-del').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();surfDeleteDoc(b.dataset.del);}));
+}
+
+function renderSurfMeta(doc){
+  const el=document.getElementById('surfDocMeta');if(!el)return;
+  const fmt=d=>d?`${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`:'-';
+  const created=doc.createdAt&&doc.createdAt.toDate?doc.createdAt.toDate():null;
+  const updated=doc.updatedAt&&doc.updatedAt.toDate?doc.updatedAt.toDate():null;
+  el.textContent=`✍ ${doc.authorName||''}　·　작성 ${fmt(created)}　·　수정 ${fmt(updated)}`;
+}
+
+function setSurfSaveState(s){
+  const el=document.getElementById('surfSaveState');if(!el)return;
+  el.textContent=s==='saving'?'저장 중…':s==='saved'?'✓ 저장됨':s==='error'?'⚠ 저장 실패(규칙 확인)':'';
+}
+
+function showSurfList(){
+  document.getElementById('surfListView').style.display='block';
+  document.getElementById('surfEditorView').style.display='none';
+  document.getElementById('surfListBtns').style.display='';
+  document.getElementById('surfEditorBtns').style.display='none';
+  document.getElementById('surfHeadTitle').textContent='🏄 Surf In · 작업 공간';
+}
+function showSurfEditor(){
+  document.getElementById('surfListView').style.display='none';
+  document.getElementById('surfEditorView').style.display='block';
+  document.getElementById('surfListBtns').style.display='none';
+  document.getElementById('surfEditorBtns').style.display='';
+  document.getElementById('surfHeadTitle').textContent='🏄 작성 중';
+}
+
+function openSurf(){
+  if(!CUR){alert('로그인 후 이용할 수 있어요.');return;}
+  document.getElementById('surfOverlay').classList.add('show');
+  showSurfList();renderSurfList();
+}
+async function surfSaveAndExit(){
+  clearTimeout(surfSaveTimer);
+  if(surfCurId&&surfEditor)await surfDoSave();
+  if(surfEditor){try{await surfEditor.destroy();}catch(e){}surfEditor=null;}
+  surfCurId=null;surfCurDoc=null;
+}
+async function closeSurf(){await surfSaveAndExit();document.getElementById('surfOverlay').classList.remove('show');}
+async function surfBackToList(){await surfSaveAndExit();showSurfList();renderSurfList();}
+
+async function surfNewDoc(){
+  if(!_db||!CUR){alert('연결 준비 중이에요. 잠시 후 다시 시도해주세요.');return;}
+  try{
+    const ref=await _db.collection('ws_docs').add({
+      title:'',data:{blocks:[]},shared:false,
+      authorName:CUR.name,authorEmail:CUR.id,authorCode:CUR.code||'',
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    const local={id:ref.id,title:'',data:{blocks:[]},shared:false,authorName:CUR.name,authorEmail:CUR.id,authorCode:CUR.code||'',createdAt:{toDate:()=>new Date()},updatedAt:{toDate:()=>new Date()}};
+    if(!surfDocs.find(d=>d.id===ref.id))surfDocs.unshift(local);
+    surfOpenDoc(ref.id);
+  }catch(e){alert('새 문서 생성 실패: '+((e&&e.message)||e)+'\n\n(Firestore 보안규칙에 ws_docs가 추가됐는지 확인해주세요.)');}
+}
+
+async function surfOpenDoc(id){
+  const doc=surfDocs.find(d=>d.id===id);if(!doc)return;
+  surfCurId=id;surfCurDoc=doc;
+  document.getElementById('surfDocTitle').value=doc.title||'';
+  renderSurfMeta(doc);updateShareBtn(doc.shared);setSurfSaveState('');
+  showSurfEditor();
+  await buildEditor(doc.data||{blocks:[]});
+}
+
+async function buildEditor(data){
+  if(surfEditor){try{await surfEditor.destroy();}catch(e){}surfEditor=null;}
+  const holder=document.getElementById('surfEditor');holder.innerHTML='';
+  if(typeof EditorJS==='undefined'){holder.innerHTML='<p style="color:var(--seal)">에디터를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침 해주세요.</p>';return;}
+  const tools={};
+  if(window.Header)tools.header={class:window.Header,inlineToolbar:true,config:{levels:[1,2,3],defaultLevel:2,placeholder:'제목'}};
+  const ListClass=window.NestedList||window.List||window.EditorjsList;
+  if(ListClass)tools.list={class:ListClass,inlineToolbar:true};
+  if(window.Checklist)tools.checklist={class:window.Checklist,inlineToolbar:true};
+  if(window.Table)tools.table={class:window.Table,inlineToolbar:true,config:{withHeadings:true}};
+  if(window.Marker)tools.marker={class:window.Marker,shortcut:'CMD+SHIFT+M'};
+  if(window.Delimiter)tools.delimiter=window.Delimiter;
+  if(window.ToggleBlock)tools.toggle={class:window.ToggleBlock,inlineToolbar:true};
+  if(window.ImageTool)tools.image={class:window.ImageTool,config:{captionPlaceholder:'사진 설명(선택)',uploader:{uploadByFile:surfUploadImage}}};
+  surfEditor=new EditorJS({
+    holder:'surfEditor',data:data,tools,
+    placeholder:'여기에 자유롭게 적어보세요. 새 줄에서 Tab 또는 ＋ 를 누르면 제목·표·토글·체크리스트·사진 블록을 넣을 수 있어요.',
+    onChange:surfScheduleSave,autofocus:true
+  });
+}
+
+function surfUploadImage(file){
+  return new Promise((resolve,reject)=>{
+    if(!_storage||!surfCurId){reject('업로드 준비 안 됨');return;}
+    const path=`ws-docs/${surfCurId}/${Date.now()}_${file.name.replace(/[^\w.\-가-힣]/g,'_')}`;
+    _storage.ref(path).put(file).then(snap=>snap.ref.getDownloadURL()).then(url=>resolve({success:1,file:{url,path}}))
+      .catch(err=>{alert('사진 업로드 실패: '+((err&&err.message)||err));reject(err);});
+  });
+}
+
+function surfScheduleSave(){
+  setSurfSaveState('saving');
+  clearTimeout(surfSaveTimer);
+  surfSaveTimer=setTimeout(surfDoSave,1200);
+}
+async function surfDoSave(){
+  if(!surfCurId||!surfEditor)return;
+  try{
+    await surfEditor.isReady;
+    const data=await surfEditor.save();
+    const title=document.getElementById('surfDocTitle').value.trim();
+    await _db.collection('ws_docs').doc(surfCurId).update({title,data,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    if(surfCurDoc){surfCurDoc.title=title;surfCurDoc.data=data;}
+    setSurfSaveState('saved');
+  }catch(e){console.error('문서 저장 실패',e);setSurfSaveState('error');}
+}
+
+async function surfToggleShare(){
+  if(!surfCurId)return;
+  const next=!(surfCurDoc&&surfCurDoc.shared);
+  try{
+    await _db.collection('ws_docs').doc(surfCurId).update({shared:next,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    if(surfCurDoc)surfCurDoc.shared=next;
+    updateShareBtn(next);
+  }catch(e){alert('공유 설정 실패: '+((e&&e.message)||e));}
+}
+function updateShareBtn(shared){
+  const b=document.getElementById('surfShareToggle');if(!b)return;
+  b.textContent=shared?'👥 팀 공유':'🔒 개인';
+  b.title=shared?'지금은 팀 전체가 볼 수 있어요. 누르면 나만 보는 개인 문서로 바꿔요.':'지금은 나만 볼 수 있어요. 누르면 팀과 공유해요.';
+}
+
+async function surfDeleteDoc(id){
+  const doc=surfDocs.find(d=>d.id===id);if(!doc)return;
+  if(!(doc.authorEmail===CUR.id||CUR.code==='CEO')){alert('내 문서만 삭제할 수 있어요.');return;}
+  if(!confirm(`"${doc.title||'제목 없음'}" 문서를 삭제할까요?\n복구할 수 없어요.`))return;
+  try{
+    await _db.collection('ws_docs').doc(id).delete();
+    if(doc.data&&doc.data.blocks)for(const b of doc.data.blocks){if(b.type==='image'&&b.data&&b.data.file&&b.data.file.path&&_storage)_storage.ref(b.data.file.path).delete().catch(()=>{});}
+  }catch(e){alert('삭제 실패: '+((e&&e.message)||e));}
+}
+
+/* ===== 내보내기 ===== */
+function surfSafeName(s){return (s||'문서').replace(/[\\/:*?"<>|]/g,'_').slice(0,50);}
+function surfDownload(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);}
+
+function surfListHtml(d){
+  const tag=d.style==='ordered'?'ol':'ul';
+  const rec=its=>'<'+tag+' style="margin:6px 0;padding-left:22px">'+(its||[]).map(it=>{
+    if(typeof it==='string')return `<li>${it}</li>`;
+    const sub=(it.items&&it.items.length)?rec(it.items):'';
+    return `<li>${it.content||''}${sub}</li>`;
+  }).join('')+'</'+tag+'>';
+  return rec(d.items);
+}
+function surfBlocksToHtml(title,data){
+  let body='';
+  for(const b of ((data&&data.blocks)||[])){
+    const d=b.data||{};
+    switch(b.type){
+      case 'header':{const lv=Math.min(Math.max(d.level||2,1),3);body+=`<h${lv} style="font-family:'Nanum Myeongjo',serif;margin:18px 0 8px">${d.text||''}</h${lv}>`;break;}
+      case 'paragraph':body+=`<p style="margin:8px 0">${d.text||''}</p>`;break;
+      case 'delimiter':body+='<hr style="border:none;border-top:1px solid #ccc;margin:20px 0"/>';break;
+      case 'image':{const url=(d.file&&d.file.url)||d.url||'';body+=`<figure style="margin:14px 0;text-align:center"><img src="${url}" style="max-width:100%;border-radius:6px"/>${d.caption?`<figcaption style="font-size:12px;color:#777;margin-top:6px">${d.caption}</figcaption>`:''}</figure>`;break;}
+      case 'list':body+=surfListHtml(d);break;
+      case 'checklist':body+='<ul style="list-style:none;padding-left:4px;margin:8px 0">'+(d.items||[]).map(it=>`<li style="margin:3px 0">${it.checked?'☑':'☐'} ${it.text||''}</li>`).join('')+'</ul>';break;
+      case 'toggle':body+=`<p style="margin:8px 0"><b>▸ ${d.text||''}</b></p>`;break;
+      case 'table':{const rows=d.content||[];body+='<table style="border-collapse:collapse;width:100%;margin:12px 0">'+rows.map((r,ri)=>{const cell=d.withHeadings&&ri===0?'th':'td';return '<tr>'+r.map(c=>`<${cell} style="border:1px solid #c9b88f;padding:7px 10px;text-align:left">${c||''}</${cell}>`).join('')+'</tr>';}).join('')+'</table>';break;}
+      default:if(d.text)body+=`<p style="margin:8px 0">${d.text}</p>`;
+    }
+  }
+  const author=(surfCurDoc&&surfCurDoc.authorName)||(CUR&&CUR.name)||'';
+  const n=new Date();
+  return `<div style="font-family:'Nanum Myeongjo','Malgun Gothic',serif;color:#2b2622;max-width:720px;margin:0 auto;line-height:1.85;font-size:15px;word-break:keep-all">
+    <h1 style="font-size:28px;border-bottom:2px solid #bb924a;padding-bottom:10px;margin:0">${title||'제목 없음'}</h1>
+    <div style="font-size:12px;color:#8d6a27;margin:8px 0 22px">${author} · ${n.getFullYear()}.${n.getMonth()+1}.${n.getDate()}</div>
+    ${body}
+    <div style="margin-top:40px;font-size:11px;color:#aaa;border-top:1px solid #ddd;padding-top:10px">니가 교수 워크스페이스 · Surf In</div>
+  </div>`;
+}
+function surfListMd(d,depth){
+  const pad='  '.repeat(depth),ordered=d.style==='ordered';let lines=[];
+  (d.items||[]).forEach((it,i)=>{
+    const content=typeof it==='string'?it:(it.content||'');
+    lines.push(pad+(ordered?(i+1)+'.':'-')+' '+stripHtml(content));
+    if(it.items&&it.items.length)lines.push(surfListMd({items:it.items,style:d.style},depth+1));
+  });
+  return lines.join('\n');
+}
+function surfBlocksToMarkdown(title,data){
+  let out=['# '+(title||'제목 없음'),''];
+  const t=h=>stripHtml(h);
+  for(const b of ((data&&data.blocks)||[])){
+    const d=b.data||{};
+    switch(b.type){
+      case 'header':out.push('#'.repeat(Math.min(d.level||2,6))+' '+t(d.text),'');break;
+      case 'paragraph':out.push(t(d.text),'');break;
+      case 'delimiter':out.push('---','');break;
+      case 'image':out.push(`![${d.caption||'사진'}](${(d.file&&d.file.url)||d.url||''})`,'');break;
+      case 'list':out.push(surfListMd(d,0),'');break;
+      case 'checklist':(d.items||[]).forEach(it=>out.push(`- [${it.checked?'x':' '}] ${t(it.text)}`));out.push('');break;
+      case 'toggle':out.push('▸ **'+t(d.text)+'**','');break;
+      case 'table':{const rows=d.content||[];rows.forEach((r,ri)=>{out.push('| '+r.map(c=>t(c)).join(' | ')+' |');if(ri===0)out.push('| '+r.map(()=>'---').join(' | ')+' |');});out.push('');break;}
+      default:if(d.text)out.push(t(d.text),'');
+    }
+  }
+  return out.join('\n');
+}
+
+async function surfExportPdf(){
+  if(!surfEditor)return;
+  await surfDoSave();
+  if(typeof html2pdf==='undefined'){alert('PDF 모듈을 불러오지 못했어요. 인터넷 연결 후 새로고침 해주세요.');return;}
+  const data=await surfEditor.save();
+  const title=document.getElementById('surfDocTitle').value.trim()||'제목 없음';
+  const el=document.createElement('div');el.style.padding='24px';el.innerHTML=surfBlocksToHtml(title,data);
+  html2pdf().set({margin:[10,10,12,10],filename:surfSafeName(title)+'.pdf',image:{type:'jpeg',quality:.95},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(el).save();
+}
+async function surfExportWord(){
+  if(!surfEditor)return;
+  await surfDoSave();
+  const data=await surfEditor.save();
+  const title=document.getElementById('surfDocTitle').value.trim()||'제목 없음';
+  const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${esc(title)}</title></head><body>${surfBlocksToHtml(title,data)}</body></html>`;
+  surfDownload(new Blob(['﻿',html],{type:'application/msword'}),surfSafeName(title)+'.doc');
+}
+async function surfExportNotion(){
+  if(!surfEditor)return;
+  await surfDoSave();
+  const data=await surfEditor.save();
+  const title=document.getElementById('surfDocTitle').value.trim()||'제목 없음';
+  const md=surfBlocksToMarkdown(title,data);
+  try{await navigator.clipboard.writeText(md);alert('📋 노션용 마크다운이 복사됐어요.\n\n클로드에게 "이거 노션에 정리해서 올려줘"라고 하고 붙여넣으면 제가 깔끔하게 올려드려요.');}
+  catch(e){const ta=document.createElement('textarea');ta.value=md;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');alert('📋 복사됐어요. 클로드에게 붙여넣어 노션 정리를 요청하세요.');}catch(_){alert('복사 실패. 화면에서 직접 선택해 복사해주세요.');}ta.remove();}
+}
+
+/* Surf 이벤트 바인딩 */
+(function(){
+  const bind=(id,ev,fn)=>{const el=document.getElementById(id);if(el)el.addEventListener(ev,fn);};
+  bind('surfInBtn','click',openSurf);
+  bind('surfClose','click',closeSurf);
+  bind('surfNewBtn','click',surfNewDoc);
+  bind('surfBackBtn','click',surfBackToList);
+  bind('surfShareToggle','click',surfToggleShare);
+  bind('surfExportPdf','click',surfExportPdf);
+  bind('surfExportWord','click',surfExportWord);
+  bind('surfExportNotion','click',surfExportNotion);
+  bind('surfDocTitle','input',surfScheduleSave);
+})();
 
 function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 tick();
