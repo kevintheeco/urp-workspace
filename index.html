@@ -623,6 +623,22 @@
   .surf-editor .codex-editor__redactor{padding-bottom:200px !important;}
   .surf-editor a{color:var(--gold-deep);}
   .surf-editor .cdx-marker{background:rgba(187,146,74,.32);}
+  .surf-section-title{font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:16px;color:var(--ink);margin:26px 0 4px;display:flex;align-items:baseline;gap:8px;}
+  .surf-section-title:first-child{margin-top:6px;}
+  .surf-section-sub{font-family:inherit;font-weight:400;font-size:11.5px;color:var(--ink-soft);}
+  .surf-section-empty{font-size:13px;color:var(--ink-soft);padding:14px 2px;}
+
+  /* ===== Later Must ===== */
+  .later-list{list-style:none;margin:8px 0 0;padding:0;}
+  .later-item{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid rgba(168,132,63,.14);font-size:13px;}
+  .later-item .later-text{flex:1;line-height:1.55;word-break:break-all;color:var(--ink);}
+  .later-item .later-text a{color:var(--gold-deep);text-decoration:underline;text-underline-offset:2px;}
+  .later-item.done .later-text{opacity:.5;text-decoration:line-through;}
+  .later-ck,.later-del{background:none;border:none;cursor:pointer;font-size:14px;padding:1px 2px;line-height:1.3;color:var(--ink-soft);flex-shrink:0;}
+  .later-del:hover{color:var(--seal);}
+  .later-empty{font-size:12.5px;color:var(--ink-soft);text-align:center;padding:18px 8px;line-height:1.7;}
+  .later-done-wrap{margin-top:12px;}
+  .later-done-wrap .archive-toggle{background:none;border:none;color:var(--gold-deep);font-family:inherit;font-size:12.5px;cursor:pointer;padding:2px 0;}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -789,6 +805,19 @@
             <input id="calEndDate" type="date" style="display:none" />
             <button id="calAddBtn">+</button>
           </div>
+        </div>
+      </div>
+
+      <!-- Later Must (나중에 볼 것) -->
+      <div class="panel col-4" id="panelLater">
+        <h3><span class="ic">📌</span> Later Must</h3>
+        <p class="desc">나중에 볼 링크·공부거리를 모아둬요 (나만 보임)</p>
+        <div class="add"><input id="laterIn" placeholder="URL이나 공부할 거 붙여넣고 Enter" /><button id="laterAdd">+</button></div>
+        <ul id="laterList" class="later-list"></ul>
+        <div class="later-empty" id="laterEmpty" style="display:none">아직 없어요.<br>보고 싶은 링크나 공부거리를 담아두세요 📚</div>
+        <div class="later-done-wrap" id="laterDoneWrap" style="display:none">
+          <button class="archive-toggle" id="laterDoneToggle">▸ 본 것 <span id="laterDoneCount">0</span>개</button>
+          <ul id="laterDoneList" class="later-list later-done" style="display:none"></ul>
         </div>
       </div>
 
@@ -987,7 +1016,7 @@
       <div class="surf-list-wrap">
         <h2 style="font-family:'Nanum Myeongjo',serif;font-size:22px;color:var(--ink);margin:0;">나의 작업 공간</h2>
         <p style="font-size:13px;color:var(--ink-soft);margin:6px 0 0;">노션처럼 깔끔하게 기록하세요. 제목과 내용만 있으면 충분해요. 저장은 자동, 클라우드에 보관됩니다.</p>
-        <div class="surf-list-grid" id="surfListGrid"></div>
+        <div id="surfListBody"></div>
         <div class="surf-list-empty" id="surfListEmpty" style="display:none">아직 문서가 없어요.<br>오른쪽 위 <b>＋ 새 문서</b>로 첫 글을 시작해보세요. 🏄</div>
       </div>
     </div>
@@ -1225,6 +1254,7 @@ function enterDash(){
   subscribeBrainstorm();
   subscribeBsComments();
   subscribeDocs();
+  subscribeLater();
   backfillGrats();
   loadTodayGratCloud();
   const nat=document.getElementById('noticeAddToggle');
@@ -2675,24 +2705,32 @@ function fmtSurfDate(ts){
   return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()} ${hh}:${mm}`;
 }
 
+function surfCardHtml(d){
+  const canDel=d.authorEmail===CUR.id||CUR.code==='CEO';
+  const badge=d.shared?'<span class="sc-badge shared">👥 팀 공유</span>':'<span class="sc-badge">🔒 개인</span>';
+  return `<div class="surf-card" data-id="${d.id}">
+    ${canDel?`<button class="sc-del" data-del="${d.id}" title="삭제">🗑</button>`:''}
+    <div class="sc-title">${esc(d.title||'제목 없음')}</div>
+    <div class="sc-excerpt">${esc(surfExcerpt(d.data))}</div>
+    <div class="sc-meta">${badge}<span>${esc(d.authorName||'')}</span><span>· ${fmtSurfDate(d.updatedAt)}</span></div>
+  </div>`;
+}
 function renderSurfList(){
-  const grid=document.getElementById('surfListGrid'),empty=document.getElementById('surfListEmpty');
-  if(!grid||!CUR)return;
-  const mine=surfDocs.filter(d=>d.authorEmail===CUR.id||d.shared);
-  if(!mine.length){grid.innerHTML='';empty.style.display='block';return;}
+  const body=document.getElementById('surfListBody'),empty=document.getElementById('surfListEmpty');
+  if(!body||!CUR)return;
+  const mineDocs=surfDocs.filter(d=>d.authorEmail===CUR.id);
+  const teamDocs=surfDocs.filter(d=>d.shared&&d.authorEmail!==CUR.id);
+  if(!mineDocs.length&&!teamDocs.length){body.innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
-  grid.innerHTML=mine.map(d=>{
-    const canDel=d.authorEmail===CUR.id||CUR.code==='CEO';
-    const badge=d.shared?'<span class="sc-badge shared">👥 팀 공유</span>':'<span class="sc-badge">🔒 개인</span>';
-    return `<div class="surf-card" data-id="${d.id}">
-      ${canDel?`<button class="sc-del" data-del="${d.id}" title="삭제">🗑</button>`:''}
-      <div class="sc-title">${esc(d.title||'제목 없음')}</div>
-      <div class="sc-excerpt">${esc(surfExcerpt(d.data))}</div>
-      <div class="sc-meta">${badge}<span>${esc(d.authorName||'')}</span><span>· ${fmtSurfDate(d.updatedAt)}</span></div>
-    </div>`;
-  }).join('');
-  grid.querySelectorAll('.surf-card').forEach(c=>c.addEventListener('click',e=>{if(e.target.closest('.sc-del'))return;surfOpenDoc(c.dataset.id);}));
-  grid.querySelectorAll('.sc-del').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();surfDeleteDoc(b.dataset.del);}));
+  let html='<div class="surf-section-title">📂 내 문서</div>';
+  html+=mineDocs.length?`<div class="surf-list-grid">${mineDocs.map(surfCardHtml).join('')}</div>`:'<div class="surf-section-empty">아직 내 문서가 없어요. 오른쪽 위 ＋ 새 문서로 시작해보세요.</div>';
+  if(teamDocs.length){
+    html+='<div class="surf-section-title">👥 팀 공유 <span class="surf-section-sub">팀원이 공유한 문서</span></div>';
+    html+=`<div class="surf-list-grid">${teamDocs.map(surfCardHtml).join('')}</div>`;
+  }
+  body.innerHTML=html;
+  body.querySelectorAll('.surf-card').forEach(c=>c.addEventListener('click',e=>{if(e.target.closest('.sc-del'))return;surfOpenDoc(c.dataset.id);}));
+  body.querySelectorAll('.sc-del').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();surfDeleteDoc(b.dataset.del);}));
 }
 
 function renderSurfMeta(doc){
@@ -2939,6 +2977,60 @@ async function surfExportNotion(){
   bind('surfExportWord','click',surfExportWord);
   bind('surfExportNotion','click',surfExportNotion);
   bind('surfDocTitle','input',surfScheduleSave);
+})();
+
+/* ===== Later Must (나중에 볼 것, ws_later · 개인) ===== */
+let laterCache=[], laterUnsub=null, laterDoneOpen=false;
+function subscribeLater(){
+  if(!_db)return;
+  if(laterUnsub)laterUnsub();
+  laterUnsub=_db.collection('ws_later').orderBy('createdAt','desc').onSnapshot(snap=>{
+    laterCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderLater();
+  },err=>console.error('later 구독 오류',err));
+}
+function linkify(s){return esc(s).replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');}
+function laterRow(d){
+  return `<li class="later-item${d.done?' done':''}" data-id="${d.id}">
+    <button class="later-ck" data-ck="${d.id}" title="${d.done?'아직 안 봄으로':'봤어요'}">${d.done?'✅':'⬜'}</button>
+    <span class="later-text">${linkify(d.content||'')}</span>
+    <button class="later-del" data-del="${d.id}" title="삭제">✕</button>
+  </li>`;
+}
+function renderLater(){
+  const list=document.getElementById('laterList'),empty=document.getElementById('laterEmpty');
+  const wrap=document.getElementById('laterDoneWrap'),doneList=document.getElementById('laterDoneList'),cnt=document.getElementById('laterDoneCount');
+  if(!list||!CUR)return;
+  const mine=laterCache.filter(d=>d.authorEmail===CUR.id);
+  const active=mine.filter(d=>!d.done),done=mine.filter(d=>d.done);
+  empty.style.display=mine.length?'none':'block';
+  list.innerHTML=active.map(laterRow).join('');
+  if(done.length){wrap.style.display='block';cnt.textContent=done.length;doneList.innerHTML=done.map(laterRow).join('');doneList.style.display=laterDoneOpen?'block':'none';
+    document.getElementById('laterDoneToggle').innerHTML=(laterDoneOpen?'▾':'▸')+' 본 것 <span id="laterDoneCount">'+done.length+'</span>개';}
+  else wrap.style.display='none';
+  document.querySelectorAll('#panelLater .later-ck').forEach(b=>b.onclick=()=>laterToggle(b.dataset.ck));
+  document.querySelectorAll('#panelLater .later-del').forEach(b=>b.onclick=()=>laterDelete(b.dataset.del));
+}
+async function laterAddItem(){
+  const inp=document.getElementById('laterIn');const v=(inp.value||'').trim();
+  if(!v)return;
+  if(!_db||!CUR){alert('연결 준비 중이에요.');return;}
+  inp.value='';
+  try{await _db.collection('ws_later').add({content:v,done:false,authorName:CUR.name,authorEmail:CUR.id,createdAt:firebase.firestore.FieldValue.serverTimestamp()});}
+  catch(e){alert('저장 실패: '+((e&&e.message)||e)+'\n(규칙에 ws_later가 허용됐는지 확인해주세요.)');inp.value=v;}
+}
+async function laterToggle(id){
+  const d=laterCache.find(x=>x.id===id);if(!d)return;
+  try{await _db.collection('ws_later').doc(id).update({done:!d.done});}catch(e){alert('변경 실패: '+((e&&e.message)||e));}
+}
+async function laterDelete(id){
+  try{await _db.collection('ws_later').doc(id).delete();}catch(e){alert('삭제 실패: '+((e&&e.message)||e));}
+}
+(function(){
+  const add=document.getElementById('laterAdd'),inp=document.getElementById('laterIn'),tg=document.getElementById('laterDoneToggle');
+  if(add)add.addEventListener('click',laterAddItem);
+  if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter')laterAddItem();});
+  if(tg)tg.addEventListener('click',()=>{laterDoneOpen=!laterDoneOpen;renderLater();});
 })();
 
 function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
