@@ -1,0 +1,46 @@
+rules_version = '2';
+// ⚠️⚠️ 공유 규칙 — 니가교수 앱 + 회사 워크스페이스 포털이 같은 Firebase 프로젝트(yourprofessor-94a2d)를 함께 씀.
+// ⚠️ Firestore 규칙은 프로젝트당 "딱 1세트"뿐. 게시할 땐 반드시 아래 통합본 "전체"를 게시할 것!
+//    - users 규칙만 게시 → 워크스페이스 포털 깨짐
+//    - ws_* 규칙만 게시 → 앱 클라우드 동기화 깨짐 ("클라우드 연결 실패")  ← 2026-07-01 실제 발생
+// ⚠️ 이 파일은 YouareProfessor 레포와 urp-workspace 레포에 "동일하게" 보관됨. 한쪽 고치면 다른 쪽도 맞출 것.
+//
+// 핵심: 앱 데이터는 users/{uid}/data 하위에 저장됨 → match는 반드시 /users/{uid}/{document=**} (하위 포함).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 로그인한 구글 계정인지
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // 회사가 등록한 멤버인지 (ws_members에 내 이메일 문서가 있으면 멤버)
+    function isMember() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/ws_members/$(request.auth.token.email));
+    }
+
+    // 워크스페이스: 팀 제출 결과 — 로그인한 누구나 읽기, 본인만 쓰기 (isMember 우회)
+    match /ws_team/{uid} {
+      allow write: if signedIn() && request.auth.uid == uid;
+      allow read:  if signedIn();
+    }
+
+    // 워크스페이스: 멤버 명단 — 로그인하면 읽기(로그인 게이트), 멤버 또는 첫 CEO만 쓰기
+    match /ws_members/{email} {
+      allow read: if signedIn();
+      allow write: if isMember() || request.auth.token.email == 'soomin020114@gmail.com';
+    }
+
+    // 니가교수 앱: 본인 데이터 (하위 컬렉션 data/ 까지 포함) — {document=**} 빠지면 동기화 거부됨
+    match /users/{uid}/{document=**} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // ws_ 로 시작하는 모든 워크스페이스 컬렉션 — 멤버면 읽기/쓰기.
+    // (새 기능에서 ws_xxx 컬렉션을 추가해도 규칙을 다시 안 건드려도 됨)
+    match /{coll}/{id} {
+      allow read, write: if isMember() && coll.matches('ws_.*');
+    }
+  }
+}
