@@ -393,6 +393,50 @@
   .role-driving{background:rgba(124,45,42,.12);color:#7c2d2a;}
   .role-line{font-size:11.5px;color:var(--ink-soft);margin-top:3px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
 
+  /* ===== Workflow (Engine Drive) ===== */
+  .wf-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:20px 26px 8px;}
+  @media(max-width:720px){.wf-grid{grid-template-columns:1fr;}}
+  .wf-col{border:1px solid var(--line);border-radius:12px;padding:14px;background:rgba(255,255,255,.4);display:flex;flex-direction:column;min-height:160px;}
+  .wf-col-head{font-family:"Nanum Myeongjo",serif;font-size:15px;color:var(--ink);display:flex;align-items:baseline;gap:7px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(168,132,63,.18);}
+  .wf-col-head b{font-weight:800;}
+  .wf-col-head .wf-sub{font-size:11px;color:var(--ink-soft);font-family:inherit;}
+  .wf-add{display:flex;gap:6px;margin-bottom:10px;}
+  .wf-add input{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;color:var(--ink);background:#fff;}
+  .wf-add input:focus{outline:none;border-color:var(--gold);}
+  .wf-add button{padding:0 14px;border:none;border-radius:7px;background:var(--seal);color:#f3e6c8;font-size:17px;line-height:1;cursor:pointer;}
+  .wf-eng-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;}
+  .wf-eng{display:flex;align-items:center;gap:9px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+  .wf-eng.dragging{opacity:.45;border-style:dashed;}
+  .wf-eng.ceo{cursor:grab;}
+  .wf-rank{width:22px;height:22px;flex:none;border-radius:50%;background:var(--gold-deep);color:#f6efe0;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+  .wf-eng-body{flex:1;min-width:0;}
+  .wf-eng-title{font-size:13.5px;color:var(--ink);font-weight:600;line-height:1.35;word-break:break-word;}
+  .wf-eng-by{font-size:10.5px;color:var(--ink-soft);margin-top:1px;}
+  .wf-grip{color:var(--gold);font-size:15px;cursor:grab;flex:none;}
+  .wf-arrows{display:flex;flex-direction:column;gap:1px;flex:none;}
+  .wf-arrows button{border:1px solid var(--line);background:#fff;color:var(--gold-deep);width:22px;height:17px;line-height:1;font-size:10px;cursor:pointer;border-radius:5px;padding:0;}
+  .wf-arrows button:hover{border-color:var(--gold);background:rgba(168,132,63,.08);}
+  .wf-eng-del{border:none;background:none;color:#b99;font-size:16px;opacity:.5;cursor:pointer;flex:none;}
+  .wf-eng-del:hover{opacity:1;color:var(--seal);}
+  .wf-prop{width:100%;margin-top:7px;padding-top:7px;border-top:1px dashed rgba(168,132,63,.25);display:flex;flex-direction:column;gap:5px;}
+  .wf-prop-row{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink);flex-wrap:wrap;}
+  .wf-prop-tag{background:rgba(187,146,74,.14);color:#7a5a1a;border-radius:20px;padding:2px 9px;font-weight:700;}
+  .wf-prop-row .ok{border:none;background:var(--seal);color:#f3e6c8;border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer;}
+  .wf-prop-row .no{border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer;}
+  .wf-prop-badge{background:var(--seal);color:#fff;border-radius:10px;font-size:10px;font-weight:700;padding:1px 6px;flex:none;}
+  .wf-drop{border:2px dashed var(--gold);border-radius:10px;padding:16px 12px;text-align:center;font-size:12.5px;color:var(--gold-deep);line-height:1.5;background:rgba(168,132,63,.05);margin-bottom:12px;transition:.15s;}
+  .wf-drop span{font-size:18px;display:block;margin-bottom:2px;}
+  .wf-drop.over{background:rgba(168,132,63,.2);border-color:var(--gold-deep);transform:scale(1.02);}
+  .wf-drive-list{display:flex;flex-direction:column;gap:6px;}
+  .wf-dv{padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:12.5px;color:var(--ink);}
+  .wf-dv-top{display:flex;align-items:center;gap:7px;}
+  .wf-dv-title{font-weight:700;font-family:"Nanum Myeongjo",serif;}
+  .wf-dv-daci{font-size:11px;color:var(--ink-soft);margin-top:3px;}
+  .wf-empty{font-size:12.5px;color:var(--ink-soft);font-style:italic;padding:12px 4px;text-align:center;}
+  .wf-hint{font-size:11px;color:var(--ink-soft);margin-top:9px;line-height:1.5;}
+  .task-send-area.wf-flash{animation:wfflash 1.4s ease;}
+  @keyframes wfflash{0%,100%{background:rgba(255,255,255,.28);}30%{background:rgba(187,146,74,.28);}}
+
   /* 업무지시함 패널 */
   /* 업무지시 카드 */
   .task-card{border:1px solid var(--line);border-radius:9px;padding:12px 14px;margin-bottom:8px;background:rgba(255,255,255,.42);}
@@ -725,7 +769,7 @@
       <div class="clock"><div class="time" id="clkTime">--:--</div><div class="date" id="clkDate"></div></div>
       <div class="who"><div class="av" id="meAv">·</div><div><div class="nm" id="meName">-</div><div class="rl" id="meRole">-</div></div></div>
       <button class="logout" id="adminBtn" style="display:none">관리자</button>
-      <button class="logout" id="ceoViewBtn" style="display:none">전체뷰</button>
+      <button class="logout" id="ceoViewBtn" style="display:none">Workflow</button>
       <button class="logout dm-badge-btn" id="dmBtn">메시지<span class="dm-count" id="dmCount" style="display:none">0</span></button>
       <button class="logout" id="logout">나가기</button>
     </div>
@@ -775,6 +819,7 @@
 
     <!-- 📱 앱 홈 격자 -->
     <div class="appgrid" id="appGrid">
+      <button class="appicon" onclick="openWorkflow()"><span class="tile" style="background:linear-gradient(150deg,#c25b3e,#7c2d2a)">🚀</span><span class="lbl">Workflow</span></button>
       <button class="appicon" onclick="openApp('app-today','📊 오늘 한눈에')"><span class="tile" style="background:linear-gradient(150deg,#5b83cf,#31569f)">📊</span><span class="lbl">오늘</span></button>
       <button class="appicon" onclick="openApp('app-notice','📢 공지사항')"><span class="tile" style="background:linear-gradient(150deg,#c05a53,#8a3a35)">📢</span><span class="lbl">공지사항</span></button>
       <button class="appicon" onclick="openApp('app-todo','✅ 할 일 목록')"><span class="tile" style="background:linear-gradient(150deg,#3fb492,#2b8a70)">✅</span><span class="lbl">할 일</span></button>
@@ -1160,7 +1205,26 @@
 
 <div class="ceo-modal" id="ceoModal">
   <div class="ceo-box">
-    <div class="ceo-head"><h2>팀 전체뷰 · 숲 전체 보기</h2><button class="x" id="ceoClose">×</button></div>
+    <div class="ceo-head"><h2>🚀 Workflow · Engine Drive</h2><button class="x" id="ceoClose">×</button></div>
+
+    <!-- Engine ↔ Drive 2단 -->
+    <div class="wf-grid">
+      <div class="wf-col wf-engine">
+        <div class="wf-col-head">🔧 <b>Engine</b><span class="wf-sub">우선순위 큐 · 결국 해야 할 일</span></div>
+        <div class="wf-add"><input id="engIn" placeholder="해야 할 일을 적고 Enter" /><button id="engAdd" title="추가">＋</button></div>
+        <ul class="wf-eng-list" id="engList"></ul>
+        <div class="wf-empty" id="engEmpty" style="display:none">아직 쌓인 일이 없어요. 위에 적어보세요.</div>
+        <div class="wf-hint" id="engHint"></div>
+      </div>
+      <div class="wf-col wf-drive">
+        <div class="wf-col-head">🚀 <b>Drive</b><span class="wf-sub">실행 트랙 · DACI</span></div>
+        <div class="wf-drop" id="driveDrop"><span>⬇</span> 엔진 항목을 여기로 끌어다 놓으면 <b>DACI 배정</b></div>
+        <div class="wf-drive-list" id="driveList2"></div>
+        <div class="wf-empty" id="driveEmpty2" style="display:none">진행 중인 업무가 없어요.</div>
+      </div>
+    </div>
+
+    <div id="wfCeoOnly">
     <div class="ceo-cards" id="ceoCards"><div style="padding:20px;color:var(--ink-soft)">불러오는 중…</div></div>
     <div class="task-send-area">
       <h4><span style="color:var(--gold)">◉</span> 새 업무 만들기 (DACI)</h4>
@@ -1189,6 +1253,7 @@
         <button class="task-send-btn" id="tsSend">업무 만들기</button>
       </div>
     </div>
+    </div><!-- /wfCeoOnly -->
   </div>
 </div>
 
@@ -1319,6 +1384,7 @@ function enterDash(){
   subscribeProjects();
   subscribeDM();
   subscribeTeamTasks();
+  subscribeEngine();
   subscribeMeeting();
   subscribeFiles();
   subscribeNotices();
@@ -1967,7 +2033,7 @@ function subscribeTeamTasks(){
     first=false;
     tasksCache=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderTaskPanel();
-    if(document.getElementById('ceoModal').classList.contains('show'))renderCeoCards();
+    if(document.getElementById('ceoModal').classList.contains('show')){renderCeoCards();renderDriveList();}
   },err=>console.error('tasks 구독 오류',err));
 }
 
@@ -2098,11 +2164,17 @@ async function handlePostpone(taskId,decision){
   catch(e){alert('처리 실패: '+((e&&e.message)||e));}
 }
 
-async function openCeoView(){
+async function openWorkflow(){
   document.getElementById('ceoModal').classList.add('show');
+  const isCEO=CUR&&CUR.code==='CEO';
+  document.getElementById('wfCeoOnly').style.display=isCEO?'':'none';
+  renderEngine();
+  renderDriveList();
+  if(!isCEO)return;   // 팀원: 엔진 추가/제안 + 드라이브 보기까지
   try{
     const snap=await _db.collection('ws_members').orderBy('createdAt').get();
     const members=snap.docs.map(d=>d.data()).filter(m=>m.email!==CUR.id);
+    ceoMembersCache=members;
     // 🚗 D 담당자
     const sel=document.getElementById('tsTo');
     sel.innerHTML='<option value="">담당자 선택 *</option>'+
@@ -2122,6 +2194,7 @@ async function openCeoView(){
 }
 
 function renderCeoCards(members){
+  members=members||ceoMembersCache;
   const wrap=document.getElementById('ceoCards');if(!wrap)return;
   if(!members||!members.length){wrap.innerHTML='<div style="padding:20px;color:var(--ink-soft)">팀원 목록을 불러오는 중…</div>';return;}
   wrap.innerHTML=members.map(m=>{
@@ -2177,13 +2250,167 @@ async function sendTask(){
     ['tsTitle','tsDeadline','tsNote'].forEach(id=>document.getElementById(id).value='');
     sel.value='';
     document.querySelectorAll('#tsConsulted .mchip.on,#tsInformed .mchip.on').forEach(b=>b.classList.remove('on'));
+    if(_pendingEngineId){ try{await _db.collection('ws_engine').doc(_pendingEngineId).delete();}catch(_){} _pendingEngineId=null; }
     alert(`"${title}" 업무를 만들었습니다. 🚗 ${assigneeName} 담당.`);
   }catch(e){alert('전달 실패: '+((e&&e.message)||e));}
 }
 
-document.getElementById('ceoViewBtn').addEventListener('click',openCeoView);
+document.getElementById('ceoViewBtn').addEventListener('click',openWorkflow);
 document.getElementById('ceoClose').addEventListener('click',()=>document.getElementById('ceoModal').classList.remove('show'));
 document.getElementById('tsSend').addEventListener('click',sendTask);
+
+/* ===== Workflow · Engine Drive (ws_engine) ===== */
+let engineCache=[], engineUnsub=null, _pendingEngineId=null, ceoMembersCache=[];
+
+function subscribeEngine(){
+  if(!_db||engineUnsub)return;
+  engineUnsub=_db.collection('ws_engine').orderBy('order').onSnapshot(snap=>{
+    engineCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(document.getElementById('ceoModal').classList.contains('show')) renderEngine();
+  },err=>console.error('engine 구독 오류',err));
+}
+
+function renderEngine(){
+  const list=document.getElementById('engList'); if(!list)return;
+  const empty=document.getElementById('engEmpty'), hint=document.getElementById('engHint');
+  const isCEO=CUR&&CUR.code==='CEO';
+  if(hint)hint.textContent=isCEO
+    ?'⠿ 드래그로 순서 변경 · 항목을 Drive로 끌면 DACI 배정'
+    :'▲▼로 순서 변경을 제안하면 대표님이 확인해요';
+  if(!engineCache.length){list.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  list.innerHTML=engineCache.map((it,i)=>{
+    const props=it.proposals||[];
+    let propHtml='';
+    if(isCEO&&props.length){
+      propHtml='<div class="wf-prop">'+props.map((p,pi)=>
+        `<div class="wf-prop-row"><span class="wf-prop-tag">${esc(p.byName||'팀원')} ${p.dir==='up'?'▲ 위로':'▼ 아래로'}</span>`+
+        `<button class="ok" data-acc="${it.id}" data-dir="${p.dir}">수락</button>`+
+        `<button class="no" data-rej="${it.id}" data-pi="${pi}">거절</button></div>`).join('')+'</div>';
+    }
+    const badge=(isCEO&&props.length)?`<span class="wf-prop-badge">제안 ${props.length}</span>`:'';
+    const ctrl=isCEO
+      ?`<span class="wf-grip">⠿</span><button class="wf-eng-del" data-del="${it.id}" title="삭제">×</button>`
+      :`<div class="wf-arrows"><button data-up="${it.id}" title="위로 제안">▲</button><button data-down="${it.id}" title="아래로 제안">▼</button></div>`;
+    return `<li class="wf-eng ${isCEO?'ceo':''}" data-id="${it.id}" ${isCEO?'draggable="true"':''}>`+
+      `<span class="wf-rank">${i+1}</span>`+
+      `<div class="wf-eng-body"><div class="wf-eng-title">${esc(it.title||'')}</div><div class="wf-eng-by">${esc(it.createdByName||'')}</div>${propHtml}</div>`+
+      `${badge}${ctrl}</li>`;
+  }).join('');
+  list.querySelectorAll('.wf-eng-del').forEach(b=>b.addEventListener('click',()=>deleteEngine(b.dataset.del)));
+  list.querySelectorAll('[data-up]').forEach(b=>b.addEventListener('click',()=>proposeMove(b.dataset.up,'up')));
+  list.querySelectorAll('[data-down]').forEach(b=>b.addEventListener('click',()=>proposeMove(b.dataset.down,'down')));
+  list.querySelectorAll('[data-acc]').forEach(b=>b.addEventListener('click',()=>acceptProposal(b.dataset.acc,b.dataset.dir)));
+  list.querySelectorAll('[data-rej]').forEach(b=>b.addEventListener('click',()=>rejectProposal(b.dataset.rej,+b.dataset.pi)));
+  if(isCEO){
+    list.querySelectorAll('.wf-eng').forEach(li=>{
+      li.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',li.dataset.id);e.dataTransfer.setData('text/engine',li.dataset.id);e.dataTransfer.effectAllowed='move';li.classList.add('dragging');});
+      li.addEventListener('dragend',()=>li.classList.remove('dragging'));
+    });
+  }
+}
+
+async function addEngine(){
+  const inp=document.getElementById('engIn'); const title=(inp.value||'').trim(); if(!title)return;
+  const maxO=engineCache.length?Math.max.apply(null,engineCache.map(x=>x.order||0)):0;
+  try{
+    await _db.collection('ws_engine').add({title,note:'',order:maxO+10,proposals:[],
+      createdByEmail:CUR.id,createdByName:CUR.name,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    inp.value='';
+  }catch(e){alert('추가 실패: '+((e&&e.message)||e));}
+}
+
+async function deleteEngine(id){
+  if(!confirm('이 항목을 엔진에서 지울까요?'))return;
+  try{await _db.collection('ws_engine').doc(id).delete();}catch(e){alert('삭제 실패');}
+}
+
+async function proposeMove(id,dir){
+  const it=engineCache.find(x=>x.id===id); if(!it)return;
+  const props=(it.proposals||[]).filter(p=>p.byEmail!==CUR.id); // 한 명당 최신 제안 1개
+  props.push({byEmail:CUR.id,byName:CUR.name,dir,at:Date.now()});
+  try{await _db.collection('ws_engine').doc(id).update({proposals:props});}
+  catch(e){alert('제안 실패: '+((e&&e.message)||e));}
+}
+
+async function acceptProposal(id,dir){
+  const arr=engineCache.slice();
+  const idx=arr.findIndex(x=>x.id===id); if(idx<0)return;
+  const j=dir==='up'?idx-1:idx+1;
+  if(j<0||j>=arr.length){ try{await _db.collection('ws_engine').doc(id).update({proposals:[]});}catch(_){} return; }
+  const t=arr[idx]; arr[idx]=arr[j]; arr[j]=t;
+  persistOrder(arr,id);
+}
+
+async function rejectProposal(id,pi){
+  const it=engineCache.find(x=>x.id===id); if(!it)return;
+  const props=(it.proposals||[]).slice(); props.splice(pi,1);
+  try{await _db.collection('ws_engine').doc(id).update({proposals:props});}catch(e){alert('처리 실패');}
+}
+
+async function persistOrder(arr,clearPropsId){
+  if(!arr||!arr.length)return;
+  const batch=_db.batch();
+  arr.forEach((it,i)=>{ const upd={order:(i+1)*10}; if(clearPropsId&&it.id===clearPropsId)upd.proposals=[]; batch.update(_db.collection('ws_engine').doc(it.id),upd); });
+  try{await batch.commit();}catch(e){alert('순서 저장 실패: '+((e&&e.message)||e));}
+}
+
+function renderDriveList(){
+  const wrap=document.getElementById('driveList2'); if(!wrap)return;
+  const empty=document.getElementById('driveEmpty2');
+  const items=tasksCache.filter(t=>(t.status||'')!=='완료');
+  if(!items.length){wrap.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  wrap.innerHTML=items.map(t=>`<div class="wf-dv">`+
+    `<div class="wf-dv-top"><span class="proj-badge badge-${esc(t.status||'대기')}" style="font-size:10px;padding:2px 7px">${esc(t.status||'대기')}</span>`+
+    `<span class="wf-dv-title">🚗 ${esc(t.assigneeName||'')} · ${esc(t.title||'')}</span></div>`+
+    `<div class="wf-dv-daci">${daciLine(t)||''}</div></div>`).join('');
+}
+
+function wfDragAfter(container,y){
+  const els=Array.prototype.slice.call(container.querySelectorAll('.wf-eng:not(.dragging)'));
+  let closest={offset:-Infinity,el:null};
+  els.forEach(child=>{ const box=child.getBoundingClientRect(); const offset=y-box.top-box.height/2; if(offset<0&&offset>closest.offset)closest={offset,el:child}; });
+  return closest.el;
+}
+
+(function initWfDnd(){
+  const list=document.getElementById('engList'), drop=document.getElementById('driveDrop');
+  if(list){
+    list.addEventListener('dragover',e=>{
+      if(!(CUR&&CUR.code==='CEO'))return;
+      const dragging=list.querySelector('.dragging'); if(!dragging)return;
+      e.preventDefault();
+      const after=wfDragAfter(list,e.clientY);
+      if(after==null)list.appendChild(dragging); else list.insertBefore(dragging,after);
+    });
+    list.addEventListener('drop',e=>{
+      if(!(CUR&&CUR.code==='CEO'))return;
+      e.preventDefault();
+      const ids=Array.prototype.slice.call(list.querySelectorAll('.wf-eng')).map(li=>li.dataset.id);
+      const arr=ids.map(id=>engineCache.find(x=>x.id===id)).filter(Boolean);
+      persistOrder(arr,null);
+    });
+  }
+  if(drop){
+    drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over');});
+    drop.addEventListener('dragleave',()=>drop.classList.remove('over'));
+    drop.addEventListener('drop',e=>{
+      e.preventDefault(); drop.classList.remove('over');
+      const id=e.dataTransfer.getData('text/engine')||e.dataTransfer.getData('text/plain');
+      const it=engineCache.find(x=>x.id===id); if(!it)return;
+      if(!(CUR&&CUR.code==='CEO')){alert('Drive 배정은 대표님만 가능해요.');return;}
+      _pendingEngineId=id;
+      document.getElementById('tsTitle').value=it.title||'';
+      document.getElementById('tsNote').value=it.note||'';
+      const area=document.querySelector('.task-send-area');
+      if(area){ area.scrollIntoView({behavior:'smooth',block:'center'}); area.classList.add('wf-flash'); setTimeout(()=>area.classList.remove('wf-flash'),1400); }
+    });
+  }
+  const ea=document.getElementById('engAdd'), ei=document.getElementById('engIn');
+  if(ea)ea.addEventListener('click',addEngine);
+  if(ei)ei.addEventListener('keydown',e=>{if(e.key==='Enter')addEngine();});
+})();
 
 /* ===== 회의 카운트다운 (ws_meta/meeting) ===== */
 let meetingConfig=null;
