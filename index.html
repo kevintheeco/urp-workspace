@@ -151,8 +151,9 @@
   @media(max-width:900px){.col-4,.col-6,.col-8{grid-column:span 12;}}
 
   /* ===== 앱 홈(아이폰형) ===== */
-  .verse-hero{margin:0 0 30px;}
-  .verse-hero .verse-card{max-width:900px;margin:0 auto;}
+  .hero-row{display:grid;grid-template-columns:1.9fr 1fr;gap:22px;margin:0 0 48px;align-items:stretch;}
+  .hero-row>.panel{height:100%;}
+  @media(max-width:900px){.hero-row{grid-template-columns:1fr;margin-bottom:34px;}}
   .appgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px 14px;margin:0 0 10px;}
   @media(max-width:720px){.appgrid{grid-template-columns:repeat(3,1fr);gap:22px 8px;}}
   @media(max-width:420px){.appgrid{grid-template-columns:repeat(3,1fr);}}
@@ -755,14 +756,20 @@
       </div>
     </div>
 
-    <!-- 오늘의 말씀 (홈 상단 고정 · 크게 유지) -->
-    <div class="verse-hero">
+    <!-- 상단 행: 오늘의 말씀(왼쪽 · 크게) + 팀 감사 나눔(오른쪽 위젯) -->
+    <div class="hero-row">
       <div class="panel verse-card">
         <h3><span class="ic">✦</span> 오늘의 말씀</h3>
         <p class="desc">하루를 여는 한 구절</p>
         <p class="verse-kr" id="verseKr"></p>
         <p class="verse-en" id="verseEn"></p>
         <div class="verse-ref" id="verseRef"></div>
+      </div>
+      <div class="panel">
+        <h3><span class="ic">✦</span> 팀 감사 나눔</h3>
+        <p class="desc">오늘의 감사를 팀과 나눈 것들</p>
+        <div class="grat-feed" id="gratFeed"></div>
+        <div class="grat-feed-empty" id="gratFeedEmpty" style="display:none">아직 공유된 감사가 없어요.<br>오늘의 감사를 팀과 나눠보세요 🌿</div>
       </div>
     </div>
 
@@ -774,7 +781,6 @@
       <button class="appicon" onclick="openApp('app-cal','📅 공유 캘린더')"><span class="tile" style="background:linear-gradient(150deg,#e5963d,#c06f22)">📅</span><span class="lbl">캘린더</span></button>
 
       <button class="appicon" onclick="openApp('app-grat','🙏 오늘의 감사')"><span class="tile" style="background:linear-gradient(150deg,#6ea45e,#4a7440)">🙏</span><span class="lbl">감사</span></button>
-      <button class="appicon" onclick="openApp('app-teamgrat','🌿 팀 감사 나눔')"><span class="tile" style="background:linear-gradient(150deg,#84b45e,#5a8b3a)">🌿</span><span class="lbl">팀 감사</span></button>
       <button class="appicon" onclick="openApp('app-later','📌 Later Must')"><span class="tile" style="background:linear-gradient(150deg,#d96f92,#b84a70)">📌</span><span class="lbl">Later Must</span></button>
       <button class="appicon" onclick="openApp('app-task','📥 업무 지시함')"><span class="tile" style="background:linear-gradient(150deg,#828798,#565b74)">📥</span><span class="lbl">업무 지시</span></button>
 
@@ -975,13 +981,6 @@
         </div>
       </div>
 
-      <!-- 팀 감사 나눔 피드 -->
-      <div class="panel col-4">
-        <h3><span class="ic">✦</span> 팀 감사 나눔</h3>
-        <p class="desc">오늘의 감사를 팀과 나눈 것들</p>
-        <div class="grat-feed" id="gratFeed"></div>
-        <div class="grat-feed-empty" id="gratFeedEmpty" style="display:none">아직 공유된 감사가 없어요.<br>오늘의 감사를 팀과 나눠보세요 🌿</div>
-      </div>
 
       <!-- 사내 드라이브 -->
       <div class="panel col-12">
@@ -1884,7 +1883,7 @@ document.getElementById('dmBtn').addEventListener('click',openDM);
 /* ===== 앱 홈: 아이콘 클릭 → 패널을 창으로 이동, 닫으면 되돌림 ===== */
 (function(){
   // 보관소의 각 패널에 앱 ID 부여 (순서 기준)
-  var order=['app-today','app-notice','app-grat','app-todo','app-cal','app-later','app-task','app-proj','app-brain','app-teamgrat','app-drive','app-intra'];
+  var order=['app-today','app-notice','app-grat','app-todo','app-cal','app-later','app-task','app-proj','app-brain','app-drive','app-intra'];
   var stash=document.getElementById('appStash');
   if(stash){
     Array.prototype.slice.call(stash.children).filter(function(el){return el.classList&&el.classList.contains('panel');})
