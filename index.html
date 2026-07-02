@@ -152,7 +152,9 @@
 
   /* ===== 앱 홈(아이폰형) ===== */
   .hero-row{display:grid;grid-template-columns:1.9fr 1fr;gap:22px;margin:0 0 48px;align-items:start;}
+  .hero-left{display:flex;flex-direction:column;gap:22px;min-width:0;}
   .hero-row .grat-feed{max-height:200px;overflow-y:auto;}
+  .notices-widget .notice-list{max-height:240px;overflow-y:auto;}
   .grat-last-link{display:inline-block;margin-top:12px;color:#8a5a2a;font-size:12.5px;font-weight:700;cursor:pointer;border-bottom:1px dashed #b98a4a;font-family:"Nanum Myeongjo",serif;padding-bottom:1px;}
   .grat-last-link:hover{color:#6b3f13;border-bottom-color:#6b3f13;}
 
@@ -835,6 +837,7 @@
 
     <!-- 상단 행: 오늘의 말씀(왼쪽 · 크게) + 팀 감사 나눔(오른쪽 위젯) -->
     <div class="hero-row">
+      <div class="hero-left">
       <div class="panel verse-card">
         <h3><span class="ic">✦</span> 오늘의 말씀</h3>
         <p class="desc">하루를 여는 한 구절</p>
@@ -842,6 +845,32 @@
         <p class="verse-en" id="verseEn"></p>
         <div class="verse-ref" id="verseRef"></div>
       </div>
+      <!-- 공지사항 (위젯) -->
+      <div class="panel notices-widget" id="panelNotices">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+          <div>
+            <h3 style="margin:0"><span class="ic">◉</span> 공지사항</h3>
+            <p class="desc" style="margin:4px 0 0">CEO 공지 및 팀 전달 사항</p>
+          </div>
+          <button class="proj-add-btn" id="noticeAddToggle" style="display:none">＋ 공지 작성</button>
+        </div>
+        <div class="notice-form" id="noticeForm">
+          <div class="notice-form-row">
+            <input id="nfTitle" placeholder="공지 제목 *" style="flex:2;min-width:160px" />
+            <select id="nfType"><option value="일반">일반</option><option value="긴급">긴급</option><option value="정보">정보</option></select>
+          </div>
+          <div class="notice-form-row">
+            <textarea id="nfContent" placeholder="공지 내용을 입력하세요" style="flex:1;min-width:200px"></textarea>
+          </div>
+          <div class="proj-form-btns">
+            <button class="ok" id="nfSave">게시</button>
+            <button class="cancel" id="nfCancel">취소</button>
+          </div>
+        </div>
+        <div class="notice-list" id="noticeList"></div>
+        <div class="notice-empty" id="noticeEmpty" style="display:none">등록된 공지가 없어요.</div>
+      </div>
+      </div><!-- /hero-left -->
       <div class="panel">
         <h3><span class="ic">✦</span> 오늘의 팀 감사 나눔</h3>
         <p class="desc">오늘 팀이 나눈 감사 · 매일 새로 시작해요</p>
@@ -856,7 +885,6 @@
       <button class="appicon" onclick="openWorkflow()"><span class="tile" style="background:linear-gradient(150deg,#c25b3e,#7c2d2a)">🚀</span><span class="lbl">Workflow</span></button>
       <button class="appicon" onclick="openAppPicker()"><span class="tile" style="background:linear-gradient(150deg,#2fa37a,#17643f)">🎓</span><span class="lbl">니가교수</span></button>
       <button class="appicon" onclick="openApp('app-today','📊 오늘 한눈에')"><span class="tile" style="background:linear-gradient(150deg,#5b83cf,#31569f)">📊</span><span class="lbl">오늘</span></button>
-      <button class="appicon" onclick="openApp('app-notice','📢 공지사항')"><span class="tile" style="background:linear-gradient(150deg,#c05a53,#8a3a35)">📢</span><span class="lbl">공지사항</span></button>
       <button class="appicon" onclick="openApp('app-todo','✅ 할 일 목록')"><span class="tile" style="background:linear-gradient(150deg,#3fb492,#2b8a70)">✅</span><span class="lbl">할 일</span></button>
       <button class="appicon" onclick="openApp('app-cal','📅 공유 캘린더')"><span class="tile" style="background:linear-gradient(150deg,#e5963d,#c06f22)">📅</span><span class="lbl">캘린더</span></button>
 
@@ -891,31 +919,6 @@
         </div>
       </div>
 
-      <!-- 공지사항 -->
-      <div class="panel col-12" id="panelNotices">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-          <div>
-            <h3 style="margin:0"><span class="ic">◉</span> 공지사항</h3>
-            <p class="desc" style="margin:4px 0 0">CEO 공지 및 팀 전달 사항</p>
-          </div>
-          <button class="proj-add-btn" id="noticeAddToggle" style="display:none">＋ 공지 작성</button>
-        </div>
-        <div class="notice-form" id="noticeForm">
-          <div class="notice-form-row">
-            <input id="nfTitle" placeholder="공지 제목 *" style="flex:2;min-width:160px" />
-            <select id="nfType"><option value="일반">일반</option><option value="긴급">긴급</option><option value="정보">정보</option></select>
-          </div>
-          <div class="notice-form-row">
-            <textarea id="nfContent" placeholder="공지 내용을 입력하세요" style="flex:1;min-width:200px"></textarea>
-          </div>
-          <div class="proj-form-btns">
-            <button class="ok" id="nfSave">게시</button>
-            <button class="cancel" id="nfCancel">취소</button>
-          </div>
-        </div>
-        <div class="notice-list" id="noticeList"></div>
-        <div class="notice-empty" id="noticeEmpty" style="display:none">등록된 공지가 없어요.</div>
-      </div>
 
       <!-- 오늘의 감사 -->
       <div class="panel grat col-4">
@@ -1995,7 +1998,7 @@ document.getElementById('dmBtn').addEventListener('click',openDM);
 /* ===== 앱 홈: 아이콘 클릭 → 패널을 창으로 이동, 닫으면 되돌림 ===== */
 (function(){
   // 보관소의 각 패널에 앱 ID 부여 (순서 기준)
-  var order=['app-today','app-notice','app-grat','app-todo','app-cal','app-later','app-task','app-proj','app-brain','app-drive','app-intra'];
+  var order=['app-today','app-grat','app-todo','app-cal','app-later','app-task','app-proj','app-brain','app-drive','app-intra'];
   var stash=document.getElementById('appStash');
   if(stash){
     Array.prototype.slice.call(stash.children).filter(function(el){return el.classList&&el.classList.contains('panel');})
