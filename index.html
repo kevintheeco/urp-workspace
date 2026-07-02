@@ -895,6 +895,7 @@
       <button class="appicon" onclick="openApp('app-proj','📈 프로젝트 · 진행사업 · 업무기한')"><span class="tile" style="background:linear-gradient(150deg,#6f6fd6,#4a4ab0)">📈</span><span class="lbl">프로젝트</span></button>
       <button class="appicon" onclick="openBoardModal()"><span class="tile" style="background:linear-gradient(150deg,#9f6fca,#7a4aa4)">🧠</span><span class="lbl">브레인스토밍</span></button>
       <button class="appicon" onclick="document.getElementById('surfInBtn').click()"><span class="tile" style="background:linear-gradient(150deg,#3aafc7,#2288a4)">🏄</span><span class="lbl">Surf In</span></button>
+      <button class="appicon" onclick="openWiki()"><span class="tile" style="background:linear-gradient(150deg,#a9763e,#6e4a1e)">📚</span><span class="lbl">사내 위키</span></button>
       <button class="appicon" onclick="openApp('app-drive','🗂 사내 드라이브')"><span class="tile" style="background:linear-gradient(150deg,#c89e4e,#9a7530)">🗂️</span><span class="lbl">드라이브</span></button>
 
       <button class="appicon" onclick="document.getElementById('dmBtn').click()"><span class="tile" style="background:linear-gradient(150deg,#cba64e,#a07f2a)">💬<span class="badge" id="appDmBadge">0</span></span><span class="lbl">메시지</span></button>
@@ -1088,7 +1089,7 @@
         <div class="links">
           <a href="https://kevintheeco.github.io/urp-invitation/briefing.html" target="_blank"><span class="t">사업 브리핑</span><span class="d">우리가 만드는 것, 가는 길</span></a>
           <a href="https://kevintheeco.github.io/urp-invitation/" target="_blank"><span class="t">초대장</span><span class="d">함께할 사람을 부르는 편지</span></a>
-          <a href="#" onclick="alert('사내 위키는 곧 연결됩니다.');return false;"><span class="t">사내 위키 <span class="lock">준비중</span></span><span class="d">문서 · 회의록 · 정책</span></a>
+          <a href="#" onclick="openWiki();return false;"><span class="t">사내 위키</span><span class="d">문서 · 회의록 · 정책</span></a>
         </div>
       </div>
     </div>
@@ -1168,8 +1169,8 @@
     <!-- 목록뷰 -->
     <div id="surfListView">
       <div class="surf-list-wrap">
-        <h2 style="font-family:'Nanum Myeongjo',serif;font-size:22px;color:var(--ink);margin:0;">나의 작업 공간</h2>
-        <p style="font-size:13px;color:var(--ink-soft);margin:6px 0 0;">노션처럼 깔끔하게 기록하세요. 제목과 내용만 있으면 충분해요. 저장은 자동, 클라우드에 보관됩니다.</p>
+        <h2 id="surfListTitle" style="font-family:'Nanum Myeongjo',serif;font-size:22px;color:var(--ink);margin:0;">나의 작업 공간</h2>
+        <p id="surfListDesc" style="font-size:13px;color:var(--ink-soft);margin:6px 0 0;">노션처럼 깔끔하게 기록하세요. 제목과 내용만 있으면 충분해요. 저장은 자동, 클라우드에 보관됩니다.</p>
         <div id="surfListBody"></div>
         <div class="surf-list-empty" id="surfListEmpty" style="display:none">아직 문서가 없어요.<br>오른쪽 위 <b>＋ 새 문서</b>로 첫 글을 시작해보세요. 🏄</div>
       </div>
@@ -3104,7 +3105,7 @@ document.getElementById('driveFileIn').addEventListener('change',e=>{
 });
 
 /* ===== Surf In · 작업 공간 (ws_docs + Editor.js) ===== */
-let surfDocs=[], surfUnsub=null, surfEditor=null, surfCurId=null, surfCurDoc=null, surfSaveTimer=null;
+let surfDocs=[], surfUnsub=null, surfEditor=null, surfCurId=null, surfCurDoc=null, surfSaveTimer=null, surfWiki=false;
 
 function subscribeDocs(){
   if(!_db)return;
@@ -3156,6 +3157,23 @@ function surfCardHtml(d){
 function renderSurfList(){
   const body=document.getElementById('surfListBody'),empty=document.getElementById('surfListEmpty');
   if(!body||!CUR)return;
+  const tt=document.getElementById('surfListTitle'), td=document.getElementById('surfListDesc');
+  if(tt)tt.textContent=surfWiki?'📚 사내 위키':'나의 작업 공간';
+  if(td)td.textContent=surfWiki
+    ?'팀이 함께 보는 문서 — 회의록·정책·자료. 누구나 열어 수정하면 자동 저장돼요.'
+    :'노션처럼 깔끔하게 기록하세요. 제목과 내용만 있으면 충분해요. 저장은 자동, 클라우드에 보관됩니다.';
+  if(empty)empty.innerHTML=surfWiki
+    ?'아직 위키 문서가 없어요.<br>오른쪽 위 <b>＋ 새 문서</b>로 첫 위키를 시작해보세요. 📚'
+    :'아직 문서가 없어요.<br>오른쪽 위 <b>＋ 새 문서</b>로 첫 글을 시작해보세요. 🏄';
+  if(surfWiki){
+    const wikiDocs=surfDocs.filter(d=>d.shared);
+    if(!wikiDocs.length){body.innerHTML='';empty.style.display='block';return;}
+    empty.style.display='none';
+    body.innerHTML=`<div class="surf-list-grid">${wikiDocs.map(surfCardHtml).join('')}</div>`;
+    body.querySelectorAll('.surf-card').forEach(c=>c.addEventListener('click',e=>{if(e.target.closest('.sc-del'))return;surfOpenDoc(c.dataset.id);}));
+    body.querySelectorAll('.sc-del').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();surfDeleteDoc(b.dataset.del);}));
+    return;
+  }
   const mineDocs=surfDocs.filter(d=>d.authorEmail===CUR.id);
   const teamDocs=surfDocs.filter(d=>d.shared&&d.authorEmail!==CUR.id);
   if(!mineDocs.length&&!teamDocs.length){body.innerHTML='';empty.style.display='block';return;}
@@ -3189,18 +3207,25 @@ function showSurfList(){
   document.getElementById('surfEditorView').style.display='none';
   document.getElementById('surfListBtns').style.display='';
   document.getElementById('surfEditorBtns').style.display='none';
-  document.getElementById('surfHeadTitle').textContent='🏄 Surf In · 작업 공간';
+  document.getElementById('surfHeadTitle').textContent=surfWiki?'📚 사내 위키':'🏄 Surf In · 작업 공간';
 }
 function showSurfEditor(){
   document.getElementById('surfListView').style.display='none';
   document.getElementById('surfEditorView').style.display='block';
   document.getElementById('surfListBtns').style.display='none';
   document.getElementById('surfEditorBtns').style.display='';
-  document.getElementById('surfHeadTitle').textContent='🏄 작성 중';
+  document.getElementById('surfHeadTitle').textContent=surfWiki?'📚 위키 작성 중':'🏄 작성 중';
 }
 
 function openSurf(){
   if(!CUR){alert('로그인 후 이용할 수 있어요.');return;}
+  surfWiki=false;
+  document.getElementById('surfOverlay').classList.add('show');
+  showSurfList();renderSurfList();
+}
+function openWiki(){
+  if(!CUR){alert('로그인 후 이용할 수 있어요.');return;}
+  surfWiki=true;
   document.getElementById('surfOverlay').classList.add('show');
   showSurfList();renderSurfList();
 }
@@ -3216,13 +3241,14 @@ async function surfBackToList(){await surfSaveAndExit();showSurfList();renderSur
 async function surfNewDoc(){
   if(!_db||!CUR){alert('연결 준비 중이에요. 잠시 후 다시 시도해주세요.');return;}
   try{
+    const shared=surfWiki;   // 위키에서 만들면 팀 공유가 기본
     const ref=await _db.collection('ws_docs').add({
-      title:'',data:{blocks:[]},shared:false,
+      title:'',data:{blocks:[]},shared,
       authorName:CUR.name,authorEmail:CUR.id,authorCode:CUR.code||'',
       createdAt:firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    const local={id:ref.id,title:'',data:{blocks:[]},shared:false,authorName:CUR.name,authorEmail:CUR.id,authorCode:CUR.code||'',createdAt:{toDate:()=>new Date()},updatedAt:{toDate:()=>new Date()}};
+    const local={id:ref.id,title:'',data:{blocks:[]},shared,authorName:CUR.name,authorEmail:CUR.id,authorCode:CUR.code||'',createdAt:{toDate:()=>new Date()},updatedAt:{toDate:()=>new Date()}};
     if(!surfDocs.find(d=>d.id===ref.id))surfDocs.unshift(local);
     surfOpenDoc(ref.id);
   }catch(e){alert('새 문서 생성 실패: '+((e&&e.message)||e)+'\n\n(Firestore 보안규칙에 ws_docs가 추가됐는지 확인해주세요.)');}
