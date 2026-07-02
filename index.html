@@ -375,6 +375,7 @@
   .badge-완료{background:rgba(50,140,70,.15);color:#1f6b38;}
   .badge-대기{background:rgba(120,120,120,.13);color:#666;}
   .badge-긴급{background:rgba(190,50,50,.15);color:#a03030;}
+  .badge-recur{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px;background:rgba(50,110,140,.14);color:#1f5a7c;}
   .type-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;background:rgba(168,132,63,.12);color:var(--gold-deep);font-weight:700;}
   .proj-del{border:1px solid var(--line);background:#fff;border-radius:5px;padding:3px 8px;font-size:12px;color:var(--seal);cursor:pointer;opacity:.6;}
   .proj-del:hover{opacity:1;border-color:var(--seal);}
@@ -482,6 +483,13 @@
   .mc-task-item{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--ink);padding:4px 0;border-bottom:1px dashed rgba(168,132,63,.12);}
   .mc-task-item:last-child{border-bottom:0;}
   .mc-empty{font-size:12px;color:var(--ink-soft);font-style:italic;padding:4px 0;}
+  .member-card.idle{border-color:rgba(190,50,50,.4);background:rgba(190,50,50,.045);}
+  .mc-idle-badge{display:inline-block;margin-top:3px;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(190,50,50,.14);color:#a03030;letter-spacing:.3px;}
+  .mc-recur-head{font-size:11px;color:var(--gold-deep);margin-top:8px;font-weight:700;letter-spacing:.5px;}
+  .mc-recur-item{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12px;color:var(--ink);padding:4px 0;}
+  .mc-recur-check{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+  .mc-recur-check.done{background:rgba(50,140,70,.14);color:#1f6b38;}
+  .mc-recur-check.pending{background:rgba(120,120,120,.13);color:#777;}
   .task-send-area{padding:16px 26px 22px;border-top:1px solid var(--line);background:rgba(255,255,255,.28);}
   .task-send-area h4{font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:15px;margin:0 0 12px;color:var(--ink);display:flex;align-items:center;gap:8px;}
   .task-form-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
@@ -563,6 +571,9 @@
   .tr-sm-btn{padding:4px 10px;border:none;border-radius:5px;background:var(--seal);color:#f3e6c8;font-family:inherit;font-size:11.5px;cursor:pointer;}
   .tr-outline-btn{padding:4px 10px;border:1px solid var(--line);border-radius:5px;background:#fff;font-family:inherit;font-size:11.5px;color:var(--ink);cursor:pointer;}
   .tr-outline-btn:hover{border-color:var(--gold);}
+  .tr-recur-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700;}
+  .tr-recur-chip.done{background:rgba(50,140,70,.12);color:#1f6b38;}
+  .tr-recur-chip.pending{background:rgba(120,120,120,.13);color:#777;}
   .postpone-form{display:none;align-items:center;gap:6px;flex-wrap:wrap;width:100%;margin-top:4px;}
   .task-panel-empty{text-align:center;color:var(--ink-soft);font-size:13px;padding:22px 0;}
 
@@ -1501,6 +1512,11 @@
         <input id="tsTitle" placeholder="업무 이름 * (예: 브랜드 로고 제작)" style="flex:2;min-width:180px" />
         <input id="tsDeadline" type="date" title="기한 (선택)" />
       </div>
+      <div class="daci-row" style="align-items:center">
+        <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-soft);cursor:pointer;flex:1">
+          <input type="checkbox" id="tsRecurring" /> 🔁 상시 업무로 등록 (마감일 없이 계속 진행 — 예: 장부정리)
+        </label>
+      </div>
       <div class="daci-row">
         <span class="daci-lbl">🚗 D 끌고갈 사람 *</span>
         <select id="tsTo"><option value="">담당자 선택 *</option></select>
@@ -2351,6 +2367,14 @@ document.getElementById('dmClose').addEventListener('click',()=>document.getElem
 let tasksCache=[];
 let tasksUnsub=null;
 
+function weekKey(d){
+  const dt=new Date(d||new Date());
+  const day=(dt.getDay()+6)%7;   // 월요일=0 기준 이번 주 시작일
+  dt.setDate(dt.getDate()-day);
+  dt.setHours(0,0,0,0);
+  return `${dt.getFullYear()}-${dt.getMonth()+1}-${dt.getDate()}`;
+}
+
 const _notified=new Set();   // 이미 알린 건(key) 기억 → 같은 건 재알림 방지
 function fireNotif(title,body,onClick,key){
   if(key){ if(_notified.has(key))return; _notified.add(key); }
@@ -2494,7 +2518,29 @@ function renderTaskPanel(){
   if(!items.length){list.innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
   const TCYCLE=['대기','진행중','완료'];
+  const curWeek=weekKey();
   list.innerHTML=items.map(t=>{
+    if(t.recurring){
+      const isMyTask=CUR&&t.assigneeEmail===CUR.id;
+      const done=t.lastDoneWeek===curWeek;
+      const checkHtml=isMyTask
+        ?(done
+            ?`<span class="tr-recur-chip done">✓ 이번주 완료</span>`
+            :`<button class="tr-sm-btn tr-recur-btn" data-id="${t.id}">이번주 했음</button>`)
+        :`<span class="tr-recur-chip ${done?'done':'pending'}">${done?'✓ 이번주 완료':'이번주 아직'}</span>`;
+      return `<div class="task-card">
+        <div class="tr-main">
+          <span class="badge-recur">🔁 상시</span>
+          <div class="tr-info">
+            <div class="tr-title">${esc(t.assigneeName||'')} · ${esc(t.title||'')}</div>
+            <div class="role-line">${daciLine(t)}</div>
+          </div>
+          <div class="tr-dl">상시 업무</div>
+          ${isCEO?`<button class="proj-del" data-id="${t.id}">삭제</button>`:''}
+        </div>
+        <div class="tr-sub-bar">${checkHtml}</div>
+      </div>`;
+    }
     const st=t.status||'대기';
     const isMyTask=CUR&&t.assigneeEmail===CUR.id;
     const canChange=isMyTask||isCEO;
@@ -2577,7 +2623,15 @@ function renderTaskPanel(){
   ts.querySelectorAll('.tr-reject-btn').forEach(b=>b.addEventListener('click',()=>handlePostpone(b.dataset.id,'거절')));
   ts.querySelectorAll('.tr-accept-btn').forEach(b=>b.addEventListener('click',()=>acceptTask(b.dataset.id)));
   ts.querySelectorAll('.tr-talk-btn').forEach(b=>b.addEventListener('click',()=>{const em=b.dataset.from;if(em)openDMWith(em);else alert('지시자 정보가 없어요.');}));
+  ts.querySelectorAll('.tr-recur-btn').forEach(b=>b.addEventListener('click',()=>markRecurDone(b.dataset.id)));
   updateBell();
+}
+
+async function markRecurDone(taskId){
+  try{
+    await _db.collection('ws_tasks').doc(taskId).update({lastDoneWeek:weekKey(),lastDoneAt:firebase.firestore.FieldValue.serverTimestamp()});
+    showToast('✅','이번 주 완료로 표시했어요.');
+  }catch(e){alert('처리 실패: '+((e&&e.message)||e));}
 }
 
 async function registerPromise(taskId){
@@ -2642,19 +2696,29 @@ function renderCeoCards(members){
   members=members||ceoMembersCache;
   const wrap=document.getElementById('ceoCards');if(!wrap)return;
   if(!members||!members.length){wrap.innerHTML='<div style="padding:20px;color:var(--ink-soft)">팀원 목록을 불러오는 중…</div>';return;}
+  const curWeek=weekKey();
   wrap.innerHTML=members.map(m=>{
-    const myTasks=tasksCache.filter(t=>t.assigneeEmail===m.email&&t.status!=='완료');
+    const myTasks=tasksCache.filter(t=>t.assigneeEmail===m.email&&!t.recurring&&t.status!=='완료');
+    const myRecur=tasksCache.filter(t=>t.assigneeEmail===m.email&&t.recurring);
     const myProjs=projCache.filter(p=>p.assignee===m.name&&p.status!=='완료');
+    const idle=myTasks.length===0&&myProjs.length===0;
     const taskHtml=myTasks.length
       ?myTasks.map(t=>`<div class="mc-task-item"><span class="proj-badge badge-${esc(t.status||'대기')}" style="font-size:10px;padding:2px 7px">${esc(t.status||'대기')}</span>${esc(t.title||'')}</div>`).join('')
-      :'<div class="mc-empty">진행 중인 업무지시 없음</div>';
+      :(idle?'':'<div class="mc-empty">진행 중인 업무지시 없음</div>');
     const projHtml=myProjs.length
       ?`<div style="font-size:11px;color:var(--gold-deep);margin-top:8px;font-weight:700;letter-spacing:.5px">프로젝트</div>`+myProjs.map(p=>`<div class="mc-task-item">${esc(p.title||'')}</div>`).join('')
       :'';
-    return `<div class="member-card">
+    const recurHtml=myRecur.length
+      ?`<div class="mc-recur-head">🔁 상시 업무</div>`+myRecur.map(t=>{
+          const done=t.lastDoneWeek===curWeek;
+          return `<div class="mc-recur-item"><span>${esc(t.title||'')}</span><span class="mc-recur-check ${done?'done':'pending'}">${done?'이번주 완료 ✓':'이번주 아직'}</span></div>`;
+        }).join('')
+      :'';
+    const idleBadge=idle?'<div class="mc-idle-badge">⚠ 지금 새 업무 없음</div>':'';
+    return `<div class="member-card ${idle?'idle':''}">
       <div class="mc-top"><div class="mc-av">${esc((m.name||'?')[0])}</div>
-      <div><div class="mc-name">${esc(m.name||'')}</div><div class="mc-role">${esc(m.code||'')}</div></div></div>
-      ${taskHtml}${projHtml}
+      <div><div class="mc-name">${esc(m.name||'')}</div><div class="mc-role">${esc(m.code||'')}</div>${idleBadge}</div></div>
+      ${taskHtml}${projHtml}${recurHtml}
     </div>`;
   }).join('');
 }
@@ -2666,7 +2730,8 @@ async function sendTask(){
   const assigneeName=opt?opt.dataset.name||'':'';
   const assigneeCode=opt?opt.dataset.code||'':'';
   const title=document.getElementById('tsTitle').value.trim();
-  const deadline=document.getElementById('tsDeadline').value||'';
+  const recurring=document.getElementById('tsRecurring').checked;
+  const deadline=recurring?'':(document.getElementById('tsDeadline').value||'');
   const note=document.getElementById('tsNote').value.trim();
   if(!assigneeEmail){alert('🚗 끌고 갈 담당자(D)를 선택해주세요.');return;}
   if(!title){alert('업무 이름을 입력해주세요.');return;}
@@ -2688,12 +2753,14 @@ async function sendTask(){
       consultedEmails:consulted.map(x=>x.email),
       informedEmails:informed.map(x=>x.email),
       fromEmail:CUR.id,fromName:CUR.name,fromCode:CUR.code||'',
-      status:'대기',deadline,note,
+      status:recurring?'진행중':'대기',deadline,note,recurring,
       createdAt:firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     ['tsTitle','tsDeadline','tsNote'].forEach(id=>document.getElementById(id).value='');
     sel.value='';
+    document.getElementById('tsRecurring').checked=false;
+    document.getElementById('tsDeadline').disabled=false;
     document.querySelectorAll('#tsConsulted .mchip.on,#tsInformed .mchip.on').forEach(b=>b.classList.remove('on'));
     if(_pendingEngineId){ try{await _db.collection('ws_engine').doc(_pendingEngineId).delete();}catch(_){} _pendingEngineId=null; }
     alert(`"${title}" 업무를 만들었습니다. 🚗 ${assigneeName} 담당.`);
@@ -2703,6 +2770,11 @@ async function sendTask(){
 document.getElementById('ceoViewBtn').addEventListener('click',openWorkflow);
 document.getElementById('ceoClose').addEventListener('click',()=>document.getElementById('ceoModal').classList.remove('show'));
 document.getElementById('tsSend').addEventListener('click',sendTask);
+document.getElementById('tsRecurring').addEventListener('change',e=>{
+  const dl=document.getElementById('tsDeadline');
+  dl.disabled=e.target.checked;
+  if(e.target.checked)dl.value='';
+});
 
 /* ===== Workflow · Engine Drive (ws_engine) ===== */
 let engineCache=[], engineUnsub=null, _pendingEngineId=null, ceoMembersCache=[];
