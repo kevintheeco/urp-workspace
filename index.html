@@ -378,6 +378,7 @@
   .badge-recur{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px;background:rgba(50,110,140,.14);color:#1f5a7c;}
   .type-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;background:rgba(168,132,63,.12);color:var(--gold-deep);font-weight:700;}
   .proj-del{border:1px solid var(--line);background:#fff;border-radius:5px;padding:3px 8px;font-size:12px;color:var(--seal);cursor:pointer;opacity:.6;}
+  .tr-edit-btn{flex:none;border:1px solid var(--line);background:#fff;border-radius:5px;padding:3px 8px;font-size:12px;cursor:pointer;opacity:.7;}
   .proj-del:hover{opacity:1;border-color:var(--seal);}
   .proj-empty{text-align:center;color:var(--ink-soft);font-size:13px;padding:28px 0;}
 
@@ -498,7 +499,7 @@
   .task-form-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
   .task-form-row input,.task-form-row select,.task-form-row textarea{flex:1;min-width:110px;padding:9px 11px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;color:var(--ink);background:#fff;}
   .task-form-row input:focus,.task-form-row select:focus,.task-form-row textarea:focus{outline:none;border-color:var(--gold);}
-  .task-form-row textarea{resize:vertical;min-height:80px;line-height:1.5;}
+  .task-form-row textarea{resize:vertical;min-height:170px;line-height:1.5;}
   .task-send-btn{padding:10px 22px;border:none;border-radius:8px;background:var(--seal);color:#f3e6c8;font-family:"Nanum Myeongjo",serif;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;}
   .task-send-btn:hover{background:#8f352f;}
   /* DACI 역할 배정 */
@@ -1552,7 +1553,7 @@
         <div class="chip-group" id="tsInformed"></div>
       </div>
       <div class="task-form-row">
-        <textarea id="tsNote" placeholder="상세 내용 (선택) — 자세히 적어주세요" rows="4" style="flex:1"></textarea>
+        <textarea id="tsNote" placeholder="상세 내용 (선택) — 자세히 적어주세요" rows="8" style="flex:1"></textarea>
       </div>
       <div class="task-form-row">
         <button class="task-send-btn" id="tsSend">업무 만들기</button>
@@ -2559,7 +2560,7 @@ function renderTaskPanel(){
             <div class="role-line">${daciLine(t)}</div>
           </div>
           <div class="tr-dl">상시 업무</div>
-          ${isCEO?`<button class="proj-del" data-id="${t.id}">삭제</button>`:''}
+          ${isCEO?`<button class="tr-edit-btn" data-id="${t.id}" title="지시문 수정 (상시 여부 포함)">✏️</button><button class="proj-del" data-id="${t.id}">삭제</button>`:''}
         </div>
         <div class="tr-sub-bar">${checkHtml}</div>
       </div>`;
@@ -2619,7 +2620,7 @@ function renderTaskPanel(){
           <div class="role-line">${daciLine(t)}</div>
         </div>
         <div class="tr-dl">${t.deadline?esc(t.deadline):'기한 없음'}</div>
-        ${isCEO?`<button class="proj-del" data-id="${t.id}">삭제</button>`:''}
+        ${isCEO?`<button class="tr-edit-btn" data-id="${t.id}" title="지시문 수정 (상시 여부 포함)">✏️</button><button class="proj-del" data-id="${t.id}">삭제</button>`:''}
       </div>
       ${hasBar?`<div class="tr-sub-bar">${acceptHtml}${promiseHtml}${postponeHtml}</div>`:''}
     </div>`;
@@ -2635,6 +2636,10 @@ function renderTaskPanel(){
     if(!confirm('이 업무 지시를 삭제할까요?'))return;
     try{await _db.collection('ws_tasks').doc(b.dataset.id).delete();}
     catch(e){alert('삭제 실패');}
+  }));
+  ts.querySelectorAll('.tr-edit-btn[data-id]').forEach(b=>b.addEventListener('click',()=>{
+    openWorkflow();
+    openTaskEdit(b.dataset.id);
   }));
   ts.querySelectorAll('.tr-promise-btn').forEach(b=>b.addEventListener('click',()=>registerPromise(b.dataset.id)));
   ts.querySelectorAll('.tr-postpone-toggle').forEach(b=>b.addEventListener('click',()=>{
