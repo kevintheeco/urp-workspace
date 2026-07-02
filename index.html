@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>니가 교수 · 워크스페이스 · URP Corporation</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -784,6 +784,17 @@
 
   /* ===== 모바일 전용 (폰 화면) ===== */
   @media(max-width:640px){
+    input,select,textarea{font-size:16px;}   /* iOS 입력창 자동확대(줌) 방지 */
+    .container{display:flex;flex-direction:column;}
+    .hello{order:1;}
+    .appgrid{order:2;margin-bottom:26px;}
+    .meeting-banner{order:3;}
+    .push-hint{order:4;}
+    .grat-remind{order:5;}
+    .hero-row{order:6;}
+    #appStash{order:7;}
+    .footer{order:8;}
+
     .topbar{padding:10px 12px;gap:6px;flex-wrap:wrap;row-gap:8px;}
     .brand .c{width:32px;height:32px;font-size:12px;}
     .brand .t b{font-size:14px;}
