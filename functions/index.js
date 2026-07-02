@@ -7,7 +7,7 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 const db = admin.firestore();
 
-const SITE = 'https://kevintheeco.github.io/urp-workspace/';
+const SITE = 'https://youareprofessor.github.io/urp-workspace/';
 
 /* 서울(KST) 기준 오늘 날짜 키 — 클라이언트 형식 "Y-M-D"(0패딩 없음)와 일치 */
 function seoulDateKey() {

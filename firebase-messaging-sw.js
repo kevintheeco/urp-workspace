@@ -19,14 +19,14 @@ messaging.onBackgroundMessage(function (payload) {
     body: n.body || '',
     icon: 'assets/forest.jpg',
     badge: 'favicon.svg',
-    data: { url: (payload.fcmOptions && payload.fcmOptions.link) || 'https://kevintheeco.github.io/urp-workspace/' }
+    data: { url: (payload.fcmOptions && payload.fcmOptions.link) || 'https://youareprofessor.github.io/urp-workspace/' }
   });
 });
 
 /* 알림 클릭 → 워크스페이스 열기 */
 self.addEventListener('notificationclick', function (event) {
   event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) || 'https://kevintheeco.github.io/urp-workspace/';
+  const url = (event.notification.data && event.notification.data.url) || 'https://youareprofessor.github.io/urp-workspace/';
   event.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
     for (const c of list) { if (c.url.indexOf('urp-workspace') > -1 && 'focus' in c) return c.focus(); }
     if (clients.openWindow) return clients.openWindow(url);
