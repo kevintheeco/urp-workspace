@@ -188,6 +188,14 @@
   .gcal-g:last-child{margin-bottom:0;}
   .gcal-g-author{font-size:11.5px;color:var(--gold-deep);font-weight:700;margin-bottom:4px;}
   .gcal-g-items{font-size:13px;color:var(--ink);line-height:1.6;}
+
+  /* 구글 연동 버튼 */
+  .gg-btn{padding:7px 12px;border:1px solid var(--gold);border-radius:8px;background:transparent;color:var(--gold-deep);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px;}
+  .gg-btn:hover{background:rgba(168,132,63,.1);}
+  .gg-connect.on{background:rgba(50,140,70,.12);border-color:#3a6b38;color:#2f6b38;cursor:default;}
+  .gg-cal-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(168,132,63,.16);}
+  .file-gopen{font-size:11.5px;color:#1a7a4a;border:1px solid #b7dcc4;background:#f2fbf5;border-radius:6px;padding:3px 8px;text-decoration:none;white-space:nowrap;margin-right:6px;}
+  .file-gopen:hover{background:#e3f5ea;}
   @media(max-width:900px){.hero-row{grid-template-columns:1fr;margin-bottom:34px;}}
   .appgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px 14px;margin:0 0 10px;}
   @media(max-width:720px){.appgrid{grid-template-columns:repeat(3,1fr);gap:22px 8px;}}
@@ -761,6 +769,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <!-- Surf In 에디터 (Editor.js + 플러그인 + 내보내기) -->
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2"></script>
@@ -946,6 +955,11 @@
       <div class="panel cal col-4">
         <h3><span class="ic">▦</span> 공유 캘린더</h3>
         <p class="desc">날짜를 누르면 팀 일정이 보여요</p>
+        <div class="gg-cal-bar">
+          <button class="gg-connect gg-btn" onclick="ggConnect()">🔗 구글 연결</button>
+          <button class="gg-btn gg-when-on" style="display:none" onclick="ggExportCalendar()">⤴ 구글 캘린더로 내보내기</button>
+          <span id="ggCalStatus" style="font-size:11px;color:var(--gold-deep)"></span>
+        </div>
         <div class="head"><button id="calPrev">‹</button><b id="calLabel"></b><button id="calNext">›</button></div>
         <table><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody id="calBody"></tbody></table>
         <div class="memo">
@@ -1076,6 +1090,8 @@
             <input type="file" id="driveFileIn" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp,.zip,.txt" style="display:none" />
           </label>
           <span id="driveStatus" style="font-size:13px;color:var(--gold-deep)"></span>
+          <button class="gg-connect gg-btn" onclick="ggConnect()">🔗 구글 연결</button>
+          <span class="gg-when-on" style="display:none;font-size:11.5px;color:#2f6b38">엑셀은 구글 시트로 자동 변환 · 편집 가능</span>
         </div>
         <div class="upload-prog" id="driveProg"><div class="bar" id="driveBar"></div></div>
         <div id="driveList"></div>
@@ -1774,7 +1790,7 @@ async function addCalEvent(){
 
 async function delCalEvent(id){
   if(!confirm('이 일정을 삭제할까요?'))return;
-  try{await _db.collection('ws_calendar').doc(id).delete();}
+  try{await _db.collection('ws_calendar').doc(id).delete(); ggDeleteMapped(id);}
   catch(e){alert('삭제 실패: '+((e&&e.message)||e));}
 }
 
@@ -3047,6 +3063,7 @@ function renderDrive(){
         <div class="file-name" title="${esc(f.name||'')}">${esc(f.name||'')}</div>
         <div class="file-meta">${fmtSize(f.size)} · ${esc(f.uploadedBy||'')} · ${dt}</div>
       </div>
+      ${f.gdriveUrl?`<a class="file-gopen" href="${esc(f.gdriveUrl)}" target="_blank">📊 구글에서 열기</a>`:''}
       <a class="file-dl" href="${f.url||'#'}" target="_blank">다운로드</a>
       ${canDel?`<button class="proj-del" data-id="${f.id}" data-path="${esc(f.path||'')}">삭제</button>`:''}
     </div>`;
@@ -3074,8 +3091,15 @@ async function uploadFiles(files){
         async()=>{
           try{
             const url=await task.snapshot.ref.getDownloadURL();
+            let gdriveUrl='',gdriveId='';
+            if(ggConnected()){
+              if(status)status.textContent=`(${i+1}/${files.length}) 구글 드라이브로 올리는 중…`;
+              try{const g=await ggDriveUpload(file);if(g){gdriveUrl=g.webViewLink||'';gdriveId=g.id||'';}}
+              catch(ge){console.warn('구글 드라이브 업로드 실패',ge);}
+            }
             await _db.collection('ws_files').add({
               name:file.name,url,path,size:file.size,type:file.type||'',
+              gdriveUrl,gdriveId,
               uploadedBy:CUR.name,uploadedByEmail:CUR.id,
               uploadedAt:firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -3103,6 +3127,117 @@ document.getElementById('driveFileIn').addEventListener('change',e=>{
     e.target.value='';
   }
 });
+
+/* ===== 구글 연동 (경량 · client-side, Google Identity Services) ===== */
+const GG_CLIENT_ID='307018527457-f6mr4hl2qda8l31fed7a3dbkc43erbtj.apps.googleusercontent.com';
+const GG_SCOPES='https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.file';
+let ggToken=null, ggTokenExp=0, ggTokenClient=null, _ggResolve=null;
+
+function ggInit(){
+  if(ggTokenClient)return true;
+  if(!(window.google&&google.accounts&&google.accounts.oauth2))return false;
+  ggTokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:GG_CLIENT_ID, scope:GG_SCOPES,
+    callback:(resp)=>{
+      if(resp&&resp.access_token){
+        ggToken=resp.access_token;
+        ggTokenExp=Date.now()+((resp.expires_in?+resp.expires_in:3600)*1000)-60000;
+      }
+      ggUpdateBtns();
+      if(_ggResolve){_ggResolve(!!(resp&&resp.access_token));_ggResolve=null;}
+    }
+  });
+  return true;
+}
+function ggConnected(){return !!ggToken&&Date.now()<ggTokenExp;}
+function ggRequire(){
+  return new Promise(resolve=>{
+    if(ggConnected()){resolve(true);return;}
+    if(!ggInit()){alert('구글 연동 스크립트 준비 중이에요. 잠시 후 다시 눌러주세요.');resolve(false);return;}
+    _ggResolve=resolve;
+    try{ggTokenClient.requestAccessToken({prompt:ggToken?'':'consent'});}
+    catch(e){alert('구글 연결 실패: '+((e&&e.message)||e));resolve(false);}
+  });
+}
+async function ggConnect(){const ok=await ggRequire();ggUpdateBtns();return ok;}
+function ggUpdateBtns(){
+  const on=ggConnected();
+  document.querySelectorAll('.gg-connect').forEach(b=>{b.textContent=on?'🔗 구글 연결됨':'🔗 구글 연결';b.classList.toggle('on',on);});
+  document.querySelectorAll('.gg-when-on').forEach(el=>el.style.display=on?'':'none');
+}
+async function ggApi(url,opts){
+  opts=opts||{};
+  opts.headers=Object.assign({'Authorization':'Bearer '+ggToken},opts.headers||{});
+  const r=await fetch(url,opts);
+  if(!r.ok)throw new Error('구글 API '+r.status+': '+(await r.text()));
+  return r.json();
+}
+
+/* --- 캘린더 (팀 일정 → 각자 구글 캘린더) --- */
+function ggMapKey(){return 'ggcalmap:'+(CUR?CUR.id:'');}
+function ggGetMap(){return LS.get(ggMapKey(),{});}
+function ggSetMap(m){LS.set(ggMapKey(),m);}
+function ggYmd(ds){const [y,m,d]=ds.split('-').map(Number);return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+function ggPlusDay(ymd){const [y,m,d]=ymd.split('-').map(Number);const dt=new Date(y,m-1,d+1);return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;}
+const GG_CAL='https://www.googleapis.com/calendar/v3/calendars/primary/events';
+
+async function ggExportCalendar(){
+  if(!(await ggRequire())){return;}
+  const status=document.getElementById('ggCalStatus');
+  const all=[];
+  Object.keys(calCache).forEach(k=>calCache[k].forEach(e=>all.push(e)));
+  calRangeEvents.forEach(e=>all.push(e));
+  if(!all.length){if(status)status.textContent='내보낼 팀 일정이 없어요.';return;}
+  if(status)status.textContent=`구글 캘린더로 내보내는 중… (0/${all.length})`;
+  const map=ggGetMap(); let ok=0,fail=0;
+  for(const e of all){
+    const start=ggYmd(e.date);
+    const endBase=(e.endDate&&e.endDate!==e.date)?e.endDate:e.date;
+    const body={summary:(e.text||'(제목 없음)')+' · '+(e.author||''),
+      description:'URP 워크스페이스 팀 일정',
+      start:{date:start}, end:{date:ggPlusDay(ggYmd(endBase))}};
+    try{
+      if(map[e.id]){
+        try{await ggApi(GG_CAL+'/'+map[e.id],{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});}
+        catch(_){const res=await ggApi(GG_CAL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});map[e.id]=res.id;}
+      }else{
+        const res=await ggApi(GG_CAL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        map[e.id]=res.id;
+      }
+      ok++;
+    }catch(err){fail++;console.warn('cal export',err);}
+    if(status)status.textContent=`구글 캘린더로 내보내는 중… (${ok+fail}/${all.length})`;
+  }
+  ggSetMap(map);
+  if(status)status.textContent=`✓ ${ok}건 동기화됨${fail?(' · '+fail+'건 실패'):''}`;
+}
+async function ggDeleteMapped(id){
+  if(!ggConnected())return;
+  const map=ggGetMap(); const gid=map[id]; if(!gid)return;
+  try{await fetch(GG_CAL+'/'+gid,{method:'DELETE',headers:{'Authorization':'Bearer '+ggToken}});}catch(_){}
+  delete map[id]; ggSetMap(map);
+}
+
+/* --- 드라이브 (파일 업로드 → 구글 드라이브, 엑셀은 시트로 변환) --- */
+function ggFileToB64(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(',')[1]);fr.onerror=rej;fr.readAsDataURL(file);});}
+async function ggDriveUpload(file){
+  if(!ggConnected())return null;
+  const isXls=/\.xlsx?$/i.test(file.name);
+  const meta={name:file.name}; if(isXls)meta.mimeType='application/vnd.google-apps.spreadsheet';
+  const b64=await ggFileToB64(file);
+  const boundary='ggb'+Date.now();
+  const body=
+    '--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify(meta)+
+    '\r\n--'+boundary+'\r\nContent-Type: '+(file.type||'application/octet-stream')+'\r\nContent-Transfer-Encoding: base64\r\n\r\n'+b64+
+    '\r\n--'+boundary+'--';
+  const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink,mimeType',{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+ggToken,'Content-Type':'multipart/related; boundary='+boundary},
+    body
+  });
+  if(!r.ok)throw new Error('drive '+r.status+': '+(await r.text()));
+  return r.json();
+}
 
 /* ===== Surf In · 작업 공간 (ws_docs + Editor.js) ===== */
 let surfDocs=[], surfUnsub=null, surfEditor=null, surfCurId=null, surfCurDoc=null, surfSaveTimer=null, surfWiki=false;
