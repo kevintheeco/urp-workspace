@@ -2562,7 +2562,7 @@ function renderTaskPanel(){
           <div class="tr-dl">상시 업무</div>
           ${isCEO?`<button class="tr-edit-btn" data-id="${t.id}" title="지시문 수정 (상시 여부 포함)">✏️</button><button class="proj-del" data-id="${t.id}">삭제</button>`:''}
         </div>
-        <div class="tr-sub-bar">${checkHtml}</div>
+        <div class="tr-sub-bar">${checkHtml}${isCEO?`<button class="tr-outline-btn tr-unrecur-btn" data-id="${t.id}" data-title="${esc(t.title||'')}">🔁 상시 해제 → 일반 업무로</button>`:''}</div>
       </div>`;
     }
     const st=t.status||'대기';
@@ -2640,6 +2640,11 @@ function renderTaskPanel(){
   ts.querySelectorAll('.tr-edit-btn[data-id]').forEach(b=>b.addEventListener('click',()=>{
     openWorkflow();
     openTaskEdit(b.dataset.id);
+  }));
+  ts.querySelectorAll('.tr-unrecur-btn[data-id]').forEach(b=>b.addEventListener('click',async()=>{
+    if(!confirm(`"${b.dataset.title}"을(를) 상시 업무에서 일반 업무로 바꿀까요?\n(기한은 비어 있으니 필요하면 ✏️ 수정에서 정해주세요)`))return;
+    try{await _db.collection('ws_tasks').doc(b.dataset.id).update({recurring:false,status:'진행중',updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}
+    catch(e){alert('전환 실패: '+((e&&e.message)||e));}
   }));
   ts.querySelectorAll('.tr-promise-btn').forEach(b=>b.addEventListener('click',()=>registerPromise(b.dataset.id)));
   ts.querySelectorAll('.tr-postpone-toggle').forEach(b=>b.addEventListener('click',()=>{
