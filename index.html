@@ -213,6 +213,28 @@
   .push-hint .ph-tx{flex:1;min-width:200px;line-height:1.5;}
   .push-hint button{border:none;border-radius:8px;padding:7px 13px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:transparent;border:1px solid #3a6b38;color:#2f6b38;}
   .push-hint button:hover{background:rgba(58,107,56,.12);}
+
+  /* Time Tracker */
+  .tt-nav{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .tt-nav button{border:1px solid var(--line);background:#fff;border-radius:7px;width:30px;height:30px;color:var(--ink);font-size:14px;cursor:pointer;}
+  .tt-nav button:hover{border-color:var(--gold);}
+  .tt-nav b{font-family:"Nanum Myeongjo",serif;font-size:15px;}
+  .tt-today-btn{border:1px solid var(--gold);background:transparent;color:var(--gold-deep);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .tt-today-btn:hover{background:rgba(168,132,63,.1);}
+  .tt-hint{font-size:12px;color:var(--ink-soft);margin:2px 0 14px;line-height:1.6;}
+  .tt-hint b{color:var(--gold-deep);}
+  .tt-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.5);padding:12px;}
+  .tt-table{border-collapse:separate;border-spacing:3px;width:100%;min-width:520px;}
+  .tt-table th{font-size:11.5px;font-weight:700;padding:4px 2px;color:var(--ink);text-align:center;}
+  .tt-table th .tt-th-dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle;}
+  .tt-table td.tt-time{font-size:10.5px;color:var(--ink-soft);text-align:right;padding-right:6px;white-space:nowrap;width:44px;font-variant-numeric:tabular-nums;}
+  .tt-table td.tt-cell{border-radius:6px;height:26px;background:#f2ede0;cursor:default;position:relative;}
+  .tt-table td.tt-cell.mine{cursor:pointer;}
+  .tt-table td.tt-cell.best{outline:2px solid #2f6b38;outline-offset:-1px;}
+  .tt-row-count{font-size:10px;color:var(--ink-soft);text-align:center;width:30px;}
+  .tt-legend{font-size:11px;color:var(--ink-soft);margin-top:10px;line-height:1.6;}
+  .tt-best{margin-top:12px;padding:11px 14px;border-radius:10px;background:rgba(50,140,70,.1);border:1px solid rgba(50,140,70,.3);font-size:13px;color:#1f6b38;}
+  .tt-best b{font-family:"Nanum Myeongjo",serif;}
   @media(max-width:900px){.hero-row{grid-template-columns:1fr;margin-bottom:34px;}}
   .appgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px 14px;margin:0 0 10px;}
   @media(max-width:720px){.appgrid{grid-template-columns:repeat(3,1fr);gap:22px 8px;}}
@@ -997,6 +1019,7 @@
 
       <button class="appicon" onclick="document.getElementById('dmBtn').click()"><span class="tile" style="background:linear-gradient(150deg,#cba64e,#a07f2a)">💬<span class="badge" id="appDmBadge">0</span></span><span class="lbl">메시지</span></button>
       <button class="appicon" onclick="openApp('app-intra','🏢 회사 · 사내 내부망')"><span class="tile" style="background:linear-gradient(150deg,#4f8060,#2f5a3a)">🏢</span><span class="lbl">사내 내부망</span></button>
+      <button class="appicon" onclick="openApp('app-timetracker','⏱ Time Tracker');ttOpen();"><span class="tile" style="background:linear-gradient(150deg,#3e9e8f,#1f6b5e)">⏱</span><span class="lbl">Time Tracker</span></button>
     </div>
 
     <!-- 앱 본체 보관소 (아이콘 클릭 시 창으로 이동, 닫으면 되돌아옴) -->
@@ -1196,6 +1219,22 @@
           <a href="https://kevintheeco.github.io/urp-invitation/" target="_blank"><span class="t">초대장</span><span class="d">함께할 사람을 부르는 편지</span></a>
           <a href="#" onclick="openWiki();return false;"><span class="t">사내 위키</span><span class="d">문서 · 회의록 · 정책</span></a>
         </div>
+      </div>
+
+      <!-- Time Tracker -->
+      <div class="panel col-12">
+        <h3><span class="ic">⏱</span> Time Tracker</h3>
+        <p class="desc">오늘 팀원별 업무 가능 시간 — 전날 밤이나 아침에 미리 표시해두세요</p>
+        <div class="tt-nav">
+          <button id="ttPrev">‹</button>
+          <b id="ttLabel"></b>
+          <button id="ttNext">›</button>
+          <button class="tt-today-btn" id="ttTodayBtn">오늘로</button>
+        </div>
+        <div class="tt-hint" id="ttHint"></div>
+        <div class="tt-wrap"><table class="tt-table" id="ttTable"></table></div>
+        <div class="tt-best" id="ttBest" style="display:none"></div>
+        <div class="tt-legend">칸을 클릭·드래그하면 <b>내 가능 시간</b>이 칠해져요. 다른 사람 칸은 보기만 가능해요.</div>
       </div>
     </div>
 
@@ -2119,7 +2158,7 @@ document.getElementById('bellBtn').addEventListener('click',()=>openApp('app-tas
 /* ===== 앱 홈: 아이콘 클릭 → 패널을 창으로 이동, 닫으면 되돌림 ===== */
 (function(){
   // 보관소의 각 패널에 앱 ID 부여 (순서 기준)
-  var order=['app-today','app-grat','app-todo','app-cal','app-later','app-task','app-proj','app-brain','app-drive','app-intra'];
+  var order=['app-today','app-grat','app-todo','app-cal','app-later','app-task','app-proj','app-brain','app-drive','app-intra','app-timetracker'];
   var stash=document.getElementById('appStash');
   if(stash){
     Array.prototype.slice.call(stash.children).filter(function(el){return el.classList&&el.classList.contains('panel');})
@@ -3458,6 +3497,148 @@ async function ggImportCalendar(){
   ggSetImportMap(map);
   if(status)status.textContent=`✓ ${ok}건 가져옴${del?(' · '+del+'건 삭제 반영'):''}${fail?(' · '+fail+'건 실패'):''}`;
 }
+
+/* ===== Time Tracker (ws_availability) — 팀원별 하루 가용시간 ===== */
+const TT_HOUR_START=7, TT_HOUR_END=24;
+let ttDate=null, ttMembers=[], ttMembersLoaded=false, ttUnsub=null, ttData={}, ttSaveTimer=null, ttPainting=false, ttPaintVal=true;
+
+function ttYmd(d){return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;}
+function ttShift(ds,days){const d=ds2date(ds);d.setDate(d.getDate()+days);return ttYmd(d);}
+function ttLabel(ds){
+  const d=ds2date(ds);const days=['일','월','화','수','목','금','토'];const t=today();
+  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${days[d.getDay()]})`+(ds===t?' · 오늘':'');
+}
+async function ttLoadMembers(){
+  if(ttMembersLoaded)return;
+  try{
+    const snap=await _db.collection('ws_members').orderBy('createdAt').get();
+    ttMembers=snap.docs.map(d=>d.data());
+    ttMembersLoaded=true;
+  }catch(e){console.warn('ttLoadMembers',e);}
+}
+function ttSubscribe(){
+  if(!_db)return;
+  if(ttUnsub){ttUnsub();ttUnsub=null;}
+  ttData={};
+  ttUnsub=_db.collection('ws_availability').where('date','==',ttDate).onSnapshot(snap=>{
+    ttData={};
+    snap.forEach(doc=>{const v=doc.data();ttData[v.email]={hours:new Set(v.hours||[]),name:v.name,code:v.code};});
+    ttRender();
+  },err=>console.error('tt 구독 오류',err));
+}
+async function ttOpen(){
+  if(!CUR)return;
+  if(!ttDate)ttDate=today();
+  await ttLoadMembers();
+  ttSubscribe();
+  ttRender();
+}
+function ttRender(){
+  const label=document.getElementById('ttLabel'); if(!label)return;
+  label.textContent=ttLabel(ttDate);
+  const hint=document.getElementById('ttHint');
+  if(hint)hint.textContent=(ttDate===today())
+    ?'오늘 가능한 시간대를 칠해주세요.'
+    :(ds2date(ttDate)>ds2date(today())?'앞으로 이 날짜가 오면 참고할 수 있도록 미리 칠해두세요.':'지난 기록이에요.');
+
+  const table=document.getElementById('ttTable'); if(!table)return;
+  let html='<thead><tr><th></th>';
+  ttMembers.forEach(m=>{
+    const c=MEMBER_COLORS[m.code]||'#888';
+    html+=`<th><span class="tt-th-dot" style="background:${c}"></span>${esc(m.name||'')}</th>`;
+  });
+  html+='<th class="tt-row-count"></th></tr></thead><tbody>';
+
+  let maxCount=0; const rowCounts=[];
+  for(let h=TT_HOUR_START;h<TT_HOUR_END;h++){
+    let cnt=0; ttMembers.forEach(m=>{const d=ttData[m.email];if(d&&d.hours.has(h))cnt++;});
+    rowCounts[h]=cnt; if(cnt>maxCount)maxCount=cnt;
+  }
+
+  for(let h=TT_HOUR_START;h<TT_HOUR_END;h++){
+    html+=`<tr><td class="tt-time">${String(h).padStart(2,'0')}:00</td>`;
+    ttMembers.forEach(m=>{
+      const mine=CUR&&m.email===CUR.id;
+      const d=ttData[m.email];
+      const has=d&&d.hours.has(h);
+      const c=MEMBER_COLORS[m.code]||'#888';
+      const bg=has?c:'#f2ede0';
+      const best=(maxCount>=2&&rowCounts[h]===maxCount&&has)?'best':'';
+      html+=`<td class="tt-cell ${mine?'mine':''} ${best}" data-h="${h}" data-email="${esc(m.email)}" style="background:${bg}" title="${esc(m.name||'')}${has?' 가능':''}"></td>`;
+    });
+    const rc=rowCounts[h];
+    html+=`<td class="tt-row-count">${rc>0?rc:''}</td></tr>`;
+  }
+  html+='</tbody>';
+  table.innerHTML=html;
+
+  table.querySelectorAll('td.tt-cell.mine').forEach(td=>{
+    td.addEventListener('mousedown',ttCellDown);
+    td.addEventListener('mouseover',ttCellOver);
+    td.addEventListener('touchstart',ttCellDown,{passive:true});
+    td.addEventListener('touchmove',ttCellTouchMove,{passive:false});
+  });
+
+  const bestEl=document.getElementById('ttBest');
+  if(bestEl){
+    if(maxCount>=2){
+      const hrs=[]; for(let h=TT_HOUR_START;h<TT_HOUR_END;h++) if(rowCounts[h]===maxCount) hrs.push(h);
+      const ranges=[]; let s=null;
+      hrs.forEach((h,i)=>{ if(s===null)s=h; if(hrs[i+1]!==h+1){ranges.push([s,h]);s=null;} });
+      const totalActive=ttMembers.filter(m=>ttData[m.email]&&ttData[m.email].hours.size>0).length;
+      bestEl.innerHTML='🌟 가장 많이 겹치는 시간: '+ranges.map(r=>`<b>${String(r[0]).padStart(2,'0')}:00–${String(r[1]+1).padStart(2,'0')}:00</b>`).join(', ')+` (${maxCount}/${totalActive||ttMembers.length}명)`;
+      bestEl.style.display='block';
+    }else{
+      bestEl.style.display='none';
+    }
+  }
+}
+function ttCellDown(e){
+  if(!CUR)return;
+  const td=e.currentTarget;
+  const h=+td.dataset.h;
+  const mine=ttData[CUR.id]||{hours:new Set()};
+  ttPaintVal=!mine.hours.has(h);
+  ttPainting=true;
+  ttToggleHour(h,ttPaintVal);
+  if(e.type==='mousedown')e.preventDefault();
+}
+function ttCellOver(e){
+  if(!ttPainting)return;
+  ttToggleHour(+e.currentTarget.dataset.h,ttPaintVal);
+}
+function ttCellTouchMove(e){
+  if(!ttPainting)return;
+  const t=e.touches[0];
+  const el=document.elementFromPoint(t.clientX,t.clientY);
+  const td=el&&el.closest?el.closest('td.tt-cell.mine'):null;
+  if(td){ttToggleHour(+td.dataset.h,ttPaintVal);e.preventDefault();}
+}
+window.addEventListener('mouseup',()=>{ttPainting=false;});
+window.addEventListener('touchend',()=>{ttPainting=false;});
+function ttToggleHour(h,val){
+  if(!CUR)return;
+  if(!ttData[CUR.id])ttData[CUR.id]={hours:new Set(),name:CUR.name,code:CUR.code||''};
+  const set=ttData[CUR.id].hours;
+  if(val)set.add(h); else set.delete(h);
+  const td=document.querySelector(`td.tt-cell.mine[data-h="${h}"]`);
+  if(td)td.style.background=val?(MEMBER_COLORS[CUR.code]||'#888'):'#f2ede0';
+  clearTimeout(ttSaveTimer);
+  ttSaveTimer=setTimeout(ttSaveMine,500);
+}
+async function ttSaveMine(){
+  if(!_db||!CUR)return;
+  const d=ttData[CUR.id]||{hours:new Set()};
+  try{
+    await _db.collection('ws_availability').doc(`${ttDate}__${CUR.id}`).set({
+      date:ttDate,email:CUR.id,name:CUR.name,code:CUR.code||'',
+      hours:Array.from(d.hours),updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+  }catch(e){console.warn('tt 저장 실패',e);}
+}
+document.getElementById('ttPrev').addEventListener('click',()=>{ttDate=ttShift(ttDate||today(),-1);ttSubscribe();ttRender();});
+document.getElementById('ttNext').addEventListener('click',()=>{ttDate=ttShift(ttDate||today(),1);ttSubscribe();ttRender();});
+document.getElementById('ttTodayBtn').addEventListener('click',()=>{ttDate=today();ttSubscribe();ttRender();});
 
 /* --- 드라이브 (파일 업로드 → 구글 드라이브, 엑셀은 시트로 변환) --- */
 function ggFileToB64(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(',')[1]);fr.onerror=rej;fr.readAsDataURL(file);});}
