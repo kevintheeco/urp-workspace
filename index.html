@@ -196,6 +196,19 @@
   .gg-cal-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(168,132,63,.16);}
   .file-gopen{font-size:11.5px;color:#1a7a4a;border:1px solid #b7dcc4;background:#f2fbf5;border-radius:6px;padding:3px 8px;text-decoration:none;white-space:nowrap;margin-right:6px;}
   .file-gopen:hover{background:#e3f5ea;}
+
+  /* 알림 토스트 */
+  #toastWrap{position:fixed;right:18px;bottom:18px;z-index:9999;display:flex;flex-direction:column;gap:10px;max-width:340px;}
+  .toast{display:flex;align-items:center;gap:10px;background:rgba(20,28,18,.96);color:#f4ead0;border:1px solid rgba(168,132,63,.5);border-radius:12px;padding:12px 15px;box-shadow:0 12px 32px rgba(0,0,0,.5);transform:translateX(120%);opacity:0;transition:transform .3s ease,opacity .3s ease;font-size:13.5px;}
+  .toast.show{transform:translateX(0);opacity:1;}
+  .toast-ic{font-size:18px;flex:none;}
+  .toast-tx{line-height:1.4;}
+  /* 오늘의 감사 리마인더 배너 */
+  .grat-remind{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:linear-gradient(120deg,#f4e9d0,#eadbb6);border:1px solid #e0cd9c;border-radius:14px;padding:13px 18px;margin:0 0 22px;color:#5c4a24;font-size:13.5px;}
+  .grat-remind .gr-tx{flex:1;min-width:180px;font-family:"Nanum Myeongjo",serif;}
+  .grat-remind button{border:none;border-radius:8px;padding:8px 15px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;background:var(--gold-deep);color:#f6efe0;}
+  .grat-remind button.ghost{background:transparent;border:1px solid #c9b076;color:#7a5a1a;}
+  .grat-remind button:hover{opacity:.88;}
   @media(max-width:900px){.hero-row{grid-template-columns:1fr;margin-bottom:34px;}}
   .appgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px 14px;margin:0 0 10px;}
   @media(max-width:720px){.appgrid{grid-template-columns:repeat(3,1fr);gap:22px 8px;}}
@@ -814,6 +827,7 @@
       <div class="who"><div class="av" id="meAv">·</div><div><div class="nm" id="meName">-</div><div class="rl" id="meRole">-</div></div></div>
       <button class="logout" id="adminBtn" style="display:none">관리자</button>
       <button class="logout" id="ceoViewBtn" style="display:none">Workflow</button>
+      <button class="logout dm-badge-btn" id="bellBtn" title="내 알림 — 수락할 업무">🔔<span class="dm-count" id="bellCount" style="display:none">0</span></button>
       <button class="logout dm-badge-btn" id="dmBtn">메시지<span class="dm-count" id="dmCount" style="display:none">0</span></button>
       <button class="logout" id="logout">나가기</button>
     </div>
@@ -842,6 +856,13 @@
           <button class="mb-save-btn" id="mbSave">저장</button>
         </div>
       </div>
+    </div>
+
+    <!-- 오늘의 감사 리마인더 -->
+    <div class="grat-remind" id="gratRemind" style="display:none">
+      <span class="gr-tx">🌿 오늘의 감사 3가지, 아직 안 적으셨어요.</span>
+      <button onclick="openApp('app-grat','🙏 오늘의 감사')">지금 적기</button>
+      <button class="ghost" onclick="dismissGratRemind()">확인</button>
     </div>
 
     <!-- 상단 행: 오늘의 말씀(왼쪽 · 크게) + 팀 감사 나눔(오른쪽 위젯) -->
@@ -1587,6 +1608,18 @@ function renderGrat(){
   const g=LS.get(gratKey(),['','','']);
   g1.value=g[0]||'';g2.value=g[1]||'';g3.value=g[2]||'';
   updGratWidget(g);
+  updateGratRemind();
+}
+function updateGratRemind(){
+  const el=document.getElementById('gratRemind'); if(!el||!CUR)return;
+  const g=LS.get(gratKey(),['','','']);
+  const has=(g||[]).some(x=>x&&x.trim());
+  const dismissed=LS.get(KEY(CUR.id,'gratRemindDismiss:'+today()),false);
+  el.style.display=(!has&&!dismissed)?'flex':'none';
+}
+function dismissGratRemind(){
+  if(CUR)LS.set(KEY(CUR.id,'gratRemindDismiss:'+today()),true);
+  const el=document.getElementById('gratRemind'); if(el)el.style.display='none';
 }
 function updGratWidget(g){
   const n=g.filter(x=>x&&x.trim()).length;
@@ -1596,6 +1629,7 @@ document.getElementById('gratSave').addEventListener('click',()=>{
   const g=[g1.value.trim(),g2.value.trim(),g3.value.trim()];
   LS.set(gratKey(),g);
   updGratWidget(g);
+  updateGratRemind();
   saveGratCloud(today(),g);
   const d=document.getElementById('gratDone');
   d.textContent='오늘의 감사가 저장되었어요. 고마운 하루.';
@@ -2011,6 +2045,7 @@ async function sendDM(){
 }
 
 document.getElementById('dmBtn').addEventListener('click',openDM);
+document.getElementById('bellBtn').addEventListener('click',()=>openApp('app-task','📥 업무 지시함'));
 
 /* ===== 앱 홈: 아이콘 클릭 → 패널을 창으로 이동, 닫으면 되돌림 ===== */
 (function(){
@@ -2060,6 +2095,27 @@ function fireNotif(title,body,onClick,key){
     }catch(e){}
   }
 }
+function showToast(icon,text,onClick){
+  let wrap=document.getElementById('toastWrap');
+  if(!wrap){wrap=document.createElement('div');wrap.id='toastWrap';document.body.appendChild(wrap);}
+  const t=document.createElement('div');t.className='toast';
+  t.innerHTML=`<span class="toast-ic">${icon||'🔔'}</span><span class="toast-tx">${esc(text||'')}</span>`;
+  if(onClick){t.style.cursor='pointer';t.addEventListener('click',()=>{try{onClick();}catch(_){}t.remove();});}
+  wrap.appendChild(t);
+  setTimeout(()=>t.classList.add('show'),20);
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),320);},5200);
+}
+function updateBell(){
+  const b=document.getElementById('bellCount'); if(!b||!CUR)return;
+  const n=tasksCache.filter(t=>t.assigneeEmail===CUR.id&&(t.status||'대기')==='대기').length;
+  b.textContent=n; b.style.display=n>0?'flex':'none';
+}
+async function acceptTask(id){
+  try{
+    await _db.collection('ws_tasks').doc(id).update({status:'진행중',acceptedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    showToast('✅','업무를 수락했어요. 진행중으로 바뀌었습니다.');
+  }catch(e){alert('수락 실패: '+((e&&e.message)||e));}
+}
 async function openDMWith(email){
   document.getElementById('dmModal').classList.add('show');
   await loadDMMembers();
@@ -2077,22 +2133,30 @@ function subscribeTeamTasks(){
         const t={id:ch.doc.id,...ch.doc.data()};
         const prev=tasksCache.find(x=>x.id===t.id);
         if(ch.type==='added'&&CUR){
-          if(t.assigneeEmail===CUR.id)
+          if(t.assigneeEmail===CUR.id){
             fireNotif('🚗 새 업무 (내가 담당)',`${t.title||''} — ${t.fromName||''}님이 맡김`,null,'task:'+t.id);
-          else if((t.consultedEmails||[]).includes(CUR.id))
+            showToast('🚗',`새 업무: ${t.title||''} — ${t.fromName||''}님이 맡김`,()=>openApp('app-task','📥 업무 지시함'));
+          }else if((t.consultedEmails||[]).includes(CUR.id)){
             fireNotif('💬 자문 요청',`${t.title||''} — 의견 줄 사람으로 지정됨`,null,'taskc:'+t.id);
-          else if((t.informedEmails||[]).includes(CUR.id))
+            showToast('💬',`자문 요청: ${t.title||''}`,()=>openApp('app-task','📥 업무 지시함'));
+          }else if((t.informedEmails||[]).includes(CUR.id)){
             fireNotif('👀 업무 공유',`${t.title||''} — 참고로 공유됨`,null,'taski:'+t.id);
+            showToast('👀',`업무 공유: ${t.title||''}`,()=>openApp('app-task','📥 업무 지시함'));
+          }
         }
         if(ch.type==='modified'&&prev){
           if(CUR&&CUR.code==='CEO'){
             if(t.promise&&!prev.promise)
               fireNotif('약속 등록',`${t.assigneeName||''}: ${t.title||''} — ${t.promise}까지`,null,'promise:'+t.id+':'+t.promise);
-            if(t.postponeStatus==='요청중'&&prev.postponeStatus!=='요청중')
+            if(t.postponeStatus==='요청중'&&prev.postponeStatus!=='요청중'){
               fireNotif('연기 요청',`${t.assigneeName||''}: ${t.title||''} → ${t.postponeReqDeadline||''}`,null,'postpone:'+t.id+':'+(t.postponeReqDeadline||''));
+              showToast('⏳',`연기 요청: ${t.assigneeName||''} · ${t.title||''}`,()=>openApp('app-task','📥 업무 지시함'));
+            }
           }
-          if(CUR&&t.assigneeEmail===CUR.id&&t.postponeStatus&&t.postponeStatus!=='요청중'&&prev.postponeStatus!==t.postponeStatus)
+          if(CUR&&t.assigneeEmail===CUR.id&&t.postponeStatus&&t.postponeStatus!=='요청중'&&prev.postponeStatus!==t.postponeStatus){
             fireNotif('연기 '+t.postponeStatus,`"${t.title||''}" 연기 요청이 ${t.postponeStatus}되었습니다.`,null,'postres:'+t.id+':'+t.postponeStatus);
+            showToast(t.postponeStatus==='승인'?'✓':'✕',`연기 ${t.postponeStatus}: ${t.title||''}`);
+          }
         }
       });
     }
@@ -2165,7 +2229,12 @@ function renderTaskPanel(){
         <button class="tr-outline-btn tr-reject-btn" data-id="${t.id}">거절</button>`;
     }
 
-    const hasBar=promiseHtml||postponeHtml;
+    let acceptHtml='';
+    if(isMyTask&&st==='대기'){
+      acceptHtml=`<button class="tr-sm-btn tr-accept-btn" data-id="${t.id}">✅ 수락</button>`+
+        `<button class="tr-outline-btn tr-talk-btn" data-from="${esc(t.fromEmail||'')}">💬 ${esc(t.fromName||'CEO')}와 소통할게요</button>`;
+    }
+    const hasBar=acceptHtml||promiseHtml||postponeHtml;
     return `<div class="task-card">
       <div class="tr-main">
         ${canChange?`<button class="proj-badge badge-${esc(st)}" data-id="${t.id}" data-st="${esc(st)}">${esc(st)}</button>`:`<span class="proj-badge badge-${esc(st)}">${esc(st)}</span>`}
@@ -2176,7 +2245,7 @@ function renderTaskPanel(){
         <div class="tr-dl">${t.deadline?esc(t.deadline):'기한 없음'}</div>
         ${isCEO?`<button class="proj-del" data-id="${t.id}">삭제</button>`:''}
       </div>
-      ${hasBar?`<div class="tr-sub-bar">${promiseHtml}${postponeHtml}</div>`:''}
+      ${hasBar?`<div class="tr-sub-bar">${acceptHtml}${promiseHtml}${postponeHtml}</div>`:''}
     </div>`;
   }).join('');
 
@@ -2199,6 +2268,9 @@ function renderTaskPanel(){
   ts.querySelectorAll('.tr-postpone-send').forEach(b=>b.addEventListener('click',()=>requestPostpone(b.dataset.id)));
   ts.querySelectorAll('.tr-approve-btn').forEach(b=>b.addEventListener('click',()=>handlePostpone(b.dataset.id,'승인')));
   ts.querySelectorAll('.tr-reject-btn').forEach(b=>b.addEventListener('click',()=>handlePostpone(b.dataset.id,'거절')));
+  ts.querySelectorAll('.tr-accept-btn').forEach(b=>b.addEventListener('click',()=>acceptTask(b.dataset.id)));
+  ts.querySelectorAll('.tr-talk-btn').forEach(b=>b.addEventListener('click',()=>{const em=b.dataset.from;if(em)openDMWith(em);else alert('지시자 정보가 없어요.');}));
+  updateBell();
 }
 
 async function registerPromise(taskId){
