@@ -215,11 +215,11 @@
   .push-hint button:hover{background:rgba(58,107,56,.12);}
 
   /* Time Tracker */
-  .tt-nav{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .tt-nav{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
   .tt-nav button{border:1px solid var(--line);background:#fff;border-radius:7px;width:30px;height:30px;color:var(--ink);font-size:14px;cursor:pointer;}
   .tt-nav button:hover{border-color:var(--gold);}
   .tt-nav b{font-family:"Nanum Myeongjo",serif;font-size:15px;}
-  .tt-today-btn{border:1px solid var(--gold);background:transparent;color:var(--gold-deep);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .tt-today-btn{border:1px solid var(--gold);background:transparent;color:var(--gold-deep);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex:none;}
   .tt-today-btn:hover{background:rgba(168,132,63,.1);}
   .tt-hint{font-size:12px;color:var(--ink-soft);margin:2px 0 14px;line-height:1.6;}
   .tt-hint b{color:var(--gold-deep);}
@@ -265,6 +265,13 @@
   .appicon:active .tile{transform:scale(.94);}
   .appicon .lbl{font-size:12px;color:#e9dfc4;font-family:"Nanum Myeongjo",serif;letter-spacing:.3px;text-align:center;line-height:1.2;text-shadow:0 1px 7px rgba(0,0,0,.6);}
   .appicon .badge{position:absolute;top:-6px;right:-6px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--seal);color:#fff;font-size:11px;font-weight:700;display:none;align-items:center;justify-content:center;border:2px solid #14210f;}
+
+  .appgrid-edit-toggle{font-size:12px;color:var(--gold);cursor:pointer;letter-spacing:.3px;user-select:none;padding:4px 4px;}
+  .appgrid-edit-toggle:hover{color:#f6eed6;}
+  .appgrid-edit-toggle.on{color:#f6eed6;font-weight:700;text-decoration:underline;}
+  .appgrid.editing .appicon{cursor:grab;}
+  .appgrid.editing .appicon .tile{outline:2px dashed rgba(246,238,214,.5);outline-offset:3px;}
+  .appgrid .appicon.dragging{opacity:.35;}
 
   /* 앱 창 */
   .app-overlay{display:none;position:fixed;inset:0;z-index:8500;background:rgba(10,8,4,.9);backdrop-filter:blur(4px);flex-direction:column;}
@@ -1020,27 +1027,27 @@
     </div>
 
     <!-- 📱 앱 홈 격자 -->
+    <div style="display:flex;justify-content:flex-end;margin:0 0 6px;">
+      <span class="appgrid-edit-toggle" id="appEditToggle">✏️ 순서 편집</span>
+    </div>
     <div class="appgrid" id="appGrid">
-      <button class="appicon" onclick="openWorkflow()"><span class="tile" style="background:linear-gradient(150deg,#c25b3e,#7c2d2a)">🚀</span><span class="lbl">Workflow</span></button>
-      <button class="appicon" onclick="openAppPicker()"><span class="tile" style="background:linear-gradient(150deg,#2fa37a,#17643f)">🎓</span><span class="lbl">니가교수</span></button>
-      <button class="appicon" onclick="openApp('app-today','📊 오늘 한눈에')"><span class="tile" style="background:linear-gradient(150deg,#5b83cf,#31569f)">📊</span><span class="lbl">오늘</span></button>
-      <button class="appicon" onclick="openApp('app-todo','✅ 할 일 목록')"><span class="tile" style="background:linear-gradient(150deg,#3fb492,#2b8a70)">✅</span><span class="lbl">할 일</span></button>
-      <button class="appicon" onclick="openApp('app-cal','📅 공유 캘린더')"><span class="tile" style="background:linear-gradient(150deg,#e5963d,#c06f22)">📅</span><span class="lbl">캘린더</span></button>
-
-      <button class="appicon" onclick="openApp('app-grat','🙏 오늘의 감사')"><span class="tile" style="background:linear-gradient(150deg,#6ea45e,#4a7440)">🙏</span><span class="lbl">감사</span></button>
-      <button class="appicon" onclick="openApp('app-later','📌 Later Must')"><span class="tile" style="background:linear-gradient(150deg,#d96f92,#b84a70)">📌</span><span class="lbl">Later Must</span></button>
-      <button class="appicon" onclick="openApp('app-task','📥 업무 지시함')"><span class="tile" style="background:linear-gradient(150deg,#828798,#565b74)">📥</span><span class="lbl">업무 지시</span></button>
-
-      <button class="appicon" onclick="openApp('app-proj','📈 프로젝트 · 진행사업 · 업무기한')"><span class="tile" style="background:linear-gradient(150deg,#6f6fd6,#4a4ab0)">📈</span><span class="lbl">프로젝트</span></button>
-      <button class="appicon" onclick="openBoardModal()"><span class="tile" style="background:linear-gradient(150deg,#9f6fca,#7a4aa4)">🧠</span><span class="lbl">브레인스토밍</span></button>
-      <button class="appicon" onclick="document.getElementById('surfInBtn').click()"><span class="tile" style="background:linear-gradient(150deg,#3aafc7,#2288a4)">🏄</span><span class="lbl">Surf In</span></button>
-      <button class="appicon" onclick="openWiki()"><span class="tile" style="background:linear-gradient(150deg,#a9763e,#6e4a1e)">📚</span><span class="lbl">사내 위키</span></button>
-      <button class="appicon" onclick="openApp('app-drive','🗂 사내 드라이브')"><span class="tile" style="background:linear-gradient(150deg,#c89e4e,#9a7530)">🗂️</span><span class="lbl">드라이브</span></button>
-
-      <button class="appicon" onclick="document.getElementById('dmBtn').click()"><span class="tile" style="background:linear-gradient(150deg,#cba64e,#a07f2a)">💬<span class="badge" id="appDmBadge">0</span></span><span class="lbl">메시지</span></button>
-      <button class="appicon" onclick="openApp('app-intra','🏢 회사 · 사내 내부망')"><span class="tile" style="background:linear-gradient(150deg,#4f8060,#2f5a3a)">🏢</span><span class="lbl">사내 내부망</span></button>
-      <button class="appicon" onclick="openApp('app-timetracker','⏱ Time Tracker');ttOpen();"><span class="tile" style="background:linear-gradient(150deg,#3e9e8f,#1f6b5e)">⏱</span><span class="lbl">Time Tracker</span></button>
-      <button class="appicon" onclick="openApp('app-meetingpoll','🗓 미팅 잡기');mpOpen();"><span class="tile" style="background:linear-gradient(150deg,#c98a3e,#8a5a1f)">🗓</span><span class="lbl">미팅 잡기</span></button>
+      <button class="appicon" data-appid="workflow" onclick="openWorkflow()"><span class="tile" style="background:linear-gradient(150deg,#c25b3e,#7c2d2a)">🚀</span><span class="lbl">Workflow</span></button>
+      <button class="appicon" data-appid="nigakyosoo" onclick="openAppPicker()"><span class="tile" style="background:linear-gradient(150deg,#2fa37a,#17643f)">🎓</span><span class="lbl">니가교수</span></button>
+      <button class="appicon" data-appid="today" onclick="openApp('app-today','📊 오늘 한눈에')"><span class="tile" style="background:linear-gradient(150deg,#5b83cf,#31569f)">📊</span><span class="lbl">오늘</span></button>
+      <button class="appicon" data-appid="todo" onclick="openApp('app-todo','✅ 할 일 목록')"><span class="tile" style="background:linear-gradient(150deg,#3fb492,#2b8a70)">✅</span><span class="lbl">할 일</span></button>
+      <button class="appicon" data-appid="cal" onclick="openApp('app-cal','📅 공유 캘린더')"><span class="tile" style="background:linear-gradient(150deg,#e5963d,#c06f22)">📅</span><span class="lbl">캘린더</span></button>
+      <button class="appicon" data-appid="grat" onclick="openApp('app-grat','🙏 오늘의 감사')"><span class="tile" style="background:linear-gradient(150deg,#6ea45e,#4a7440)">🙏</span><span class="lbl">감사</span></button>
+      <button class="appicon" data-appid="later" onclick="openApp('app-later','📌 Later Must')"><span class="tile" style="background:linear-gradient(150deg,#d96f92,#b84a70)">📌</span><span class="lbl">Later Must</span></button>
+      <button class="appicon" data-appid="task" onclick="openApp('app-task','📥 업무 지시함')"><span class="tile" style="background:linear-gradient(150deg,#828798,#565b74)">📥</span><span class="lbl">업무 지시</span></button>
+      <button class="appicon" data-appid="proj" onclick="openApp('app-proj','📈 프로젝트 · 진행사업 · 업무기한')"><span class="tile" style="background:linear-gradient(150deg,#6f6fd6,#4a4ab0)">📈</span><span class="lbl">프로젝트</span></button>
+      <button class="appicon" data-appid="brain" onclick="openBoardModal()"><span class="tile" style="background:linear-gradient(150deg,#9f6fca,#7a4aa4)">🧠</span><span class="lbl">브레인스토밍</span></button>
+      <button class="appicon" data-appid="surfin" onclick="document.getElementById('surfInBtn').click()"><span class="tile" style="background:linear-gradient(150deg,#3aafc7,#2288a4)">🏄</span><span class="lbl">Surf In</span></button>
+      <button class="appicon" data-appid="wiki" onclick="openWiki()"><span class="tile" style="background:linear-gradient(150deg,#a9763e,#6e4a1e)">📚</span><span class="lbl">사내 위키</span></button>
+      <button class="appicon" data-appid="drive" onclick="openApp('app-drive','🗂 사내 드라이브')"><span class="tile" style="background:linear-gradient(150deg,#c89e4e,#9a7530)">🗂️</span><span class="lbl">드라이브</span></button>
+      <button class="appicon" data-appid="dm" onclick="document.getElementById('dmBtn').click()"><span class="tile" style="background:linear-gradient(150deg,#cba64e,#a07f2a)">💬<span class="badge" id="appDmBadge">0</span></span><span class="lbl">메시지</span></button>
+      <button class="appicon" data-appid="intra" onclick="openApp('app-intra','🏢 회사 · 사내 내부망')"><span class="tile" style="background:linear-gradient(150deg,#4f8060,#2f5a3a)">🏢</span><span class="lbl">사내 내부망</span></button>
+      <button class="appicon" data-appid="timetracker" onclick="openApp('app-timetracker','⏱ Time Tracker');ttOpen();"><span class="tile" style="background:linear-gradient(150deg,#3e9e8f,#1f6b5e)">⏱</span><span class="lbl">Time Tracker</span></button>
+      <button class="appicon" data-appid="meetingpoll" onclick="openApp('app-meetingpoll','🗓 미팅 잡기');mpOpen();"><span class="tile" style="background:linear-gradient(150deg,#c98a3e,#8a5a1f)">🗓</span><span class="lbl">미팅 잡기</span></button>
     </div>
 
     <!-- 앱 본체 보관소 (아이콘 클릭 시 창으로 이동, 닫으면 되돌아옴) -->
@@ -1656,6 +1663,7 @@ function enterDash(){
   subscribeDocs();
   subscribeLater();
   initFcm();
+  applyAppOrder();
   backfillGrats();
   loadTodayGratCloud();
   const nat=document.getElementById('noticeAddToggle');
@@ -2255,6 +2263,87 @@ document.getElementById('bellBtn').addEventListener('click',()=>openApp('app-tas
   function syncDm(){ if(!dmc||!appDm) return; var n=(dmc.textContent||'').trim(); var show=dmc.style.display!=='none'&&n&&n!=='0'; appDm.textContent=n; appDm.style.display=show?'flex':'none'; }
   if(dmc&&appDm){ new MutationObserver(syncDm).observe(dmc,{attributes:true,childList:true,characterData:true,subtree:true}); syncDm(); }
 })();
+
+/* ===== 앱 순서 개인화 (ws_members.appOrder — 사람마다 다르게 저장) ===== */
+let appEditMode=false, appOrderLoaded=false;
+async function applyAppOrder(){
+  if(!CUR||!_db||appOrderLoaded)return;
+  appOrderLoaded=true;
+  try{
+    const doc=await _db.collection('ws_members').doc(CUR.id).get();
+    const order=(doc.exists&&doc.data().appOrder)||null;
+    if(order&&order.length)reorderAppGrid(order);
+  }catch(e){console.warn('appOrder 불러오기 실패',e);}
+}
+function reorderAppGrid(order){
+  const grid=document.getElementById('appGrid'); if(!grid)return;
+  const icons=Array.prototype.slice.call(grid.children);
+  const byId={}; icons.forEach(el=>{byId[el.dataset.appid]=el;});
+  const seen={};
+  order.forEach(id=>{ const el=byId[id]; if(el&&!seen[id]){grid.appendChild(el);seen[id]=true;} });
+  // 저장된 순서에 없던(새로 추가된) 아이콘은 자동으로 맨 뒤에 남음
+}
+async function saveAppOrder(){
+  if(!CUR||!_db)return;
+  const grid=document.getElementById('appGrid'); if(!grid)return;
+  const order=Array.prototype.slice.call(grid.children).map(el=>el.dataset.appid);
+  try{ await _db.collection('ws_members').doc(CUR.id).set({appOrder:order},{merge:true}); }
+  catch(e){console.warn('appOrder 저장 실패',e);}
+}
+(function(){
+  const grid=document.getElementById('appGrid');
+  const toggle=document.getElementById('appEditToggle');
+  if(grid){
+    grid.addEventListener('click',function(e){ if(appEditMode){ e.stopPropagation(); e.preventDefault(); } },true);
+  }
+  if(toggle){
+    toggle.addEventListener('click',()=>{
+      appEditMode=!appEditMode;
+      toggle.textContent=appEditMode?'✓ 완료':'✏️ 순서 편집';
+      toggle.classList.toggle('on',appEditMode);
+      if(grid)grid.classList.toggle('editing',appEditMode);
+      if(!appEditMode)saveAppOrder();
+    });
+  }
+  if(!grid)return;
+  // 드래그로 순서 바꾸기 (Pointer Events — 데스크톱/모바일 공용)
+  let dragEl=null,startX=0,startY=0,moved=false;
+  function nearestTarget(x,y){
+    const icons=Array.prototype.slice.call(grid.querySelectorAll('.appicon')).filter(el=>el!==dragEl);
+    let best=null,bestDist=Infinity;
+    icons.forEach(el=>{
+      const r=el.getBoundingClientRect();
+      const cx=r.left+r.width/2, cy=r.top+r.height/2;
+      const d=Math.hypot(x-cx,y-cy);
+      if(d<bestDist){bestDist=d;best={el,r,cx};}
+    });
+    if(!best)return null;
+    const before=(y<best.r.top)||(y<best.r.bottom&&x<best.cx);
+    return {el:best.el,before};
+  }
+  grid.addEventListener('pointerdown',e=>{
+    if(!appEditMode)return;
+    const icon=e.target.closest('.appicon'); if(!icon)return;
+    dragEl=icon; startX=e.clientX; startY=e.clientY; moved=false;
+    try{icon.setPointerCapture(e.pointerId);}catch(_){}
+  });
+  grid.addEventListener('pointermove',e=>{
+    if(!dragEl)return;
+    if(!moved){ if(Math.hypot(e.clientX-startX,e.clientY-startY)<6)return; moved=true; dragEl.classList.add('dragging'); }
+    const res=nearestTarget(e.clientX,e.clientY);
+    if(res){ if(res.before)grid.insertBefore(dragEl,res.el); else grid.insertBefore(dragEl,res.el.nextSibling); }
+    e.preventDefault();
+  });
+  function endDrag(){
+    if(!dragEl)return;
+    dragEl.classList.remove('dragging');
+    if(moved)saveAppOrder();
+    dragEl=null; moved=false;
+  }
+  grid.addEventListener('pointerup',endDrag);
+  grid.addEventListener('pointercancel',endDrag);
+})();
+
 document.getElementById('dmClose').addEventListener('click',()=>document.getElementById('dmModal').classList.remove('show'));
 
 /* ===== CEO 전체뷰 + 업무지시 + 약속·보고 + 연기요청 (ws_tasks) ===== */
@@ -3567,7 +3656,8 @@ async function ggImportCalendar(){
 }
 
 /* ===== Time Tracker (ws_availability) — 팀원별 하루 가용시간 ===== */
-const TT_HOUR_START=7, TT_HOUR_END=24;
+const TT_HOUR_START=7, TT_HOUR_END=26;   // 새벽 2시까지 (24=00:00, 25=01:00, 익일로 표시)
+function ttHourLabel(h){return String(h%24).padStart(2,'0')+':00';}
 let ttDate=null, ttMembers=[], ttMembersLoaded=false, ttUnsub=null, ttData={}, ttSaveTimer=null, ttPainting=false, ttPaintVal=true;
 
 function ttYmd(d){return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;}
@@ -3624,7 +3714,7 @@ function ttRender(){
   }
 
   for(let h=TT_HOUR_START;h<TT_HOUR_END;h++){
-    html+=`<tr><td class="tt-time">${String(h).padStart(2,'0')}:00</td>`;
+    html+=`<tr><td class="tt-time">${ttHourLabel(h)}</td>`;
     ttMembers.forEach(m=>{
       const mine=CUR&&m.email===CUR.id;
       const d=ttData[m.email];
@@ -3654,7 +3744,7 @@ function ttRender(){
       const ranges=[]; let s=null;
       hrs.forEach((h,i)=>{ if(s===null)s=h; if(hrs[i+1]!==h+1){ranges.push([s,h]);s=null;} });
       const totalActive=ttMembers.filter(m=>ttData[m.email]&&ttData[m.email].hours.size>0).length;
-      bestEl.innerHTML='🌟 가장 많이 겹치는 시간: '+ranges.map(r=>`<b>${String(r[0]).padStart(2,'0')}:00–${String(r[1]+1).padStart(2,'0')}:00</b>`).join(', ')+` (${maxCount}/${totalActive||ttMembers.length}명)`;
+      bestEl.innerHTML='🌟 가장 많이 겹치는 시간: '+ranges.map(r=>`<b>${ttHourLabel(r[0])}–${ttHourLabel(r[1]+1)}</b>`).join(', ')+` (${maxCount}/${totalActive||ttMembers.length}명)`;
       bestEl.style.display='block';
     }else{
       bestEl.style.display='none';
