@@ -1045,7 +1045,8 @@
         <p class="desc">날짜를 누르면 팀 일정이 보여요</p>
         <div class="gg-cal-bar">
           <button class="gg-connect gg-btn" onclick="ggConnect()">🔗 구글 연결</button>
-          <button class="gg-btn gg-when-on" style="display:none" onclick="ggExportCalendar()">⤴ 구글 캘린더로 내보내기</button>
+          <button class="gg-btn gg-when-on" style="display:none" onclick="ggExportCalendar()">⤴ 구글로 내보내기</button>
+          <button class="gg-btn gg-when-on" style="display:none" onclick="ggImportCalendar()">⤵ 구글에서 가져오기</button>
           <span id="ggCalStatus" style="font-size:11px;color:var(--gold-deep)"></span>
         </div>
         <div class="head"><button id="calPrev">‹</button><b id="calLabel"></b><button id="calNext">›</button></div>
@@ -3366,8 +3367,8 @@ async function ggExportCalendar(){
   if(!(await ggRequire())){return;}
   const status=document.getElementById('ggCalStatus');
   const all=[];
-  Object.keys(calCache).forEach(k=>calCache[k].forEach(e=>all.push(e)));
-  calRangeEvents.forEach(e=>all.push(e));
+  Object.keys(calCache).forEach(k=>calCache[k].forEach(e=>{if(e.source!=='google')all.push(e);}));
+  calRangeEvents.forEach(e=>{if(e.source!=='google')all.push(e);});
   if(!all.length){if(status)status.textContent='내보낼 팀 일정이 없어요.';return;}
   if(status)status.textContent=`구글 캘린더로 내보내는 중… (0/${all.length})`;
   const map=ggGetMap(); let ok=0,fail=0;
@@ -3397,6 +3398,65 @@ async function ggDeleteMapped(id){
   const map=ggGetMap(); const gid=map[id]; if(!gid)return;
   try{await fetch(GG_CAL+'/'+gid,{method:'DELETE',headers:{'Authorization':'Bearer '+ggToken}});}catch(_){}
   delete map[id]; ggSetMap(map);
+}
+
+/* --- 캘린더 (구글 캘린더 → 팀 일정, 각자 자기 구글 일정을 팀과 공유) --- */
+function ggImportMapKey(){return 'ggcalimport:'+(CUR?CUR.id:'');}
+function ggGetImportMap(){return LS.get(ggImportMapKey(),{});}
+function ggSetImportMap(m){LS.set(ggImportMapKey(),m);}
+function ggIsoToYmdLocal(iso){const d=new Date(iso);return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;}
+
+async function ggImportCalendar(){
+  if(!(await ggRequire())){return;}
+  const status=document.getElementById('ggCalStatus');
+  if(status)status.textContent='구글 캘린더에서 가져오는 중…';
+  const now=new Date();
+  const timeMin=new Date(now.getFullYear(),now.getMonth(),now.getDate()-7).toISOString();
+  const timeMax=new Date(now.getFullYear(),now.getMonth(),now.getDate()+180).toISOString();
+  let items=[];
+  try{
+    const url=GG_CAL+'?singleEvents=true&maxResults=250&timeMin='+encodeURIComponent(timeMin)+'&timeMax='+encodeURIComponent(timeMax);
+    const res=await ggApi(url,{method:'GET'});
+    items=res.items||[];
+  }catch(e){if(status)status.textContent='가져오기 실패: '+((e&&e.message)||e);return;}
+  const map=ggGetImportMap(); let ok=0,del=0,fail=0;
+  for(const ev of items){
+    try{
+      if(ev.description==='URP 워크스페이스 팀 일정')continue;   // 우리가 내보낸 팀 일정은 다시 안 가져옴(중복 방지)
+      if(ev.status==='cancelled'){
+        if(map[ev.id]){try{await _db.collection('ws_calendar').doc(map[ev.id]).delete();}catch(_){}delete map[ev.id];del++;}
+        continue;
+      }
+      let date,endDate=null;
+      if(ev.start&&ev.start.date){
+        date=ggIsoToYmdLocal(ev.start.date+'T00:00:00');
+        if(ev.end&&ev.end.date){
+          const [y,m,d]=ev.end.date.split('-').map(Number);
+          const dt=new Date(y,m-1,d-1);
+          const inc=`${dt.getFullYear()}-${dt.getMonth()+1}-${dt.getDate()}`;
+          if(inc!==date)endDate=inc;
+        }
+      }else if(ev.start&&ev.start.dateTime){
+        date=ggIsoToYmdLocal(ev.start.dateTime);
+        if(ev.end&&ev.end.dateTime){
+          const e2=ggIsoToYmdLocal(ev.end.dateTime);
+          if(e2!==date)endDate=e2;
+        }
+      }else{continue;}
+      const data={date,text:ev.summary||'(제목 없음)',author:CUR.name,authorEmail:CUR.id,authorCode:CUR.code||'',source:'google',googleEventId:ev.id};
+      if(endDate)data.endDate=endDate;
+      if(map[ev.id]){
+        await _db.collection('ws_calendar').doc(map[ev.id]).set(data,{merge:true});
+      }else{
+        data.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+        const ref=await _db.collection('ws_calendar').add(data);
+        map[ev.id]=ref.id;
+      }
+      ok++;
+    }catch(err){fail++;console.warn('cal import',err);}
+  }
+  ggSetImportMap(map);
+  if(status)status.textContent=`✓ ${ok}건 가져옴${del?(' · '+del+'건 삭제 반영'):''}${fail?(' · '+fail+'건 실패'):''}`;
 }
 
 /* --- 드라이브 (파일 업로드 → 구글 드라이브, 엑셀은 시트로 변환) --- */
