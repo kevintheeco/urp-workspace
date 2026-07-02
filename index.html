@@ -209,6 +209,10 @@
   .grat-remind button{border:none;border-radius:8px;padding:8px 15px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;background:var(--gold-deep);color:#f6efe0;}
   .grat-remind button.ghost{background:transparent;border:1px solid #c9b076;color:#7a5a1a;}
   .grat-remind button:hover{opacity:.88;}
+  .push-hint{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(58,107,56,.1);border:1px solid rgba(58,107,56,.35);border-radius:14px;padding:12px 18px;margin:0 0 22px;color:#2f6b38;font-size:13px;}
+  .push-hint .ph-tx{flex:1;min-width:200px;line-height:1.5;}
+  .push-hint button{border:none;border-radius:8px;padding:7px 13px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:transparent;border:1px solid #3a6b38;color:#2f6b38;}
+  .push-hint button:hover{background:rgba(58,107,56,.12);}
   @media(max-width:900px){.hero-row{grid-template-columns:1fr;margin-bottom:34px;}}
   .appgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px 14px;margin:0 0 10px;}
   @media(max-width:720px){.appgrid{grid-template-columns:repeat(3,1fr);gap:22px 8px;}}
@@ -902,6 +906,12 @@
           <button class="mb-save-btn" id="mbSave">저장</button>
         </div>
       </div>
+    </div>
+
+    <!-- 푸시 알림 안내 (미지원/미설정 환경) -->
+    <div class="push-hint" id="pushHint" style="display:none">
+      <span class="ph-tx" id="pushHintTx"></span>
+      <button id="pushHintDismiss">확인</button>
     </div>
 
     <!-- 오늘의 감사 리마인더 -->
@@ -2160,23 +2170,43 @@ function updateBell(){
 /* FCM 푸시(앱 닫혀도 알림) — 기기 토큰 등록 + 앱 열려있을 때 토스트 */
 const FCM_VAPID_KEY='BOtnYuL6jOGcPQm4mQ4dZNPZrzcKP-4NAuC3yjh7isA7r7Aw_AZicJWmjeXg9v7BRY9pLZvgRDUMXOOQf-gtBYA';
 let _fcmInited=false;
+function showPushHint(text){
+  const wrap=document.getElementById('pushHint'), tx=document.getElementById('pushHintTx');
+  if(!wrap||!tx)return;
+  const key=KEY(CUR?CUR.id:'anon','pushHintDismiss:'+text.slice(0,20));
+  if(LS.get(key,false))return;
+  tx.textContent=text;
+  wrap.style.display='flex';
+  const btn=document.getElementById('pushHintDismiss');
+  btn.onclick=()=>{LS.set(key,true);wrap.style.display='none';};
+}
+function isIOS(){return /iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}
+function isStandalone(){return window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;}
 async function initFcm(){
   if(_fcmInited)return;
   try{
+    if(isIOS()&&!isStandalone()){
+      showPushHint('📲 아이폰에서 알림을 받으려면: Safari로 열고 공유 버튼(⬆️) → "홈 화면에 추가" → 그 아이콘으로 실행해주세요. (브라우저 탭 상태에서는 iOS 정책상 알림이 불가능해요)');
+      return;
+    }
+    if(Notification&&Notification.permission==='denied'){
+      showPushHint('🔕 이 브라우저에서 알림이 차단돼 있어요. 주소창의 사이트 정보(자물쇠/ⓘ) 아이콘 → 알림 → 허용으로 바꾼 뒤 새로고침해주세요.');
+      return;
+    }
     if(!('serviceWorker' in navigator)||!firebase.messaging)return;
     const sup=await firebase.messaging.isSupported().catch(()=>false);
-    if(!sup)return;
+    if(!sup){showPushHint('🔕 이 브라우저는 웹 알림을 지원하지 않아요. 크롬 최신 버전으로 시도해주세요.');return;}
     _fcmInited=true;
     const reg=await navigator.serviceWorker.register('firebase-messaging-sw.js');
     const perm=await Notification.requestPermission();
-    if(perm!=='granted'){_fcmInited=false;return;}
+    if(perm!=='granted'){_fcmInited=false;if(perm==='denied')showPushHint('🔕 알림을 허용하지 않으셨어요. 나중에 마음이 바뀌면 사이트 정보(자물쇠) 아이콘에서 알림을 켤 수 있어요.');return;}
     const messaging=firebase.messaging();
     const token=await messaging.getToken({vapidKey:FCM_VAPID_KEY,serviceWorkerRegistration:reg});
     if(token&&CUR&&_db){
       await _db.collection('ws_members').doc(CUR.id).set({fcmTokens:firebase.firestore.FieldValue.arrayUnion(token)},{merge:true});
     }
     messaging.onMessage(p=>{const n=(p&&p.notification)||{};showToast('🔔',(n.title?n.title+' — ':'')+(n.body||''));});
-  }catch(e){console.warn('FCM init 실패',e);_fcmInited=false;}
+  }catch(e){console.warn('FCM init 실패',e);_fcmInited=false;showPushHint('🔕 알림 설정 중 문제가 있었어요. 새로고침 후 다시 시도해주세요.');}
 }
 async function acceptTask(id){
   try{
