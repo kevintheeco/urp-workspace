@@ -235,6 +235,26 @@
   .tt-legend{font-size:11px;color:var(--ink-soft);margin-top:10px;line-height:1.6;}
   .tt-best{margin-top:12px;padding:11px 14px;border-radius:10px;background:rgba(50,140,70,.1);border:1px solid rgba(50,140,70,.3);font-size:13px;color:#1f6b38;}
   .tt-best b{font-family:"Nanum Myeongjo",serif;}
+
+  /* Meeting Poll */
+  .mp-list-item{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;background:rgba(255,255,255,.45);cursor:pointer;transition:.15s;}
+  .mp-list-item:hover{border-color:var(--gold);}
+  .mp-list-title{font-family:"Nanum Myeongjo",serif;font-weight:700;font-size:14px;color:var(--ink);display:flex;align-items:center;gap:8px;}
+  .mp-list-sub{font-size:12px;color:var(--ink-soft);margin-top:3px;}
+  .mp-status{font-size:10.5px;padding:2px 9px;border-radius:20px;font-weight:700;}
+  .mp-status.open{background:rgba(187,146,74,.15);color:#7a5a1a;}
+  .mp-status.confirmed{background:rgba(50,140,70,.12);color:#1f6b38;}
+  .mp-empty{font-size:13px;color:var(--ink-soft);text-align:center;padding:24px 0;}
+  .mp-form{background:rgba(255,255,255,.55);border:1px solid var(--line);border-radius:10px;padding:16px;}
+  .mp-form input[type=text],.mp-form input:not([type]){width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:13.5px;margin-bottom:12px;}
+  .mp-form-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:12.5px;color:var(--ink-soft);}
+  .mp-form-row input[type=date],.mp-form-row select{padding:7px 9px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;color:var(--ink);background:#fff;}
+  .mp-mode-btn{border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:20px;padding:6px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .mp-mode-btn.on{background:var(--seal);border-color:var(--seal);color:#f3e6c8;}
+  .mp-people-pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;margin:2px;background:rgba(168,132,63,.12);color:var(--gold-deep);}
+  .mp-confirm-btn{border:none;background:var(--seal);color:#f3e6c8;border-radius:8px;padding:8px 16px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:"Nanum Myeongjo",serif;margin-top:8px;}
+  .mp-confirmed-banner{margin-top:12px;padding:12px 16px;border-radius:10px;background:rgba(50,140,70,.1);border:1px solid rgba(50,140,70,.3);color:#1f6b38;font-size:13.5px;}
+  .mp-confirmed-banner b{font-family:"Nanum Myeongjo",serif;}
   @media(max-width:900px){.hero-row{grid-template-columns:1fr;margin-bottom:34px;}}
   .appgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px 14px;margin:0 0 10px;}
   @media(max-width:720px){.appgrid{grid-template-columns:repeat(3,1fr);gap:22px 8px;}}
@@ -1020,6 +1040,7 @@
       <button class="appicon" onclick="document.getElementById('dmBtn').click()"><span class="tile" style="background:linear-gradient(150deg,#cba64e,#a07f2a)">💬<span class="badge" id="appDmBadge">0</span></span><span class="lbl">메시지</span></button>
       <button class="appicon" onclick="openApp('app-intra','🏢 회사 · 사내 내부망')"><span class="tile" style="background:linear-gradient(150deg,#4f8060,#2f5a3a)">🏢</span><span class="lbl">사내 내부망</span></button>
       <button class="appicon" onclick="openApp('app-timetracker','⏱ Time Tracker');ttOpen();"><span class="tile" style="background:linear-gradient(150deg,#3e9e8f,#1f6b5e)">⏱</span><span class="lbl">Time Tracker</span></button>
+      <button class="appicon" onclick="openApp('app-meetingpoll','🗓 미팅 잡기');mpOpen();"><span class="tile" style="background:linear-gradient(150deg,#c98a3e,#8a5a1f)">🗓</span><span class="lbl">미팅 잡기</span></button>
     </div>
 
     <!-- 앱 본체 보관소 (아이콘 클릭 시 창으로 이동, 닫으면 되돌아옴) -->
@@ -1235,6 +1256,53 @@
         <div class="tt-wrap"><table class="tt-table" id="ttTable"></table></div>
         <div class="tt-best" id="ttBest" style="display:none"></div>
         <div class="tt-legend">칸을 클릭·드래그하면 <b>내 가능 시간</b>이 칠해져요. 다른 사람 칸은 보기만 가능해요.</div>
+      </div>
+
+      <!-- 미팅 잡기 (When2Meet형 투표) -->
+      <div class="panel col-12">
+        <h3><span class="ic">🗓</span> 미팅 잡기</h3>
+        <p class="desc">참여자를 뽑고, 각자 되는 날짜·시간을 표시해서 최적의 시간을 찾아요</p>
+
+        <div id="mpListView">
+          <button class="proj-add-btn" id="mpNewBtn">＋ 새 미팅 잡기</button>
+          <div id="mpList"></div>
+          <div class="mp-empty" id="mpEmpty" style="display:none">아직 만든 미팅이 없어요.</div>
+        </div>
+
+        <div id="mpCreateView" style="display:none">
+          <div class="mp-form">
+            <input type="text" id="mpTitle" placeholder="미팅 제목 * (예: 7월 팀 회의)" />
+            <div style="font-size:12px;color:var(--ink-soft);margin-bottom:6px">참여자 선택 *</div>
+            <div class="chip-group" id="mpParticipants" style="margin-bottom:12px"></div>
+            <div class="mp-form-row">
+              <span>날짜 범위</span>
+              <input type="date" id="mpDayStart" /> ~ <input type="date" id="mpDayEnd" />
+            </div>
+            <div class="mp-form-row">
+              <span>시간대</span>
+              <select id="mpHourStart"></select> ~ <select id="mpHourEnd"></select>
+            </div>
+            <div class="proj-form-btns">
+              <button class="ok" id="mpCreateSave">미팅 만들기</button>
+              <button class="cancel" id="mpCreateCancel">취소</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="mpDetailView" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+            <button class="proj-add-btn" id="mpBackBtn">← 목록</button>
+            <div style="display:flex;gap:6px;">
+              <button class="mp-mode-btn on" id="mpViewModeBtn">전체 보기</button>
+              <button class="mp-mode-btn" id="mpEditModeBtn">내 시간 입력</button>
+            </div>
+          </div>
+          <h4 id="mpDetailTitle" style="font-family:'Nanum Myeongjo',serif;margin:4px 0 2px;font-size:16px;"></h4>
+          <div class="tt-hint" id="mpDetailMeta"></div>
+          <div class="tt-wrap"><table class="tt-table" id="mpTable"></table></div>
+          <div id="mpCellDetail" class="tt-best" style="display:none"></div>
+          <div id="mpConfirmedBanner" class="mp-confirmed-banner" style="display:none"></div>
+        </div>
       </div>
     </div>
 
@@ -2158,7 +2226,7 @@ document.getElementById('bellBtn').addEventListener('click',()=>openApp('app-tas
 /* ===== 앱 홈: 아이콘 클릭 → 패널을 창으로 이동, 닫으면 되돌림 ===== */
 (function(){
   // 보관소의 각 패널에 앱 ID 부여 (순서 기준)
-  var order=['app-today','app-grat','app-todo','app-cal','app-later','app-task','app-proj','app-brain','app-drive','app-intra','app-timetracker'];
+  var order=['app-today','app-grat','app-todo','app-cal','app-later','app-task','app-proj','app-brain','app-drive','app-intra','app-timetracker','app-meetingpoll'];
   var stash=document.getElementById('appStash');
   if(stash){
     Array.prototype.slice.call(stash.children).filter(function(el){return el.classList&&el.classList.contains('panel');})
@@ -3639,6 +3707,265 @@ async function ttSaveMine(){
 document.getElementById('ttPrev').addEventListener('click',()=>{ttDate=ttShift(ttDate||today(),-1);ttSubscribe();ttRender();});
 document.getElementById('ttNext').addEventListener('click',()=>{ttDate=ttShift(ttDate||today(),1);ttSubscribe();ttRender();});
 document.getElementById('ttTodayBtn').addEventListener('click',()=>{ttDate=today();ttSubscribe();ttRender();});
+
+/* ===== 미팅 잡기 (ws_meetingpolls + ws_meetingpoll_votes) — When2Meet형 ===== */
+let mpPolls=[], mpPollsUnsub=null, mpCurPoll=null, mpVotes={}, mpVotesUnsub=null;
+let mpMode='view', mpPainting=false, mpPaintVal=true, mpSelectedCell=null, mpSaveTimer=null, mpHoursFilled=false;
+
+function mpFmtDayHeader(ds){const d=ds2date(ds);const days=['일','월','화','수','목','금','토'];return `${d.getMonth()+1}/${d.getDate()}(${days[d.getDay()]})`;}
+function mpBuildDays(poll){
+  const days=[]; let cur=ds2date(poll.dayStart); const end=ds2date(poll.dayEnd);
+  let guard=0;
+  while(cur<=end&&guard<60){days.push(ttYmd(cur));cur=ds2date(ttYmd(cur));cur.setDate(cur.getDate()+1);guard++;}
+  return days;
+}
+function mpFillHourSelects(){
+  if(mpHoursFilled)return; mpHoursFilled=true;
+  const s=document.getElementById('mpHourStart'), e=document.getElementById('mpHourEnd');
+  let so='',eo='';
+  for(let h=0;h<24;h++){const lbl=String(h).padStart(2,'0')+':00';so+=`<option value="${h}" ${h===9?'selected':''}>${lbl}</option>`;eo+=`<option value="${h+1}" ${h+1===19?'selected':''}>${String(h+1).padStart(2,'0')}:00</option>`;}
+  s.innerHTML=so; e.innerHTML=eo;
+}
+
+function mpOpen(){
+  if(!CUR)return;
+  mpFillHourSelects();
+  ttLoadMembers().then(()=>{});   // 멤버 캐시 재사용
+  mpSubscribePolls();
+  mpShowList();
+}
+function mpSubscribePolls(){
+  if(!_db||mpPollsUnsub)return;
+  mpPollsUnsub=_db.collection('ws_meetingpolls').orderBy('createdAt','desc').onSnapshot(snap=>{
+    mpPolls=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(document.getElementById('mpListView').style.display!=='none')mpRenderList();
+    if(mpCurPoll){const fresh=mpPolls.find(p=>p.id===mpCurPoll.id);if(fresh)mpCurPoll=fresh;if(document.getElementById('mpDetailView').style.display!=='none')mpRenderGrid();}
+  },err=>console.error('mp 구독 오류',err));
+}
+function mpShowList(){
+  document.getElementById('mpListView').style.display='block';
+  document.getElementById('mpCreateView').style.display='none';
+  document.getElementById('mpDetailView').style.display='none';
+  if(mpVotesUnsub){mpVotesUnsub();mpVotesUnsub=null;}
+  mpCurPoll=null;
+  mpRenderList();
+}
+function mpRenderList(){
+  const list=document.getElementById('mpList'), empty=document.getElementById('mpEmpty');
+  if(!list)return;
+  if(!mpPolls.length){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=mpPolls.map(p=>{
+    const st=p.status==='confirmed'?'confirmed':'open';
+    const stLabel=st==='confirmed'?`✓ ${mpFmtDayHeader(p.confirmedDate)} ${String(p.confirmedHour).padStart(2,'0')}:00 확정`:'투표 중';
+    const names=(p.participants||[]).map(x=>x.name).join(', ');
+    return `<div class="mp-list-item" data-id="${p.id}">
+      <div class="mp-list-title">${esc(p.title||'')} <span class="mp-status ${st}">${stLabel}</span></div>
+      <div class="mp-list-sub">참여자: ${esc(names)} · ${esc(p.createdByName||'')}님이 만듦</div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.mp-list-item').forEach(el=>el.addEventListener('click',()=>mpOpenPoll(el.dataset.id)));
+}
+document.getElementById('mpNewBtn').addEventListener('click',()=>{
+  document.getElementById('mpListView').style.display='none';
+  document.getElementById('mpCreateView').style.display='block';
+  document.getElementById('mpTitle').value='';
+  const cg=document.getElementById('mpParticipants');
+  cg.innerHTML=ttMembers.filter(m=>m.email!==CUR.id).map(m=>`<button type="button" class="mchip" data-email="${esc(m.email)}" data-name="${esc(m.name)}" data-code="${esc(m.code||'')}">${esc(m.name)}</button>`).join('');
+  cg.querySelectorAll('.mchip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('on')));
+  const t=new Date(); const ds=new Date(t.getFullYear(),t.getMonth(),t.getDate()+1);
+  const de=new Date(t.getFullYear(),t.getMonth(),t.getDate()+7);
+  const pad=n=>String(n).padStart(2,'0');
+  document.getElementById('mpDayStart').value=`${ds.getFullYear()}-${pad(ds.getMonth()+1)}-${pad(ds.getDate())}`;
+  document.getElementById('mpDayEnd').value=`${de.getFullYear()}-${pad(de.getMonth()+1)}-${pad(de.getDate())}`;
+});
+document.getElementById('mpCreateCancel').addEventListener('click',mpShowList);
+document.getElementById('mpCreateSave').addEventListener('click',async()=>{
+  const title=document.getElementById('mpTitle').value.trim();
+  if(!title){alert('미팅 제목을 입력해주세요.');return;}
+  const dayStartRaw=document.getElementById('mpDayStart').value, dayEndRaw=document.getElementById('mpDayEnd').value;
+  if(!dayStartRaw||!dayEndRaw){alert('날짜 범위를 선택해주세요.');return;}
+  const dayStart=ttYmd(new Date(dayStartRaw+'T00:00:00')), dayEnd=ttYmd(new Date(dayEndRaw+'T00:00:00'));
+  if(ds2date(dayStart)>ds2date(dayEnd)){alert('종료일이 시작일보다 빠를 수 없어요.');return;}
+  const hourStart=+document.getElementById('mpHourStart').value, hourEnd=+document.getElementById('mpHourEnd').value;
+  if(hourStart>=hourEnd){alert('시간대를 올바르게 선택해주세요.');return;}
+  const others=Array.from(document.querySelectorAll('#mpParticipants .mchip.on')).map(b=>({email:b.dataset.email,name:b.dataset.name,code:b.dataset.code||''}));
+  const participants=[{email:CUR.id,name:CUR.name,code:CUR.code||''},...others];
+  try{
+    const ref=await _db.collection('ws_meetingpolls').add({
+      title,participants,dayStart,dayEnd,hourStart,hourEnd,status:'open',
+      createdByEmail:CUR.id,createdByName:CUR.name,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    mpOpenPoll(ref.id);
+  }catch(e){alert('미팅 만들기 실패: '+((e&&e.message)||e));}
+});
+
+function mpOpenPoll(id){
+  const p=mpPolls.find(x=>x.id===id); if(!p)return;
+  mpCurPoll=p; mpMode='view'; mpSelectedCell=null;
+  document.getElementById('mpListView').style.display='none';
+  document.getElementById('mpCreateView').style.display='none';
+  document.getElementById('mpDetailView').style.display='block';
+  document.getElementById('mpViewModeBtn').classList.add('on');
+  document.getElementById('mpEditModeBtn').classList.remove('on');
+  if(mpVotesUnsub){mpVotesUnsub();mpVotesUnsub=null;}
+  mpVotes={};
+  mpVotesUnsub=_db.collection('ws_meetingpoll_votes').where('pollId','==',id).onSnapshot(snap=>{
+    mpVotes={};
+    snap.forEach(doc=>{const v=doc.data();mpVotes[v.email]={slots:new Set(v.slots||[]),name:v.name};});
+    mpRenderGrid();
+  },err=>console.error('mp votes 구독 오류',err));
+  mpRenderGrid();
+}
+document.getElementById('mpBackBtn').addEventListener('click',mpShowList);
+document.getElementById('mpViewModeBtn').addEventListener('click',()=>{mpMode='view';document.getElementById('mpViewModeBtn').classList.add('on');document.getElementById('mpEditModeBtn').classList.remove('on');mpRenderGrid();});
+document.getElementById('mpEditModeBtn').addEventListener('click',()=>{
+  if(!mpCurPoll)return;
+  const isP=(mpCurPoll.participants||[]).some(x=>x.email===CUR.id);
+  if(!isP){alert('이 미팅의 참여자만 시간을 입력할 수 있어요.');return;}
+  mpMode='edit';document.getElementById('mpEditModeBtn').classList.add('on');document.getElementById('mpViewModeBtn').classList.remove('on');mpRenderGrid();
+});
+
+function mpRenderGrid(){
+  const p=mpCurPoll; if(!p)return;
+  document.getElementById('mpDetailTitle').textContent=p.title||'';
+  const isConfirmed=p.status==='confirmed';
+  const meta=document.getElementById('mpDetailMeta');
+  meta.textContent=isConfirmed
+    ?`확정됨 — ${mpFmtDayHeader(p.confirmedDate)} ${String(p.confirmedHour).padStart(2,'0')}:00`
+    :(mpMode==='edit'?'칸을 클릭·드래그해서 내가 가능한 시간을 칠하세요.':'칸을 누르면 누가 되는지 보여요. 진하게 칠해질수록 많은 사람이 가능해요.');
+
+  const days=mpBuildDays(p);
+  const table=document.getElementById('mpTable');
+  let html='<thead><tr><th></th>'+days.map(ds=>`<th>${mpFmtDayHeader(ds)}</th>`).join('')+'</tr></thead><tbody>';
+
+  const totalP=(p.participants||[]).length;
+  for(let h=p.hourStart;h<p.hourEnd;h++){
+    html+=`<tr><td class="tt-time">${String(h).padStart(2,'0')}:00</td>`;
+    days.forEach(ds=>{
+      const key=`${ds}-${h}`;
+      let cnt=0; const names=[];
+      (p.participants||[]).forEach(pt=>{const v=mpVotes[pt.email];if(v&&v.slots.has(key)){cnt++;names.push(pt.name);}});
+      let bg='#f2ede0', cls='tt-cell';
+      if(mpMode==='edit'){
+        const mine=mpVotes[CUR.id]; const has=mine&&mine.slots.has(key);
+        bg=has?'#3e9e8f':'#f2ede0'; cls+=' mine';
+      }else{
+        if(cnt>0){
+          const ratio=totalP?cnt/totalP:0;
+          bg=`rgba(62,158,143,${0.18+ratio*0.72})`;
+          if(totalP>=2&&cnt===totalP)cls+=' best';
+        }
+        cls+=' mp-viewcell';
+      }
+      if(mpSelectedCell===key)cls+=' sel';
+      html+=`<td class="${cls}" data-ds="${ds}" data-h="${h}" style="background:${bg}" title="${cnt}명 가능"></td>`;
+    });
+    html+='</tr>';
+  }
+  html+='</tbody>';
+  table.innerHTML=html;
+
+  if(mpMode==='edit'&&!isConfirmed){
+    table.querySelectorAll('td.mine').forEach(td=>{
+      td.addEventListener('mousedown',mpCellDown);
+      td.addEventListener('mouseover',mpCellOver);
+      td.addEventListener('touchstart',mpCellDown,{passive:true});
+      td.addEventListener('touchmove',mpCellTouchMove,{passive:false});
+    });
+  }else if(mpMode==='view'){
+    table.querySelectorAll('td.mp-viewcell').forEach(td=>td.addEventListener('click',()=>mpSelectCell(td.dataset.ds,+td.dataset.h)));
+  }
+
+  const detail=document.getElementById('mpCellDetail');
+  if(!mpSelectedCell||mpMode!=='view'){detail.style.display='none';}
+  const banner=document.getElementById('mpConfirmedBanner');
+  if(isConfirmed){
+    const names=(p.participants||[]).map(x=>x.name).join(', ');
+    banner.innerHTML=`✓ <b>${mpFmtDayHeader(p.confirmedDate)} ${String(p.confirmedHour).padStart(2,'0')}:00</b>로 확정됐어요. (참여: ${esc(names)})`;
+    banner.style.display='block';
+  }else{banner.style.display='none';}
+}
+
+function mpSelectCell(ds,h){
+  const p=mpCurPoll; if(!p||p.status==='confirmed')return;
+  const key=`${ds}-${h}`;
+  mpSelectedCell=(mpSelectedCell===key)?null:key;
+  mpRenderGrid();
+  const detail=document.getElementById('mpCellDetail');
+  if(!mpSelectedCell){detail.style.display='none';return;}
+  const yes=[],no=[];
+  (p.participants||[]).forEach(pt=>{const v=mpVotes[pt.email];(v&&v.slots.has(key))?yes.push(pt.name):no.push(pt.name);});
+  const canConfirm=CUR&&(CUR.id===p.createdByEmail||CUR.code==='CEO');
+  detail.innerHTML=`<div style="margin-bottom:6px">${mpFmtDayHeader(ds)} ${String(h).padStart(2,'0')}:00 — <b>${yes.length}/${(p.participants||[]).length}명 가능</b></div>`+
+    `<div>${yes.map(n=>`<span class="mp-people-pill">✓ ${esc(n)}</span>`).join('')}${no.map(n=>`<span class="mp-people-pill" style="opacity:.5">${esc(n)}</span>`).join('')}</div>`+
+    (canConfirm?`<button class="mp-confirm-btn" id="mpConfirmBtn">이 시간으로 확정</button>`:'');
+  detail.style.display='block';
+  const cb=document.getElementById('mpConfirmBtn');
+  if(cb)cb.addEventListener('click',()=>mpConfirm(ds,h));
+}
+
+async function mpConfirm(ds,h){
+  const p=mpCurPoll; if(!p)return;
+  if(!confirm(`${mpFmtDayHeader(ds)} ${String(h).padStart(2,'0')}:00 으로 미팅을 확정할까요?`))return;
+  try{
+    await _db.collection('ws_meetingpolls').doc(p.id).update({
+      status:'confirmed',confirmedDate:ds,confirmedHour:h,
+      confirmedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    const names=(p.participants||[]).map(x=>x.name).join(', ');
+    await _db.collection('ws_calendar').add({
+      date:ds,text:`🗓 ${p.title||''} (${names})`,author:CUR.name,authorEmail:CUR.id,authorCode:CUR.code||'',
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    const [yy,mm,dd]=ds.split('-').map(Number);
+    const iso=`${yy}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}T${String(h).padStart(2,'0')}:00`;
+    await _db.collection('ws_meta').doc('meeting').set({at:new Date(iso).getTime(),iso});
+    showToast('✓','미팅이 확정되고 공유 캘린더·회의 카운트다운에 반영됐어요.');
+  }catch(e){alert('확정 실패: '+((e&&e.message)||e));}
+}
+
+function mpCellDown(e){
+  if(!CUR||!mpCurPoll)return;
+  const td=e.currentTarget; const ds=td.dataset.ds,h=+td.dataset.h; const key=`${ds}-${h}`;
+  const mine=mpVotes[CUR.id]||{slots:new Set()};
+  mpPaintVal=!mine.slots.has(key);
+  mpPainting=true;
+  mpToggleSlot(ds,h,mpPaintVal);
+  if(e.type==='mousedown')e.preventDefault();
+}
+function mpCellOver(e){
+  if(!mpPainting)return;
+  const td=e.currentTarget; mpToggleSlot(td.dataset.ds,+td.dataset.h,mpPaintVal);
+}
+function mpCellTouchMove(e){
+  if(!mpPainting)return;
+  const t=e.touches[0]; const el=document.elementFromPoint(t.clientX,t.clientY);
+  const td=el&&el.closest?el.closest('td.mine'):null;
+  if(td){mpToggleSlot(td.dataset.ds,+td.dataset.h,mpPaintVal);e.preventDefault();}
+}
+window.addEventListener('mouseup',()=>{mpPainting=false;});
+window.addEventListener('touchend',()=>{mpPainting=false;});
+function mpToggleSlot(ds,h,val){
+  if(!CUR)return;
+  if(!mpVotes[CUR.id])mpVotes[CUR.id]={slots:new Set(),name:CUR.name};
+  const key=`${ds}-${h}`;
+  if(val)mpVotes[CUR.id].slots.add(key); else mpVotes[CUR.id].slots.delete(key);
+  const td=document.querySelector(`td.mine[data-ds="${ds}"][data-h="${h}"]`);
+  if(td)td.style.background=val?'#3e9e8f':'#f2ede0';
+  clearTimeout(mpSaveTimer);
+  mpSaveTimer=setTimeout(mpSaveMyVote,500);
+}
+async function mpSaveMyVote(){
+  if(!_db||!CUR||!mpCurPoll)return;
+  const d=mpVotes[CUR.id]||{slots:new Set()};
+  try{
+    await _db.collection('ws_meetingpoll_votes').doc(`${mpCurPoll.id}__${CUR.id}`).set({
+      pollId:mpCurPoll.id,email:CUR.id,name:CUR.name,slots:Array.from(d.slots),updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+  }catch(e){console.warn('mp 저장 실패',e);}
+}
 
 /* --- 드라이브 (파일 업로드 → 구글 드라이브, 엑셀은 시트로 변환) --- */
 function ggFileToB64(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(',')[1]);fr.onerror=rej;fr.readAsDataURL(file);});}

@@ -96,3 +96,21 @@ exports.onMyGratCreate = functions.firestore.document('ws_mygrats/{id}').onCreat
   const nm = await nameOf(d.email);
   await pushTo(tokens, '🌿 오늘의 감사', `${nm}님이 오늘의 감사를 기록했어요`);
 });
+
+/* 새 미팅 잡기 → 참여자(만든 사람 제외) */
+exports.onMeetingPollCreate = functions.firestore.document('ws_meetingpolls/{id}').onCreate(async (snap) => {
+  const p = snap.data() || {};
+  const emails = (p.participants || []).map(x => x.email).filter(e => e && e !== p.createdByEmail);
+  const tokens = await collectTokens(emails);
+  await pushTo(tokens, '🗓 새 미팅 잡기', `${p.title || ''} — ${p.createdByName || ''}님이 시간 투표를 요청했어요`);
+});
+
+/* 미팅 확정 → 참여자 전원 */
+exports.onMeetingPollConfirm = functions.firestore.document('ws_meetingpolls/{id}').onUpdate(async (change) => {
+  const before = change.before.data() || {};
+  const after = change.after.data() || {};
+  if (before.status === 'confirmed' || after.status !== 'confirmed') return;
+  const emails = (after.participants || []).map(x => x.email).filter(Boolean);
+  const tokens = await collectTokens(emails);
+  await pushTo(tokens, '✓ 미팅 확정', `${after.title || ''} — ${after.confirmedDate || ''} ${String(after.confirmedHour).padStart(2, '0')}:00`);
+});
