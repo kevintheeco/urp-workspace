@@ -474,7 +474,10 @@
   .ceo-head{display:flex;align-items:center;justify-content:space-between;padding:20px 26px;border-bottom:1px solid var(--line);}
   .ceo-head h2{font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:19px;margin:0;}
   .ceo-head .x{border:none;background:none;font-size:26px;color:var(--ink-soft);cursor:pointer;line-height:1;}
-  .ceo-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;padding:20px 26px;}
+  .ceo-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;padding:20px 26px;}
+  .ceo-cards.compact{padding:8px 0 0;}
+  .ts-summary{font-size:12.5px;color:var(--ink-soft);margin:2px 0 12px;}
+  .ts-summary b{color:#a03030;}
   .member-card{border:1px solid var(--line);border-radius:10px;padding:14px;background:rgba(255,255,255,.45);}
   .mc-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed rgba(168,132,63,.2);}
   .mc-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:13px;color:#f3e6c8;background:radial-gradient(circle at 35% 30%,#3a5a3a,#1f3a23);flex:none;}
@@ -1043,6 +1046,7 @@
     </div>
     <div class="appgrid" id="appGrid">
       <button class="appicon" data-appid="workflow" onclick="openWorkflow()"><span class="tile" style="background:linear-gradient(150deg,#c25b3e,#7c2d2a)">🚀</span><span class="lbl">Workflow</span></button>
+      <button class="appicon" id="teamStatusIcon" data-appid="teamstatus" onclick="openApp('app-teamstatus','🧭 팀 현황');openTeamStatus();"><span class="tile" style="background:linear-gradient(150deg,#4a7ab0,#2a4a7a)">🧭</span><span class="lbl">팀 현황</span></button>
       <button class="appicon" data-appid="nigakyosoo" onclick="openAppPicker()"><span class="tile" style="background:linear-gradient(150deg,#2fa37a,#17643f)">🎓</span><span class="lbl">니가교수</span></button>
       <button class="appicon" data-appid="today" onclick="openApp('app-today','📊 오늘 한눈에')"><span class="tile" style="background:linear-gradient(150deg,#5b83cf,#31569f)">📊</span><span class="lbl">오늘</span></button>
       <button class="appicon" data-appid="todo" onclick="openApp('app-todo','✅ 할 일 목록')"><span class="tile" style="background:linear-gradient(150deg,#3fb492,#2b8a70)">✅</span><span class="lbl">할 일</span></button>
@@ -1321,6 +1325,14 @@
           <div id="mpCellDetail" class="tt-best" style="display:none"></div>
           <div id="mpConfirmedBanner" class="mp-confirmed-banner" style="display:none"></div>
         </div>
+      </div>
+
+      <!-- 팀 현황 (CEO 전용) -->
+      <div class="panel col-12">
+        <h3><span class="ic">🧭</span> 팀 현황</h3>
+        <p class="desc">지금 각자 뭘 하고 있는지 한눈에 — 새로 맡길 일이 필요한 사람이 눈에 띄어요</p>
+        <div class="ts-summary" id="tsSummary"></div>
+        <div class="ceo-cards compact" id="teamStatusCards"><div style="padding:20px 0;color:var(--ink-soft)">불러오는 중…</div></div>
       </div>
     </div>
 
@@ -1663,6 +1675,7 @@ function enterDash(){
   document.getElementById('dash').classList.add('show');
   const ab=document.getElementById('adminBtn'); if(ab) ab.style.display=(CUR&&CUR.code==='CEO')?'inline-block':'none';
   const cvb=document.getElementById('ceoViewBtn'); if(cvb) cvb.style.display=(CUR&&CUR.code==='CEO')?'inline-block':'none';
+  const tsi=document.getElementById('teamStatusIcon'); if(tsi) tsi.style.display=(CUR&&CUR.code==='CEO')?'flex':'none';
   const mbs=document.getElementById('mbSetBtn'); if(mbs) mbs.style.display=(CUR&&CUR.code==='CEO')?'inline-flex':'none';
   if(typeof Notification!=='undefined'&&Notification.permission==='default') Notification.requestPermission();
   subscribeCalendar();
@@ -2251,7 +2264,7 @@ document.getElementById('bellBtn').addEventListener('click',()=>openApp('app-tas
 /* ===== 앱 홈: 아이콘 클릭 → 패널을 창으로 이동, 닫으면 되돌림 ===== */
 (function(){
   // 보관소의 각 패널에 앱 ID 부여 (순서 기준)
-  var order=['app-today','app-grat','app-todo','app-cal','app-later','app-task','app-proj','app-brain','app-drive','app-intra','app-timetracker','app-meetingpoll'];
+  var order=['app-today','app-grat','app-todo','app-cal','app-later','app-task','app-proj','app-brain','app-drive','app-intra','app-timetracker','app-meetingpoll','app-teamstatus'];
   var stash=document.getElementById('appStash');
   if(stash){
     Array.prototype.slice.call(stash.children).filter(function(el){return el.classList&&el.classList.contains('panel');})
@@ -2495,6 +2508,7 @@ function subscribeTeamTasks(){
     tasksCache=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderTaskPanel();
     if(document.getElementById('ceoModal').classList.contains('show')){renderCeoCards();renderDriveList();}
+    renderCeoCards(ceoMembersCache,'teamStatusCards','tsSummary');
   },err=>console.error('tasks 구독 오류',err));
 }
 
@@ -2692,16 +2706,27 @@ async function openWorkflow(){
   }catch(e){console.error('전체뷰 오류',e);}
 }
 
-function renderCeoCards(members){
+function renderCeoCards(members,containerId,summaryId){
+  containerId=containerId||'ceoCards';
   members=members||ceoMembersCache;
-  const wrap=document.getElementById('ceoCards');if(!wrap)return;
+  const wrap=document.getElementById(containerId);if(!wrap)return;
   if(!members||!members.length){wrap.innerHTML='<div style="padding:20px;color:var(--ink-soft)">팀원 목록을 불러오는 중…</div>';return;}
   const curWeek=weekKey();
-  wrap.innerHTML=members.map(m=>{
+  const rows=members.map(m=>{
     const myTasks=tasksCache.filter(t=>t.assigneeEmail===m.email&&!t.recurring&&t.status!=='완료');
     const myRecur=tasksCache.filter(t=>t.assigneeEmail===m.email&&t.recurring);
     const myProjs=projCache.filter(p=>p.assignee===m.name&&p.status!=='완료');
-    const idle=myTasks.length===0&&myProjs.length===0;
+    return {m,myTasks,myRecur,myProjs,idle:myTasks.length===0&&myProjs.length===0};
+  });
+  rows.sort((a,b)=>(b.idle?1:0)-(a.idle?1:0));
+  if(summaryId){
+    const sEl=document.getElementById(summaryId);
+    if(sEl){
+      const idleCount=rows.filter(r=>r.idle).length;
+      sEl.innerHTML=idleCount>0?`⚠ 지금 새 업무 없는 팀원 <b>${idleCount}명</b>`:'👍 지금 모두 업무가 있어요';
+    }
+  }
+  wrap.innerHTML=rows.map(({m,myTasks,myRecur,myProjs,idle})=>{
     const taskHtml=myTasks.length
       ?myTasks.map(t=>`<div class="mc-task-item"><span class="proj-badge badge-${esc(t.status||'대기')}" style="font-size:10px;padding:2px 7px">${esc(t.status||'대기')}</span>${esc(t.title||'')}</div>`).join('')
       :(idle?'':'<div class="mc-empty">진행 중인 업무지시 없음</div>');
@@ -2721,6 +2746,17 @@ function renderCeoCards(members){
       ${taskHtml}${projHtml}${recurHtml}
     </div>`;
   }).join('');
+}
+
+async function openTeamStatus(){
+  if(!CUR||CUR.code!=='CEO')return;
+  try{
+    if(!ceoMembersCache.length){
+      const snap=await _db.collection('ws_members').orderBy('createdAt').get();
+      ceoMembersCache=snap.docs.map(d=>d.data()).filter(m=>m.email!==CUR.id);
+    }
+    renderCeoCards(ceoMembersCache,'teamStatusCards','tsSummary');
+  }catch(e){console.error('팀 현황 오류',e);}
 }
 
 async function sendTask(){
