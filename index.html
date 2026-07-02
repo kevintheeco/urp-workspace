@@ -2637,8 +2637,9 @@ function renderTaskPanel(){
     try{await _db.collection('ws_tasks').doc(b.dataset.id).delete();}
     catch(e){alert('삭제 실패');}
   }));
-  ts.querySelectorAll('.tr-edit-btn[data-id]').forEach(b=>b.addEventListener('click',()=>{
-    openWorkflow();
+  ts.querySelectorAll('.tr-edit-btn[data-id]').forEach(b=>b.addEventListener('click',async()=>{
+    closeApp();                    // 지시함 오버레이(z-index 8500)가 수정폼 모달(z-index 30)을 가리므로 먼저 닫음
+    await openWorkflow();          // 담당자 목록·칩이 채워진 뒤에 폼을 채워야 값이 안 날아감
     openTaskEdit(b.dataset.id);
   }));
   ts.querySelectorAll('.tr-unrecur-btn[data-id]').forEach(b=>b.addEventListener('click',async()=>{
