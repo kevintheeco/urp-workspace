@@ -782,6 +782,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <!-- Surf In 에디터 (Editor.js + 플러그인 + 내보내기) -->
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2"></script>
@@ -1480,6 +1481,7 @@ function enterDash(){
   subscribeBsComments();
   subscribeDocs();
   subscribeLater();
+  initFcm();
   backfillGrats();
   loadTodayGratCloud();
   const nat=document.getElementById('noticeAddToggle');
@@ -2109,6 +2111,27 @@ function updateBell(){
   const b=document.getElementById('bellCount'); if(!b||!CUR)return;
   const n=tasksCache.filter(t=>t.assigneeEmail===CUR.id&&(t.status||'대기')==='대기').length;
   b.textContent=n; b.style.display=n>0?'flex':'none';
+}
+/* FCM 푸시(앱 닫혀도 알림) — 기기 토큰 등록 + 앱 열려있을 때 토스트 */
+const FCM_VAPID_KEY='BOtnYuL6jOGcPQm4mQ4dZNPZrzcKP-4NAuC3yjh7isA7r7Aw_AZicJWmjeXg9v7BRY9pLZvgRDUMXOOQf-gtBYA';
+let _fcmInited=false;
+async function initFcm(){
+  if(_fcmInited)return;
+  try{
+    if(!('serviceWorker' in navigator)||!firebase.messaging)return;
+    const sup=await firebase.messaging.isSupported().catch(()=>false);
+    if(!sup)return;
+    _fcmInited=true;
+    const reg=await navigator.serviceWorker.register('firebase-messaging-sw.js');
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){_fcmInited=false;return;}
+    const messaging=firebase.messaging();
+    const token=await messaging.getToken({vapidKey:FCM_VAPID_KEY,serviceWorkerRegistration:reg});
+    if(token&&CUR&&_db){
+      await _db.collection('ws_members').doc(CUR.id).set({fcmTokens:firebase.firestore.FieldValue.arrayUnion(token)},{merge:true});
+    }
+    messaging.onMessage(p=>{const n=(p&&p.notification)||{};showToast('🔔',(n.title?n.title+' — ':'')+(n.body||''));});
+  }catch(e){console.warn('FCM init 실패',e);_fcmInited=false;}
 }
 async function acceptTask(id){
   try{
