@@ -550,8 +550,11 @@
   .wf-drive-list{display:flex;flex-direction:column;gap:6px;}
   .wf-dv{padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:12.5px;color:var(--ink);}
   .wf-dv-top{display:flex;align-items:center;gap:7px;}
-  .wf-dv-title{font-weight:700;font-family:"Nanum Myeongjo",serif;}
+  .wf-dv-title{font-weight:700;font-family:"Nanum Myeongjo",serif;flex:1;min-width:0;}
   .wf-dv-daci{font-size:11px;color:var(--ink-soft);margin-top:3px;}
+  .wf-dv-edit{flex:none;border:1px solid var(--line);background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;cursor:pointer;opacity:.7;}
+  .wf-dv-edit:hover{opacity:1;border-color:var(--gold);}
+  .proj-badge.wf-dv-status{border:none;}
   .wf-empty{font-size:12.5px;color:var(--ink-soft);font-style:italic;padding:12px 4px;text-align:center;}
   .wf-hint{font-size:11px;color:var(--ink-soft);margin-top:9px;line-height:1.5;}
   .task-send-area.wf-flash{animation:wfflash 1.4s ease;}
@@ -1519,7 +1522,8 @@
     <div id="wfCeoOnly">
     <div class="ceo-cards" id="ceoCards"><div style="padding:20px;color:var(--ink-soft)">불러오는 중…</div></div>
     <div class="task-send-area">
-      <h4><span style="color:var(--gold)">◉</span> 새 업무 만들기 (DACI)</h4>
+      <h4><span style="color:var(--gold)">◉</span> <span id="tsFormTitle">새 업무 만들기 (DACI)</span></h4>
+      <input type="hidden" id="tsEditId" value="" />
       <div class="task-form-row">
         <input id="tsTitle" placeholder="업무 이름 * (예: 브랜드 로고 제작)" style="flex:2;min-width:180px" />
         <input id="tsDeadline" type="date" title="기한 (선택)" />
@@ -1548,6 +1552,7 @@
       <div class="task-form-row">
         <input id="tsNote" placeholder="상세 내용 (선택)" style="flex:1" />
         <button class="task-send-btn" id="tsSend">업무 만들기</button>
+        <button class="tr-outline-btn" id="tsCancelEdit" style="display:none">취소</button>
       </div>
     </div>
     </div><!-- /wfCeoOnly -->
@@ -2759,7 +2764,42 @@ async function openTeamStatus(){
   }catch(e){console.error('팀 현황 오류',e);}
 }
 
+function resetTaskForm(){
+  ['tsTitle','tsDeadline','tsNote'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('tsTo').value='';
+  document.getElementById('tsRecurring').checked=false;
+  document.getElementById('tsDeadline').disabled=false;
+  document.querySelectorAll('#tsConsulted .mchip.on,#tsInformed .mchip.on').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tsEditId').value='';
+  document.getElementById('tsFormTitle').textContent='새 업무 만들기 (DACI)';
+  document.getElementById('tsSend').textContent='업무 만들기';
+  document.getElementById('tsCancelEdit').style.display='none';
+}
+
+function openTaskEdit(taskId){
+  if(!(CUR&&CUR.code==='CEO'))return;
+  const t=tasksCache.find(x=>x.id===taskId); if(!t)return;
+  document.getElementById('tsEditId').value=taskId;
+  document.getElementById('tsTitle').value=t.title||'';
+  document.getElementById('tsNote').value=t.note||'';
+  document.getElementById('tsTo').value=t.assigneeEmail||'';
+  document.getElementById('tsApprover').value=t.approverEmail||CUR.id;
+  document.getElementById('tsRecurring').checked=!!t.recurring;
+  const dl=document.getElementById('tsDeadline');
+  dl.disabled=!!t.recurring;
+  dl.value=t.recurring?'':(t.deadline||'');
+  const consultedEmails=t.consultedEmails||[], informedEmails=t.informedEmails||[];
+  document.querySelectorAll('#tsConsulted .mchip').forEach(b=>b.classList.toggle('on',consultedEmails.includes(b.dataset.email)));
+  document.querySelectorAll('#tsInformed .mchip').forEach(b=>b.classList.toggle('on',informedEmails.includes(b.dataset.email)));
+  document.getElementById('tsFormTitle').textContent='✏️ 업무 지시문 수정';
+  document.getElementById('tsSend').textContent='수정 저장';
+  document.getElementById('tsCancelEdit').style.display='inline-block';
+  const area=document.querySelector('.task-send-area');
+  if(area){ area.scrollIntoView({behavior:'smooth',block:'center'}); area.classList.add('wf-flash'); setTimeout(()=>area.classList.remove('wf-flash'),1400); }
+}
+
 async function sendTask(){
+  const editId=document.getElementById('tsEditId').value;
   const sel=document.getElementById('tsTo');
   const assigneeEmail=sel.value;
   const opt=sel.options[sel.selectedIndex];
@@ -2780,32 +2820,39 @@ async function sendTask(){
   const collect=id=>Array.from(document.querySelectorAll('#'+id+' .mchip.on')).map(b=>({email:b.dataset.email,name:b.dataset.name}));
   const consulted=collect('tsConsulted');
   const informed=collect('tsInformed');
+  const payload={
+    title,assigneeEmail,assigneeName,assigneeCode,
+    driverEmail:assigneeEmail,driverName:assigneeName,
+    approverEmail,approverName,
+    consulted,informed,
+    consultedEmails:consulted.map(x=>x.email),
+    informedEmails:informed.map(x=>x.email),
+    deadline,note,recurring,
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  };
   try{
-    await _db.collection('ws_tasks').add({
-      title,assigneeEmail,assigneeName,assigneeCode,
-      driverEmail:assigneeEmail,driverName:assigneeName,
-      approverEmail,approverName,
-      consulted,informed,
-      consultedEmails:consulted.map(x=>x.email),
-      informedEmails:informed.map(x=>x.email),
-      fromEmail:CUR.id,fromName:CUR.name,fromCode:CUR.code||'',
-      status:recurring?'진행중':'대기',deadline,note,recurring,
-      createdAt:firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    ['tsTitle','tsDeadline','tsNote'].forEach(id=>document.getElementById(id).value='');
-    sel.value='';
-    document.getElementById('tsRecurring').checked=false;
-    document.getElementById('tsDeadline').disabled=false;
-    document.querySelectorAll('#tsConsulted .mchip.on,#tsInformed .mchip.on').forEach(b=>b.classList.remove('on'));
-    if(_pendingEngineId){ try{await _db.collection('ws_engine').doc(_pendingEngineId).delete();}catch(_){} _pendingEngineId=null; }
-    alert(`"${title}" 업무를 만들었습니다. 🚗 ${assigneeName} 담당.`);
-  }catch(e){alert('전달 실패: '+((e&&e.message)||e));}
+    if(editId){
+      await _db.collection('ws_tasks').doc(editId).update(payload);
+      resetTaskForm();
+      alert(`"${title}" 업무 지시문을 수정했습니다.`);
+    }else{
+      await _db.collection('ws_tasks').add({
+        ...payload,
+        status:recurring?'진행중':'대기',
+        fromEmail:CUR.id,fromName:CUR.name,fromCode:CUR.code||'',
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+      resetTaskForm();
+      if(_pendingEngineId){ try{await _db.collection('ws_engine').doc(_pendingEngineId).delete();}catch(_){} _pendingEngineId=null; }
+      alert(`"${title}" 업무를 만들었습니다. 🚗 ${assigneeName} 담당.`);
+    }
+  }catch(e){alert((editId?'수정 실패: ':'전달 실패: ')+((e&&e.message)||e));}
 }
 
 document.getElementById('ceoViewBtn').addEventListener('click',openWorkflow);
 document.getElementById('ceoClose').addEventListener('click',()=>document.getElementById('ceoModal').classList.remove('show'));
 document.getElementById('tsSend').addEventListener('click',sendTask);
+document.getElementById('tsCancelEdit').addEventListener('click',resetTaskForm);
 document.getElementById('tsRecurring').addEventListener('change',e=>{
   const dl=document.getElementById('tsDeadline');
   dl.disabled=e.target.checked;
@@ -2911,13 +2958,28 @@ async function persistOrder(arr,clearPropsId){
 function renderDriveList(){
   const wrap=document.getElementById('driveList2'); if(!wrap)return;
   const empty=document.getElementById('driveEmpty2');
+  const isCEO=CUR&&CUR.code==='CEO';
   const items=tasksCache.filter(t=>(t.status||'')!=='완료');
   if(!items.length){wrap.innerHTML='';if(empty)empty.style.display='block';return;}
   if(empty)empty.style.display='none';
-  wrap.innerHTML=items.map(t=>`<div class="wf-dv">`+
-    `<div class="wf-dv-top"><span class="proj-badge badge-${esc(t.status||'대기')}" style="font-size:10px;padding:2px 7px">${esc(t.status||'대기')}</span>`+
-    `<span class="wf-dv-title">🚗 ${esc(t.assigneeName||'')} · ${esc(t.title||'')}</span></div>`+
-    `<div class="wf-dv-daci">${daciLine(t)||''}</div></div>`).join('');
+  wrap.innerHTML=items.map(t=>{
+    const st=t.status||'대기';
+    const badgeHtml=isCEO
+      ?`<button class="proj-badge badge-${esc(st)} wf-dv-status" data-id="${t.id}" data-st="${esc(st)}" style="font-size:10px;padding:2px 7px">${esc(st)}</button>`
+      :`<span class="proj-badge badge-${esc(st)}" style="font-size:10px;padding:2px 7px">${esc(st)}</span>`;
+    const editHtml=isCEO?`<button class="wf-dv-edit" data-id="${t.id}" title="지시문 수정">✏️</button>`:'';
+    return `<div class="wf-dv">`+
+      `<div class="wf-dv-top">${badgeHtml}`+
+      `<span class="wf-dv-title">🚗 ${esc(t.assigneeName||'')} · ${esc(t.title||'')}</span>${editHtml}</div>`+
+      `<div class="wf-dv-daci">${daciLine(t)||''}</div></div>`;
+  }).join('');
+  wrap.querySelectorAll('.wf-dv-status').forEach(b=>b.addEventListener('click',async()=>{
+    const TCYCLE=['대기','진행중','완료'];
+    const next=TCYCLE[(TCYCLE.indexOf(b.dataset.st)+1)%TCYCLE.length];
+    try{await _db.collection('ws_tasks').doc(b.dataset.id).update({status:next,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}
+    catch(e){alert('상태 변경 실패');}
+  }));
+  wrap.querySelectorAll('.wf-dv-edit').forEach(b=>b.addEventListener('click',()=>openTaskEdit(b.dataset.id)));
 }
 
 function wfDragAfter(container,y){
