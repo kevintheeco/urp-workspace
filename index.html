@@ -1664,6 +1664,7 @@ function enterDash(){
   subscribeLater();
   initFcm();
   applyAppOrder();
+  setTimeout(ggAutoConnect,800);   // GIS 스크립트 로드 시간 여유
   backfillGrats();
   loadTodayGratCloud();
   const nat=document.getElementById('noticeAddToggle');
@@ -3511,6 +3512,7 @@ const GG_CLIENT_ID='307018527457-f6mr4hl2qda8l31fed7a3dbkc43erbtj.apps.googleuse
 const GG_SCOPES='https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.file';
 let ggToken=null, ggTokenExp=0, ggTokenClient=null, _ggResolve=null;
 
+function ggGrantedKey(){return KEY(CUR?CUR.id:'anon','ggGranted');}
 function ggInit(){
   if(ggTokenClient)return true;
   if(!(window.google&&google.accounts&&google.accounts.oauth2))return false;
@@ -3520,6 +3522,7 @@ function ggInit(){
       if(resp&&resp.access_token){
         ggToken=resp.access_token;
         ggTokenExp=Date.now()+((resp.expires_in?+resp.expires_in:3600)*1000)-60000;
+        LS.set(ggGrantedKey(),true);   // 다음부터는 동의창 없이 조용히 재연결
       }
       ggUpdateBtns();
       if(_ggResolve){_ggResolve(!!(resp&&resp.access_token));_ggResolve=null;}
@@ -3533,11 +3536,19 @@ function ggRequire(){
     if(ggConnected()){resolve(true);return;}
     if(!ggInit()){alert('구글 연동 스크립트 준비 중이에요. 잠시 후 다시 눌러주세요.');resolve(false);return;}
     _ggResolve=resolve;
-    try{ggTokenClient.requestAccessToken({prompt:ggToken?'':'consent'});}
+    const everGranted=LS.get(ggGrantedKey(),false);
+    try{ggTokenClient.requestAccessToken({prompt:everGranted?'':'consent'});}
     catch(e){alert('구글 연결 실패: '+((e&&e.message)||e));resolve(false);}
   });
 }
 async function ggConnect(){const ok=await ggRequire();ggUpdateBtns();return ok;}
+/* 로그인 시 자동 실행 — 예전에 허용한 적 있으면 클릭 없이 조용히 재연결 시도 */
+function ggAutoConnect(){
+  if(!CUR)return;
+  if(!LS.get(ggGrantedKey(),false))return;   // 한 번도 허용한 적 없으면 자동 시도 안 함(불필요한 팝업 방지)
+  if(!ggInit())return;
+  try{ggTokenClient.requestAccessToken({prompt:''});}catch(e){}
+}
 function ggUpdateBtns(){
   const on=ggConnected();
   document.querySelectorAll('.gg-connect').forEach(b=>{b.textContent=on?'🔗 구글 연결됨':'🔗 구글 연결';b.classList.toggle('on',on);});
