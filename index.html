@@ -496,8 +496,9 @@
   .task-send-area{padding:16px 26px 22px;border-top:1px solid var(--line);background:rgba(255,255,255,.28);}
   .task-send-area h4{font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:15px;margin:0 0 12px;color:var(--ink);display:flex;align-items:center;gap:8px;}
   .task-form-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
-  .task-form-row input,.task-form-row select{flex:1;min-width:110px;padding:9px 11px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;color:var(--ink);background:#fff;}
-  .task-form-row input:focus,.task-form-row select:focus{outline:none;border-color:var(--gold);}
+  .task-form-row input,.task-form-row select,.task-form-row textarea{flex:1;min-width:110px;padding:9px 11px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;color:var(--ink);background:#fff;}
+  .task-form-row input:focus,.task-form-row select:focus,.task-form-row textarea:focus{outline:none;border-color:var(--gold);}
+  .task-form-row textarea{resize:vertical;min-height:80px;line-height:1.5;}
   .task-send-btn{padding:10px 22px;border:none;border-radius:8px;background:var(--seal);color:#f3e6c8;font-family:"Nanum Myeongjo",serif;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;}
   .task-send-btn:hover{background:#8f352f;}
   /* DACI 역할 배정 */
@@ -1550,7 +1551,9 @@
         <div class="chip-group" id="tsInformed"></div>
       </div>
       <div class="task-form-row">
-        <input id="tsNote" placeholder="상세 내용 (선택)" style="flex:1" />
+        <textarea id="tsNote" placeholder="상세 내용 (선택) — 자세히 적어주세요" rows="4" style="flex:1"></textarea>
+      </div>
+      <div class="task-form-row">
         <button class="task-send-btn" id="tsSend">업무 만들기</button>
         <button class="tr-outline-btn" id="tsCancelEdit" style="display:none">취소</button>
       </div>
