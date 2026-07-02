@@ -151,8 +151,41 @@
   @media(max-width:900px){.col-4,.col-6,.col-8{grid-column:span 12;}}
 
   /* ===== 앱 홈(아이폰형) ===== */
-  .hero-row{display:grid;grid-template-columns:1.9fr 1fr;gap:22px;margin:0 0 48px;align-items:stretch;}
-  .hero-row>.panel{height:100%;}
+  .hero-row{display:grid;grid-template-columns:1.9fr 1fr;gap:22px;margin:0 0 48px;align-items:start;}
+  .hero-row .grat-feed{max-height:200px;overflow-y:auto;}
+  .grat-last-link{display:inline-block;margin-top:12px;color:#8a5a2a;font-size:12.5px;font-weight:700;cursor:pointer;border-bottom:1px dashed #b98a4a;font-family:"Nanum Myeongjo",serif;padding-bottom:1px;}
+  .grat-last-link:hover{color:#6b3f13;border-bottom-color:#6b3f13;}
+
+  /* 지난 팀 감사 캘린더 모달 */
+  .gcal-overlay{display:none;position:fixed;inset:0;z-index:9300;background:rgba(10,8,4,.82);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px;}
+  .gcal-overlay.show{display:flex;}
+  .gcal-box{background:linear-gradient(158deg,#fcf7ec 0%,#f4e9d0 100%);border:1px solid #e2cf9f;border-radius:18px;width:min(440px,96vw);max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.5);overflow:hidden;}
+  .gcal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid #e2cf9f;}
+  .gcal-head h2{font-family:"Nanum Myeongjo",serif;font-size:18px;color:#5c4a24;margin:0;}
+  .gcal-head .x{background:none;border:none;font-size:22px;color:#8a7a54;cursor:pointer;line-height:1;}
+  .gcal-cal{padding:16px 22px 8px;}
+  .gcal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .gcal-nav b{font-family:"Nanum Myeongjo",serif;font-size:15px;color:#5c4a24;}
+  .gcal-nav button{border:1px solid #d9c496;background:#fff;border-radius:7px;width:30px;height:30px;color:#7a5a1a;font-size:15px;cursor:pointer;}
+  .gcal-nav button:hover{border-color:var(--gold-deep);}
+  .gcal-cal table{width:100%;border-collapse:collapse;}
+  .gcal-cal th{font-family:"Cormorant Garamond",serif;font-size:11px;color:var(--gold-deep);padding:5px 0;font-weight:600;}
+  .gcal-cal td{text-align:center;padding:2px;}
+  .gcal-day{width:36px;height:36px;line-height:36px;border-radius:9px;font-size:13px;color:#5c4a24;position:relative;cursor:default;margin:0 auto;transition:.12s;}
+  .gcal-day.sun{color:#a14a44;}
+  .gcal-day.has{cursor:pointer;font-weight:700;}
+  .gcal-day.has:hover{background:rgba(168,132,63,.18);}
+  .gcal-day.has::after{content:"";position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:var(--seal);}
+  .gcal-day.today{outline:1.5px solid var(--gold);}
+  .gcal-day.sel{background:var(--seal);color:#f3e6c8;}
+  .gcal-day.sel.has::after{background:#f3e6c8;}
+  .gcal-detail{border-top:1px solid #e2cf9f;padding:16px 22px 22px;overflow-y:auto;background:rgba(255,255,255,.35);}
+  .gcal-detail .gcal-hint{font-size:13px;color:#8a7a54;text-align:center;padding:14px 0;}
+  .gcal-detail .gcal-date{font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:14px;color:#5c4a24;margin-bottom:10px;}
+  .gcal-g{border:1px solid #e6d6ae;border-radius:10px;padding:11px 13px;margin-bottom:9px;background:#fff;}
+  .gcal-g:last-child{margin-bottom:0;}
+  .gcal-g-author{font-size:11.5px;color:var(--gold-deep);font-weight:700;margin-bottom:4px;}
+  .gcal-g-items{font-size:13px;color:var(--ink);line-height:1.6;}
   @media(max-width:900px){.hero-row{grid-template-columns:1fr;margin-bottom:34px;}}
   .appgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px 14px;margin:0 0 10px;}
   @media(max-width:720px){.appgrid{grid-template-columns:repeat(3,1fr);gap:22px 8px;}}
@@ -810,10 +843,11 @@
         <div class="verse-ref" id="verseRef"></div>
       </div>
       <div class="panel">
-        <h3><span class="ic">✦</span> 팀 감사 나눔</h3>
-        <p class="desc">오늘의 감사를 팀과 나눈 것들</p>
+        <h3><span class="ic">✦</span> 오늘의 팀 감사 나눔</h3>
+        <p class="desc">오늘 팀이 나눈 감사 · 매일 새로 시작해요</p>
         <div class="grat-feed" id="gratFeed"></div>
-        <div class="grat-feed-empty" id="gratFeedEmpty" style="display:none">아직 공유된 감사가 없어요.<br>오늘의 감사를 팀과 나눠보세요 🌿</div>
+        <div class="grat-feed-empty" id="gratFeedEmpty" style="display:none">오늘 나눈 감사가 아직 없어요.<br>오늘의 감사를 팀과 나눠보세요 🌿</div>
+        <span class="grat-last-link" id="gratCalBtn">📅 지난 감사</span>
       </div>
     </div>
 
@@ -1198,6 +1232,18 @@
       <button class="grat-hist-close" id="gratHistClose">✕</button>
     </div>
     <div class="grat-hist-list" id="gratHistList"></div>
+  </div>
+</div>
+
+<!-- 지난 팀 감사 캘린더 모달 -->
+<div class="gcal-overlay" id="gcalOverlay">
+  <div class="gcal-box">
+    <div class="gcal-head"><h2>🌿 지난 팀 감사</h2><button class="x" id="gcalClose">✕</button></div>
+    <div class="gcal-cal">
+      <div class="gcal-nav"><button id="gcalPrev">‹</button><b id="gcalLabel"></b><button id="gcalNext">›</button></div>
+      <table><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody id="gcalBody"></tbody></table>
+    </div>
+    <div class="gcal-detail" id="gcalDetail"><div class="gcal-hint">점(●)이 있는 날을 누르면<br>그날 팀이 나눈 감사가 보여요 🌿</div></div>
   </div>
 </div>
 
@@ -2564,13 +2610,15 @@ document.getElementById('nfSave').addEventListener('click',async()=>{
 
 /* ===== 팀 감사 나눔 (ws_grats) ===== */
 let gratsUnsub=null;
+function gDateKey(ts){const d=ts&&ts.toDate?ts.toDate():(ts instanceof Date?ts:new Date());return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;}
 function subscribeTeamGrats(){
   if(!_db||gratsUnsub)return;
-  gratsUnsub=_db.collection('ws_grats').orderBy('createdAt','desc').limit(20).onSnapshot(snap=>{
+  gratsUnsub=_db.collection('ws_grats').orderBy('createdAt','desc').limit(60).onSnapshot(snap=>{
     const feed=document.getElementById('gratFeed');
     const empty=document.getElementById('gratFeedEmpty');
     if(!feed)return;
-    const docs=snap.docs;
+    const todayKey=today();
+    const docs=snap.docs.filter(d=>gDateKey(d.data().createdAt)===todayKey);   // 오늘만 표시 (매일 초기화)
     if(docs.length===0){feed.innerHTML='';empty.style.display='block';return;}
     empty.style.display='none';
     feed.innerHTML=docs.map(d=>{
@@ -2603,6 +2651,61 @@ document.getElementById('gratShareBtn').addEventListener('click',async()=>{
   btn.textContent='✓ 공유됐어요!';
   setTimeout(()=>{btn.textContent='🌿 팀과 감사 나누기';},2500);
 });
+
+/* 지난 팀 감사 캘린더 (ws_grats 날짜별) */
+let gcalData={}, gcalMonth=null, gcalSel=null;
+async function openGratCal(){
+  const ov=document.getElementById('gcalOverlay');
+  ov.classList.add('show');
+  const det=document.getElementById('gcalDetail');
+  det.innerHTML='<div class="gcal-hint">불러오는 중…</div>';
+  gcalData={}; gcalSel=null;
+  if(!_db){det.innerHTML='<div class="gcal-hint">로그인이 필요해요.</div>';return;}
+  try{
+    const snap=await _db.collection('ws_grats').orderBy('createdAt','desc').limit(500).get();
+    snap.docs.forEach(doc=>{
+      const n=doc.data(); const k=gDateKey(n.createdAt);
+      (gcalData[k]=gcalData[k]||[]).push({authorName:n.authorName||'', items:(n.items||[]).filter(Boolean)});
+    });
+  }catch(e){det.innerHTML='<div class="gcal-hint">불러오기 실패: '+esc((e&&e.message)||String(e))+'</div>';}
+  const now=new Date();
+  gcalMonth=new Date(now.getFullYear(),now.getMonth(),1);
+  renderGcal();
+  det.innerHTML='<div class="gcal-hint">점(●)이 있는 날을 누르면<br>그날 팀이 나눈 감사가 보여요 🌿</div>';
+}
+function renderGcal(){
+  const body=document.getElementById('gcalBody'); if(!body||!gcalMonth)return;
+  const y=gcalMonth.getFullYear(), m=gcalMonth.getMonth();
+  document.getElementById('gcalLabel').textContent=`${y}년 ${m+1}월`;
+  const first=new Date(y,m,1).getDay();
+  const days=new Date(y,m+1,0).getDate();
+  const todayKey=today();
+  let html='<tr>', col=0;
+  for(let i=0;i<first;i++){html+='<td></td>';col++;}
+  for(let d=1;d<=days;d++){
+    const key=`${y}-${m+1}-${d}`;
+    const has=!!gcalData[key];
+    const cls=['gcal-day'];
+    if(col%7===0)cls.push('sun'); if(has)cls.push('has'); if(key===todayKey)cls.push('today'); if(key===gcalSel)cls.push('sel');
+    html+=`<td><div class="${cls.join(' ')}" ${has?`data-k="${key}"`:''}>${d}</div></td>`;
+    col++; if(col%7===0)html+='</tr><tr>';
+  }
+  html+='</tr>';
+  body.innerHTML=html;
+  body.querySelectorAll('.gcal-day.has').forEach(el=>el.addEventListener('click',()=>{gcalSel=el.dataset.k;renderGcal();renderGcalDay(el.dataset.k);}));
+}
+function renderGcalDay(key){
+  const det=document.getElementById('gcalDetail');
+  const arr=gcalData[key]||[];
+  if(!arr.length){det.innerHTML='<div class="gcal-hint">이 날은 기록이 없어요.</div>';return;}
+  det.innerHTML=`<div class="gcal-date">${fmtGratDate(key)}</div>`+arr.map(g=>
+    `<div class="gcal-g"><div class="gcal-g-author">${esc(g.authorName)}</div><div class="gcal-g-items">${g.items.map((t,i)=>`${i+1}. ${esc(t)}`).join('<br>')}</div></div>`).join('');
+}
+document.getElementById('gratCalBtn').addEventListener('click',openGratCal);
+document.getElementById('gcalClose').addEventListener('click',()=>document.getElementById('gcalOverlay').classList.remove('show'));
+document.getElementById('gcalOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('show');});
+document.getElementById('gcalPrev').addEventListener('click',()=>{gcalMonth=new Date(gcalMonth.getFullYear(),gcalMonth.getMonth()-1,1);renderGcal();});
+document.getElementById('gcalNext').addEventListener('click',()=>{gcalMonth=new Date(gcalMonth.getFullYear(),gcalMonth.getMonth()+1,1);renderGcal();});
 
 /* ===== 브레인스토밍 보드 (ws_brainstorm + ws_bscomments) ===== */
 const BS_NOTION_DB='2441cb468b4e4a0da29c9993824973ad';
