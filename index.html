@@ -153,6 +153,7 @@
   /* ===== 앱 홈(아이폰형) ===== */
   .hero-row{display:grid;grid-template-columns:1.9fr 1fr;gap:22px;margin:0 0 48px;align-items:start;}
   .hero-left{display:flex;flex-direction:column;gap:22px;min-width:0;}
+  .hero-right{display:flex;flex-direction:column;gap:22px;min-width:0;}
   .hero-row .grat-feed{max-height:200px;overflow-y:auto;}
   .notices-widget .notice-list{max-height:240px;overflow-y:auto;}
   .grat-last-link{display:inline-block;margin-top:12px;color:#8a5a2a;font-size:12.5px;font-weight:700;cursor:pointer;border-bottom:1px dashed #b98a4a;font-family:"Nanum Myeongjo",serif;padding-bottom:1px;}
@@ -907,6 +908,15 @@
     .wf-eng-list .wf-arrows button{width:26px;height:22px;}
   }
 
+  /* ===== 팀 기도제목 위젯 (대시보드 · CEO 수정) ===== */
+  .tp-list{list-style:none;margin:0;padding:0;max-height:240px;overflow-y:auto;}
+  .tp-list li{display:flex;gap:9px;align-items:flex-start;padding:8px 2px;border-bottom:1px dashed rgba(168,132,63,.2);font-size:13.5px;line-height:1.8;color:var(--ink);}
+  .tp-list li .b{flex:none;color:var(--gold);font-size:12px;padding-top:3px;}
+  .tp-empty{text-align:center;color:var(--ink-soft);font-size:13px;padding:18px 0;font-style:italic;}
+  .tp-meta{margin-top:10px;font-size:10.5px;color:var(--ink-soft);text-align:right;}
+  .tp-edit textarea{width:100%;min-height:130px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.65);font-family:inherit;font-size:13.5px;color:var(--ink);line-height:1.8;resize:vertical;margin-bottom:10px;}
+  .tp-edit textarea:focus{outline:none;border-color:var(--gold);}
+
   /* ===== 기도제목 (6인 카드 · 화살표 넘김) ===== */
   .pr-stage{display:flex;align-items:stretch;gap:12px;}
   .pr-arrow{flex:none;align-self:center;width:42px;height:72px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.5);color:var(--gold-deep);font-size:28px;line-height:1;font-family:"Nanum Myeongjo",serif;transition:.22s;}
@@ -1080,6 +1090,7 @@
         <div class="notice-empty" id="noticeEmpty" style="display:none">등록된 공지가 없어요.</div>
       </div>
       </div><!-- /hero-left -->
+      <div class="hero-right">
       <div class="panel">
         <h3><span class="ic">✦</span> 오늘의 팀 감사 나눔</h3>
         <p class="desc">오늘 팀이 나눈 감사 · 매일 새로 시작해요</p>
@@ -1087,6 +1098,27 @@
         <div class="grat-feed-empty" id="gratFeedEmpty" style="display:none">오늘 나눈 감사가 아직 없어요.<br>오늘의 감사를 팀과 나눠보세요 🌿</div>
         <span class="grat-last-link" id="gratCalBtn">📅 지난 감사</span>
       </div>
+      <!-- 팀 기도제목 (팀 공동 · CEO 관리) -->
+      <div class="panel" id="panelTeamPrayer">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:2px;">
+          <div>
+            <h3 style="margin:0"><span class="ic">🕊</span> 팀 기도제목</h3>
+            <p class="desc" style="margin:4px 0 0">우리 팀이 함께 붙드는 기도</p>
+          </div>
+          <button class="proj-add-btn" id="tpEditBtn" style="display:none">✏️ 수정</button>
+        </div>
+        <div class="tp-edit" id="tpEdit" style="display:none">
+          <textarea id="tpText" placeholder="한 줄에 하나씩 적어주세요"></textarea>
+          <div class="proj-form-btns">
+            <button class="ok" id="tpSave">저장</button>
+            <button class="cancel" id="tpCancel">취소</button>
+          </div>
+        </div>
+        <ul class="tp-list" id="tpList"></ul>
+        <div class="tp-empty" id="tpEmpty" style="display:none">아직 팀 기도제목이 없어요.</div>
+        <div class="tp-meta" id="tpMeta"></div>
+      </div>
+      </div><!-- /hero-right -->
     </div>
 
     <!-- 📱 앱 홈 격자 -->
@@ -1758,6 +1790,7 @@ function enterDash(){
   subscribeDocs();
   subscribeLater();
   subscribePrayers();
+  subscribeTeamPrayer();
   initFcm();
   applyAppOrder();
   setTimeout(ggAutoConnect,800);   // GIS 스크립트 로드 시간 여유
@@ -1765,6 +1798,8 @@ function enterDash(){
   loadTodayGratCloud();
   const nat=document.getElementById('noticeAddToggle');
   if(nat) nat.style.display=(CUR&&CUR.code==='CEO')?'inline-block':'none';
+  const tpe=document.getElementById('tpEditBtn');
+  if(tpe) tpe.style.display=(CUR&&CUR.code==='CEO')?'inline-block':'none';
   renderDash();
 }
 
@@ -4751,6 +4786,53 @@ async function laterDelete(id){
   if(add)add.addEventListener('click',laterAddItem);
   if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter')laterAddItem();});
   if(tg)tg.addEventListener('click',()=>{laterDoneOpen=!laterDoneOpen;renderLater();});
+})();
+
+/* ===== 팀 기도제목 (ws_team_prayer/main · CEO 수정, 전원 보기) ===== */
+let tpUnsub=null,tpData=null;
+function subscribeTeamPrayer(){
+  if(!_db)return;
+  if(tpUnsub)tpUnsub();
+  tpUnsub=_db.collection('ws_team_prayer').doc('main').onSnapshot(doc=>{
+    tpData=doc.exists?doc.data():null;
+    renderTeamPrayer();
+  },err=>console.error('팀 기도제목 구독 오류',err));
+}
+function renderTeamPrayer(){
+  const list=document.getElementById('tpList'),empty=document.getElementById('tpEmpty'),meta=document.getElementById('tpMeta');
+  if(!list)return;
+  const lines=(tpData&&tpData.lines)||[];
+  list.innerHTML=lines.map(t=>`<li><span class="b">✼</span><span>${esc(t)}</span></li>`).join('');
+  if(empty)empty.style.display=lines.length?'none':'block';
+  if(meta){
+    let s='';
+    if(tpData&&tpData.updatedAt&&tpData.updatedAt.toDate){
+      const d=tpData.updatedAt.toDate();
+      s=(d.getMonth()+1)+'월 '+d.getDate()+'일 · '+(tpData.updatedByName||'')+' 수정';
+    }
+    meta.textContent=s;
+  }
+}
+(function(){
+  const btn=document.getElementById('tpEditBtn'),box=document.getElementById('tpEdit'),ta=document.getElementById('tpText');
+  const save=document.getElementById('tpSave'),cancel=document.getElementById('tpCancel');
+  if(!btn||!box||!ta)return;
+  btn.addEventListener('click',()=>{
+    ta.value=((tpData&&tpData.lines)||[]).join('\n');
+    box.style.display='block';btn.style.display='none';ta.focus();
+  });
+  cancel.addEventListener('click',()=>{box.style.display='none';btn.style.display='inline-block';});
+  save.addEventListener('click',async()=>{
+    if(!_db||!CUR){alert('연결 준비 중이에요.');return;}
+    const lines=ta.value.split('\n').map(s=>s.trim()).filter(Boolean);
+    try{
+      await _db.collection('ws_team_prayer').doc('main').set({
+        lines,updatedByName:CUR.name||'',updatedByEmail:CUR.id||'',
+        updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+      box.style.display='none';btn.style.display='inline-block';
+    }catch(e){alert('저장 실패: '+((e&&e.message)||e));}
+  });
 })();
 
 /* ===== 기도제목 (ws_prayers · 멤버당 1문서 · 카드 캐러셀) ===== */
