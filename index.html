@@ -1708,6 +1708,32 @@ const LS = {
 };
 let CUR = null; // 현재 로그인 멤버
 
+/* ===== 옛 주소(kevintheeco)에서 이사 온 브라우저 데이터 받기 (#wsdata=...) ===== */
+(function(){
+  try{
+    const m=location.hash.match(/^#wsdata=(.+)$/);
+    if(!m)return;
+    const json=decodeURIComponent(escape(atob(decodeURIComponent(m[1]))));
+    const data=JSON.parse(json);
+    Object.keys(data).forEach(k=>{
+      if(k.indexOf('ws:')!==0)return;
+      if(/:todo$/.test(k)){
+        let inc=[],cur=[];
+        try{inc=JSON.parse(data[k])||[];}catch(e){}
+        try{cur=JSON.parse(localStorage.getItem(k))||[];}catch(e){}
+        const have={};cur.forEach(t=>{if(t&&t.text)have[t.text]=1;});
+        let added=false;
+        inc.forEach(t=>{if(t&&t.text&&!have[t.text]){cur.push(t);added=true;}});
+        localStorage.setItem(k,JSON.stringify(cur));
+        if(added)localStorage.setItem(k+'ImportPending','1');
+      }else if(localStorage.getItem(k)===null){
+        localStorage.setItem(k,data[k]);   // 새 주소에 없는 키만 채움(있는 건 안 건드림)
+      }
+    });
+    history.replaceState(null,'',location.pathname+location.search);
+  }catch(e){console.warn('옛 주소 데이터 가져오기 실패',e);}
+})();
+
 /* ===== Firebase (학습앱과 동일 프로젝트 yourprofessor-94a2d 재사용) ===== */
 const FB_CONFIG = {
   apiKey: "AIzaSyD0ObaK3aKotOjKjtg1MGz_SB4qHX0DhdA",
@@ -1791,6 +1817,7 @@ function enterDash(){
   subscribeLater();
   subscribePrayers();
   subscribeTeamPrayer();
+  subscribeTodos();
   initFcm();
   applyAppOrder();
   setTimeout(ggAutoConnect,800);   // GIS 스크립트 로드 시간 여유
@@ -2011,11 +2038,49 @@ document.getElementById('gratHistoryBtn').addEventListener('click',openGratHisto
 document.getElementById('gratHistClose').addEventListener('click',()=>document.getElementById('gratHistOverlay').classList.remove('show'));
 document.getElementById('gratHistOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('show');});
 
-/* ===== 할일 ===== */
+/* ===== 할일 (ws_todos/{email} · 클라우드 — 브라우저·주소·기기가 바뀌어도 유지) ===== */
 function todoKey(){return KEY(CUR.id,'todo');}
+let todoItems=[],todoUnsub=null,todoLoaded=false;
+function localTodoSweep(){
+  // 이 브라우저에 남아 있는 모든 옛 할 일(ws:*:todo) 모으기 — 옛 목업 계정 키 포함
+  const out=[];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(!k||!/^ws:.+:todo$/.test(k))continue;
+    try{(JSON.parse(localStorage.getItem(k))||[]).forEach(t=>{if(t&&t.text)out.push(t);});}catch(e){}
+  }
+  return out;
+}
+function subscribeTodos(){
+  if(!_db||!CUR)return;
+  if(todoUnsub)todoUnsub();
+  todoLoaded=false;
+  todoUnsub=_db.collection('ws_todos').doc(CUR.id).onSnapshot(doc=>{
+    todoItems=(doc.exists&&doc.data().items)||[];
+    if(!todoLoaded){
+      todoLoaded=true;
+      // 1회: 클라우드가 비어 있거나 옛 주소에서 짐이 도착(ImportPending)하면 이 브라우저의 할 일을 합침
+      const pendingKey=todoKey()+'ImportPending';
+      const pending=localStorage.getItem(pendingKey)==='1';
+      if(!doc.exists||pending){
+        localStorage.removeItem(pendingKey);
+        const have={};todoItems.forEach(t=>{if(t&&t.text)have[t.text]=1;});
+        const add=localTodoSweep().filter(t=>t&&t.text&&!have[t.text]&&(have[t.text]=1));
+        if(add.length){todoItems=todoItems.concat(add);saveTodos();return;}   // 저장되면 스냅샷이 다시 그림
+      }
+    }
+    renderTodo();
+  },err=>console.error('할일 구독 오류',err));
+}
+async function saveTodos(){
+  if(!_db||!CUR)return;
+  try{await _db.collection('ws_todos').doc(CUR.id).set({email:CUR.id,items:todoItems,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}
+  catch(e){alert('할 일 저장 실패: '+((e&&e.message)||e));}
+}
 function renderTodo(){
-  const list=LS.get(todoKey(),[]);
   const ul=document.getElementById('todoList');
+  if(!todoLoaded){ul.innerHTML='<div class="empty">불러오는 중…</div>';return;}
+  const list=todoItems;
   if(!list.length){ul.innerHTML='<div class="empty">아직 할 일이 없어요. 위에 적어보세요.</div>';}
   else ul.innerHTML=list.map((t,i)=>`<li class="${t.done?'done':''}"><span class="box" data-i="${i}">${t.done?'✓':''}</span><span class="tx" data-i="${i}">${esc(t.text)}</span><button class="del" data-i="${i}">×</button></li>`).join('');
   ul.querySelectorAll('.box,.tx').forEach(el=>el.addEventListener('click',()=>toggleTodo(+el.dataset.i)));
@@ -2025,10 +2090,10 @@ function renderTodo(){
 }
 function addTodo(){
   const inp=document.getElementById('todoIn');const v=inp.value.trim();if(!v)return;
-  const list=LS.get(todoKey(),[]);list.push({text:v,done:false});LS.set(todoKey(),list);inp.value='';renderTodo();
+  todoItems.push({text:v,done:false,ts:Date.now()});inp.value='';saveTodos();renderTodo();
 }
-function toggleTodo(i){const list=LS.get(todoKey(),[]);list[i].done=!list[i].done;LS.set(todoKey(),list);renderTodo();}
-function delTodo(i){const list=LS.get(todoKey(),[]);list.splice(i,1);LS.set(todoKey(),list);renderTodo();}
+function toggleTodo(i){if(!todoItems[i])return;todoItems[i].done=!todoItems[i].done;saveTodos();renderTodo();}
+function delTodo(i){todoItems.splice(i,1);saveTodos();renderTodo();}
 document.getElementById('todoAdd').addEventListener('click',addTodo);
 document.getElementById('todoIn').addEventListener('keydown',e=>{if(e.key==='Enter')addTodo();});
 
