@@ -906,6 +906,49 @@
 
     .wf-eng-list .wf-arrows button{width:26px;height:22px;}
   }
+
+  /* ===== 기도제목 (6인 카드 · 화살표 넘김) ===== */
+  .pr-stage{display:flex;align-items:stretch;gap:12px;}
+  .pr-arrow{flex:none;align-self:center;width:42px;height:72px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.5);color:var(--gold-deep);font-size:28px;line-height:1;font-family:"Nanum Myeongjo",serif;transition:.22s;}
+  .pr-arrow:hover{border-color:var(--gold);background:rgba(168,132,63,.14);color:var(--seal);transform:translateY(-1px);}
+  .pr-viewport{flex:1;min-width:0;overflow:hidden;}
+  .pr-track{display:flex;width:100%;transition:transform .5s cubic-bezier(.22,.8,.3,1);}
+  @media(prefers-reduced-motion:reduce){.pr-track{transition:none;}}
+  .pr-card{flex:0 0 100%;min-width:0;position:relative;border:1px solid var(--line);border-radius:14px;padding:26px 28px 24px;
+    background:radial-gradient(140% 100% at 50% 0%, rgba(255,252,242,.92), rgba(241,231,210,.55) 72%),var(--paper-2);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.7);}
+  .pr-card::before{content:"";position:absolute;inset:8px;border:1px solid rgba(168,132,63,.34);border-radius:9px;pointer-events:none;}
+  .pr-card-in{position:relative;z-index:1;display:flex;flex-direction:column;min-height:300px;}
+  .pr-head{display:flex;align-items:center;gap:13px;padding-bottom:14px;border-bottom:1px solid rgba(168,132,63,.22);}
+  .pr-seal{width:46px;height:46px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#f3e6c8;font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:19px;box-shadow:0 4px 12px rgba(0,0,0,.2),inset 0 0 10px rgba(0,0,0,.28);}
+  .pr-nm{display:block;font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:17px;color:var(--ink);line-height:1.3;}
+  .pr-rl{display:block;font-size:11.5px;color:var(--ink-soft);}
+  .pr-ord{margin-left:auto;font-family:"Cormorant Garamond",serif;font-size:14px;letter-spacing:3px;color:var(--gold-deep);}
+  .pr-list{list-style:none;margin:6px 0 0;padding:0;flex:1;}
+  .pr-item{display:flex;align-items:flex-start;gap:10px;padding:10px 2px;border-bottom:1px dashed rgba(168,132,63,.2);font-size:14.5px;line-height:1.8;}
+  .pr-bullet{flex:none;color:var(--gold);font-size:13px;padding-top:3px;}
+  .pr-text{flex:1;color:var(--ink);}
+  .pr-item.ans .pr-text{text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:4px;text-decoration-thickness:1px;}
+  .pr-ans-chip{display:inline-block;margin-left:8px;padding:1px 9px 2px;border:1px solid var(--gold);border-radius:20px;font-size:10.5px;color:var(--gold-deep);vertical-align:1px;font-style:normal;}
+  .pr-ansbtn,.pr-del{flex:none;border:none;background:none;font-size:13px;opacity:.38;transition:.15s;padding:3px 3px 0;}
+  .pr-ansbtn:hover,.pr-del:hover{opacity:1;}
+  .pr-del{color:#9c4a42;}
+  .pr-empty{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--ink-soft);font-size:13.5px;line-height:2;font-style:italic;padding:30px 0;}
+  .pr-add{display:flex;gap:8px;margin-top:16px;}
+  .pr-add input{flex:1;min-width:0;padding:11px 14px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.65);font-family:inherit;font-size:13.5px;color:var(--ink);}
+  .pr-add input:focus{outline:none;border-color:var(--gold);}
+  .pr-add button{flex:none;padding:0 18px;border:none;border-radius:9px;background:var(--seal);color:#f3e6c8;font-family:"Nanum Myeongjo",serif;font-weight:700;font-size:14px;transition:.2s;}
+  .pr-add button:hover{background:#8f352f;}
+  .pr-view-note{margin-top:16px;text-align:center;font-size:12px;color:var(--ink-soft);font-style:italic;}
+  .pr-dots{display:flex;justify-content:center;gap:9px;margin-top:16px;}
+  .pr-dot{width:9px;height:9px;border-radius:50%;border:none;padding:0;background:#d9cba6;transition:.2s;}
+  .pr-dot.on{transform:scale(1.35);}
+  @media(max-width:640px){
+    .pr-stage{gap:7px;}
+    .pr-arrow{width:32px;height:56px;font-size:22px;border-radius:9px;}
+    .pr-card{padding:20px 16px 18px;}
+    .pr-card-in{min-height:240px;}
+  }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -1069,6 +1112,7 @@
       <button class="appicon" data-appid="intra" onclick="openApp('app-intra','🏢 회사 · 사내 내부망')"><span class="tile" style="background:linear-gradient(150deg,#4f8060,#2f5a3a)">🏢</span><span class="lbl">사내 내부망</span></button>
       <button class="appicon" data-appid="timetracker" onclick="openApp('app-timetracker','⏱ Time Tracker');ttOpen();"><span class="tile" style="background:linear-gradient(150deg,#3e9e8f,#1f6b5e)">⏱</span><span class="lbl">Time Tracker</span></button>
       <button class="appicon" data-appid="meetingpoll" onclick="openApp('app-meetingpoll','🗓 미팅 잡기');mpOpen();"><span class="tile" style="background:linear-gradient(150deg,#c98a3e,#8a5a1f)">🗓</span><span class="lbl">미팅 잡기</span></button>
+      <button class="appicon" data-appid="prayer" onclick="openApp('app-prayer','🕊 기도제목')"><span class="tile" style="background:linear-gradient(150deg,#5e8aa6,#33566e)">🕊</span><span class="lbl">기도제목</span></button>
     </div>
 
     <!-- 앱 본체 보관소 (아이콘 클릭 시 창으로 이동, 닫으면 되돌아옴) -->
@@ -1339,6 +1383,18 @@
         <p class="desc">지금 각자 뭘 하고 있는지 한눈에 — 새로 맡길 일이 필요한 사람이 눈에 띄어요</p>
         <div class="ts-summary" id="tsSummary"></div>
         <div class="ceo-cards compact" id="teamStatusCards"><div style="padding:20px 0;color:var(--ink-soft)">불러오는 중…</div></div>
+      </div>
+
+      <!-- 기도제목 (6인 카드 · 화살표 넘김) -->
+      <div class="panel col-12">
+        <h3><span class="ic">🕊</span> 기도제목</h3>
+        <p class="desc">여섯 사람의 기도제목을 한 장씩 넘기며 서로를 위해 기도해요 — 내 카드에만 쓸 수 있어요</p>
+        <div class="pr-stage">
+          <button class="pr-arrow" id="prPrev" title="이전 사람">‹</button>
+          <div class="pr-viewport" id="prViewport"><div class="pr-track" id="prTrack"></div></div>
+          <button class="pr-arrow" id="prNext" title="다음 사람">›</button>
+        </div>
+        <div class="pr-dots" id="prDots"></div>
       </div>
     </div>
 
@@ -1701,6 +1757,7 @@ function enterDash(){
   subscribeBsComments();
   subscribeDocs();
   subscribeLater();
+  subscribePrayers();
   initFcm();
   applyAppOrder();
   setTimeout(ggAutoConnect,800);   // GIS 스크립트 로드 시간 여유
@@ -2274,7 +2331,7 @@ document.getElementById('bellBtn').addEventListener('click',()=>openApp('app-tas
 /* ===== 앱 홈: 아이콘 클릭 → 패널을 창으로 이동, 닫으면 되돌림 ===== */
 (function(){
   // 보관소의 각 패널에 앱 ID 부여 (순서 기준)
-  var order=['app-today','app-grat','app-todo','app-cal','app-later','app-task','app-proj','app-brain','app-drive','app-intra','app-timetracker','app-meetingpoll','app-teamstatus'];
+  var order=['app-today','app-grat','app-todo','app-cal','app-later','app-task','app-proj','app-brain','app-drive','app-intra','app-timetracker','app-meetingpoll','app-teamstatus','app-prayer'];
   var stash=document.getElementById('appStash');
   if(stash){
     Array.prototype.slice.call(stash.children).filter(function(el){return el.classList&&el.classList.contains('panel');})
@@ -4694,6 +4751,137 @@ async function laterDelete(id){
   if(add)add.addEventListener('click',laterAddItem);
   if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter')laterAddItem();});
   if(tg)tg.addEventListener('click',()=>{laterDoneOpen=!laterDoneOpen;renderLater();});
+})();
+
+/* ===== 기도제목 (ws_prayers · 멤버당 1문서 · 카드 캐러셀) ===== */
+let prMembers=[],prCache={},prIdx=0,prUnsub=null;
+function subscribePrayers(){
+  if(!_db)return;
+  if(prUnsub)prUnsub();
+  prUnsub=_db.collection('ws_prayers').onSnapshot(snap=>{
+    prCache={};
+    snap.docs.forEach(d=>{prCache[d.id]=d.data();});
+    renderPrayers();
+  },err=>console.error('기도제목 구독 오류',err));
+  loadPrayerMembers();
+}
+async function loadPrayerMembers(){
+  if(!_db)return;
+  try{
+    const snap=await _db.collection('ws_members').orderBy('createdAt').get();
+    prMembers=snap.docs.map(d=>d.data());
+    const i=prMembers.findIndex(m=>CUR&&m.email===CUR.id);
+    if(i>=0)prIdx=i;                                  // 처음 열면 내 카드부터
+  }catch(e){console.error('기도제목 멤버 목록',e);}
+  renderPrayers();
+}
+function prayerCard(m,idx){
+  const doc=prCache[m.email]||{};const items=doc.items||[];
+  const mine=CUR&&m.email===CUR.id;
+  const c=MEMBER_COLORS[m.code]||'#6b5a3a';
+  const rows=items.map(it=>`<li class="pr-item${it.ans?' ans':''}">
+      <span class="pr-bullet">${it.ans?'✧':'✼'}</span>
+      <span class="pr-text">${esc(it.text||'')}${it.ans?'<span class="pr-ans-chip">응답</span>':''}</span>
+      ${mine?`<button class="pr-ansbtn" data-ans="${it.id}" title="${it.ans?'응답 표시 지우기':'응답됐어요'}">🙏</button><button class="pr-del" data-del="${it.id}" title="삭제">✕</button>`:''}
+    </li>`).join('');
+  const body=items.length
+    ?`<ul class="pr-list">${rows}</ul>`
+    :`<div class="pr-empty">아직 적힌 기도제목이 없어요.${mine?'<br/>아래에 첫 기도제목을 올려보세요.':''}</div>`;
+  const foot=mine
+    ?`<div class="pr-add"><input id="prIn" placeholder="기도제목을 적고 Enter" /><button id="prAddBtn">올리기</button></div>`
+    :`<div class="pr-view-note">${esc(m.name||'')} 님을 위해 마음으로 함께 기도해요 🕊</div>`;
+  return `<div class="pr-card">
+    <div class="pr-card-in">
+      <div class="pr-head">
+        <span class="pr-seal" style="background:${c};background:radial-gradient(circle at 35% 30%, color-mix(in srgb, ${c} 78%, white), ${c} 55%, color-mix(in srgb, ${c} 62%, black))">${esc((m.name||'?').charAt(0))}</span>
+        <span><span class="pr-nm">${esc(m.name||'')}</span><span class="pr-rl">${esc(m.role||'')}</span></span>
+        <span class="pr-ord">${idx+1} / ${prMembers.length}</span>
+      </div>
+      ${body}
+      ${foot}
+    </div>
+  </div>`;
+}
+function renderPrayers(){
+  const track=document.getElementById('prTrack');if(!track||!CUR)return;
+  if(!prMembers.length){track.innerHTML='<div class="pr-card"><div class="pr-card-in"><div class="pr-empty">멤버 목록을 불러오는 중이에요…</div></div></div>';return;}
+  const oldIn=document.getElementById('prIn');       // 다시 그릴 때 입력 중이던 글 보존
+  const keep=oldIn?{v:oldIn.value,f:document.activeElement===oldIn}:null;
+  if(prIdx>=prMembers.length)prIdx=0;
+  track.innerHTML=prMembers.map((m,i)=>prayerCard(m,i)).join('');
+  const dots=document.getElementById('prDots');
+  if(dots)dots.innerHTML=prMembers.map((m,i)=>`<button class="pr-dot" data-dot="${i}" title="${esc(m.name||'')}"></button>`).join('');
+  prSlide();
+  const nin=document.getElementById('prIn');
+  if(nin&&keep){nin.value=keep.v;if(keep.f)nin.focus();}
+  if(nin)nin.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing)prAdd();});
+  const ab=document.getElementById('prAddBtn');if(ab)ab.addEventListener('click',prAdd);
+  track.querySelectorAll('.pr-ansbtn').forEach(b=>b.onclick=()=>prToggleAns(b.dataset.ans));
+  track.querySelectorAll('.pr-del').forEach(b=>b.onclick=()=>prDelete(b.dataset.del));
+  if(dots)dots.querySelectorAll('.pr-dot').forEach(b=>b.onclick=()=>{prIdx=+b.dataset.dot;prSlide();});
+}
+function prSlide(){
+  const track=document.getElementById('prTrack');if(!track)return;
+  track.style.transform='translateX(-'+(prIdx*100)+'%)';
+  const dots=document.getElementById('prDots');
+  if(dots)Array.prototype.forEach.call(dots.children,(d,i)=>{
+    const on=i===prIdx;
+    d.classList.toggle('on',on);
+    d.style.background=on?(MEMBER_COLORS[(prMembers[i]||{}).code]||'#7c2d2a'):'';
+  });
+}
+function prGo(dir){
+  if(!prMembers.length)return;
+  prIdx=(prIdx+dir+prMembers.length)%prMembers.length;   // 끝에서 처음으로 순환
+  prSlide();
+}
+async function prSave(items){
+  await _db.collection('ws_prayers').doc(CUR.id).set({
+    email:CUR.id,name:CUR.name,code:CUR.code||'',items,
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+async function prAdd(){
+  const inp=document.getElementById('prIn');const v=(inp&&inp.value.trim())||'';
+  if(!v)return;
+  if(!_db||!CUR){alert('연결 준비 중이에요.');return;}
+  const cur=(prCache[CUR.id]&&prCache[CUR.id].items)||[];
+  inp.value='';
+  try{await prSave(cur.concat([{id:Date.now()+'-'+Math.random().toString(36).slice(2,7),text:v,ans:false,ts:Date.now()}]));}
+  catch(e){alert('저장 실패: '+((e&&e.message)||e));inp.value=v;}
+}
+async function prToggleAns(id){
+  const cur=(prCache[CUR.id]&&prCache[CUR.id].items)||[];
+  try{await prSave(cur.map(it=>it.id===id?Object.assign({},it,{ans:!it.ans}):it));}
+  catch(e){alert('변경 실패: '+((e&&e.message)||e));}
+}
+async function prDelete(id){
+  const cur=(prCache[CUR.id]&&prCache[CUR.id].items)||[];
+  try{await prSave(cur.filter(it=>it.id!==id));}
+  catch(e){alert('삭제 실패: '+((e&&e.message)||e));}
+}
+(function(){
+  const p=document.getElementById('prPrev'),n=document.getElementById('prNext');
+  if(p)p.addEventListener('click',()=>prGo(-1));
+  if(n)n.addEventListener('click',()=>prGo(1));
+  // 기도제목 앱이 열려 있으면 키보드 ← → 로도 넘김
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
+    const t=e.target;
+    if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+    if(!document.querySelector('#appModalBody [data-app="app-prayer"]'))return;
+    prGo(e.key==='ArrowLeft'?-1:1);
+  });
+  // 모바일 스와이프
+  const vp=document.getElementById('prViewport');let sx=null;
+  if(vp){
+    vp.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;},{passive:true});
+    vp.addEventListener('touchend',e=>{
+      if(sx===null)return;
+      const dx=e.changedTouches[0].clientX-sx;sx=null;
+      if(Math.abs(dx)>44)prGo(dx<0?1:-1);
+    },{passive:true});
+  }
 })();
 
 /* ===== 맞춤법 빨간 줄 끄기 (모든 입력칸 + Surf In 에디터) ===== */
