@@ -4736,7 +4736,8 @@ async function surfExportPdf(){
   const data=await surfEditor.save();
   const title=document.getElementById('surfDocTitle').value.trim()||'제목 없음';
   const el=document.createElement('div');el.style.padding='24px';el.innerHTML=surfBlocksToHtml(title,data);
-  html2pdf().set({margin:[10,10,12,10],filename:surfSafeName(title)+'.pdf',image:{type:'jpeg',quality:.95},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(el).save();
+  // pagebreak avoid-all: 문단·표·그림이 페이지 경계에 걸리면 자르지 않고 통째로 다음 장으로
+  html2pdf().set({margin:[10,10,12,10],filename:surfSafeName(title)+'.pdf',image:{type:'jpeg',quality:.95},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['avoid-all','css','legacy']}}).from(el).save();
 }
 async function surfExportWord(){
   if(!surfEditor)return;
