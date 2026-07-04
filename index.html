@@ -234,6 +234,11 @@
   .tt-table td.tt-cell.best{outline:2px solid #2f6b38;outline-offset:-1px;}
   .tt-row-count{font-size:10px;color:var(--ink-soft);text-align:center;width:30px;}
   .tt-legend{font-size:11px;color:var(--ink-soft);margin-top:10px;line-height:1.6;}
+  .tt-no-btn{width:auto;height:auto;border:1px solid #b98a84;background:transparent;color:#9c4a42;border-radius:20px;padding:8px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex:none;line-height:1.3;}
+  .tt-no-btn:hover{background:rgba(156,74,66,.08);}
+  .tt-no-btn.on{background:#9c4a42;color:#f3e6c8;border-color:#9c4a42;}
+  td.tt-cell.tt-no{background:repeating-linear-gradient(45deg,#eee5d0 0 5px,#d9cdb0 5px 10px)!important;cursor:default;}
+  .tt-th-no{display:block;font-size:9.5px;color:#9c4a42;font-weight:700;letter-spacing:.5px;margin-top:2px;}
   .tt-best{margin-top:12px;padding:11px 14px;border-radius:10px;background:rgba(50,140,70,.1);border:1px solid rgba(50,140,70,.3);font-size:13px;color:#1f6b38;}
   .tt-best b{font-family:"Nanum Myeongjo",serif;}
 
@@ -1355,11 +1360,12 @@
           <b id="ttLabel"></b>
           <button id="ttNext">›</button>
           <button class="tt-today-btn" id="ttTodayBtn">오늘로</button>
+          <button class="tt-no-btn" id="ttNoBtn">🚫 이날은 안돼요</button>
         </div>
         <div class="tt-hint" id="ttHint"></div>
         <div class="tt-wrap"><table class="tt-table" id="ttTable"></table></div>
         <div class="tt-best" id="ttBest" style="display:none"></div>
-        <div class="tt-legend">칸을 클릭·드래그하면 <b>내 가능 시간</b>이 칠해져요. 다른 사람 칸은 보기만 가능해요.</div>
+        <div class="tt-legend">칸을 클릭·드래그하면 <b>내 가능 시간</b>이 칠해져요. 다른 사람 칸은 보기만 가능해요.<br>일정상 하루 종일 안 되는 날은 <b>🚫 이날은 안돼요</b>를 눌러주세요 — 빗금(✕ 불가)으로 표시돼서 "아직 안 적음"과 구분돼요.</div>
       </div>
 
       <!-- 미팅 잡기 (When2Meet형 투표) -->
@@ -4033,7 +4039,7 @@ function ttSubscribe(){
   ttData={};
   ttUnsub=_db.collection('ws_availability').where('date','==',ttDate).onSnapshot(snap=>{
     ttData={};
-    snap.forEach(doc=>{const v=doc.data();ttData[v.email]={hours:new Set(v.hours||[]),name:v.name,code:v.code};});
+    snap.forEach(doc=>{const v=doc.data();ttData[v.email]={hours:new Set(v.hours||[]),name:v.name,code:v.code,allDayNo:!!v.allDayNo};});
     ttRender();
   },err=>console.error('tt 구독 오류',err));
 }
@@ -4056,7 +4062,8 @@ function ttRender(){
   let html='<thead><tr><th></th>';
   ttMembers.forEach(m=>{
     const c=MEMBER_COLORS[m.code]||'#888';
-    html+=`<th><span class="tt-th-dot" style="background:${c}"></span>${esc(m.name||'')}</th>`;
+    const noBadge=(ttData[m.email]&&ttData[m.email].allDayNo)?'<span class="tt-th-no">✕ 불가</span>':'';
+    html+=`<th><span class="tt-th-dot" style="background:${c}"></span>${esc(m.name||'')}${noBadge}</th>`;
   });
   html+='<th class="tt-row-count"></th></tr></thead><tbody>';
 
@@ -4072,10 +4079,11 @@ function ttRender(){
       const mine=CUR&&m.email===CUR.id;
       const d=ttData[m.email];
       const has=d&&d.hours.has(h);
+      const no=d&&d.allDayNo;
       const c=MEMBER_COLORS[m.code]||'#888';
       const bg=has?c:'#f2ede0';
       const best=(maxCount>=2&&rowCounts[h]===maxCount&&has)?'best':'';
-      html+=`<td class="tt-cell ${mine?'mine':''} ${best}" data-h="${h}" data-email="${esc(m.email)}" style="background:${bg}" title="${esc(m.name||'')}${has?' 가능':''}"></td>`;
+      html+=`<td class="tt-cell ${mine?'mine':''} ${best} ${no?'tt-no':''}" data-h="${h}" data-email="${esc(m.email)}" style="background:${bg}" title="${esc(m.name||'')}${no?' · 이날 불가':(has?' 가능':'')}"></td>`;
     });
     const rc=rowCounts[h];
     html+=`<td class="tt-row-count">${rc>0?rc:''}</td></tr>`;
@@ -4089,6 +4097,13 @@ function ttRender(){
     td.addEventListener('touchstart',ttCellDown,{passive:true});
     td.addEventListener('touchmove',ttCellTouchMove,{passive:false});
   });
+
+  const noBtn=document.getElementById('ttNoBtn');
+  if(noBtn){
+    const meNo=ttData[CUR&&CUR.id]&&ttData[CUR.id].allDayNo;
+    noBtn.textContent=meNo?'↩ 불가 취소':'🚫 이날은 안돼요';
+    noBtn.classList.toggle('on',!!meNo);
+  }
 
   const bestEl=document.getElementById('ttBest');
   if(bestEl){
@@ -4130,6 +4145,13 @@ window.addEventListener('touchend',()=>{ttPainting=false;});
 function ttToggleHour(h,val){
   if(!CUR)return;
   if(!ttData[CUR.id])ttData[CUR.id]={hours:new Set(),name:CUR.name,code:CUR.code||''};
+  if(ttData[CUR.id].allDayNo){
+    // 불가 표시된 날에 시간을 칠하면 불가가 자동 해제됨
+    ttData[CUR.id].allDayNo=false;
+    document.querySelectorAll('td.tt-cell.mine.tt-no').forEach(td=>{td.classList.remove('tt-no');td.style.background='#f2ede0';});
+    const nb=document.getElementById('ttNoBtn');
+    if(nb){nb.textContent='🚫 이날은 안돼요';nb.classList.remove('on');}
+  }
   const set=ttData[CUR.id].hours;
   if(val)set.add(h); else set.delete(h);
   const td=document.querySelector(`td.tt-cell.mine[data-h="${h}"]`);
@@ -4143,10 +4165,20 @@ async function ttSaveMine(){
   try{
     await _db.collection('ws_availability').doc(`${ttDate}__${CUR.id}`).set({
       date:ttDate,email:CUR.id,name:CUR.name,code:CUR.code||'',
-      hours:Array.from(d.hours),updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+      hours:Array.from(d.hours),allDayNo:!!d.allDayNo,updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     },{merge:true});
   }catch(e){console.warn('tt 저장 실패',e);}
 }
+async function ttToggleNo(){
+  if(!CUR||!_db)return;
+  if(!ttData[CUR.id])ttData[CUR.id]={hours:new Set(),name:CUR.name,code:CUR.code||''};
+  const mine=ttData[CUR.id];
+  mine.allDayNo=!mine.allDayNo;
+  if(mine.allDayNo)mine.hours=new Set();   // 불가로 표시하면 칠해둔 시간은 지움
+  ttRender();
+  ttSaveMine();
+}
+document.getElementById('ttNoBtn').addEventListener('click',ttToggleNo);
 document.getElementById('ttPrev').addEventListener('click',()=>{ttDate=ttShift(ttDate||today(),-1);ttSubscribe();ttRender();});
 document.getElementById('ttNext').addEventListener('click',()=>{ttDate=ttShift(ttDate||today(),1);ttSubscribe();ttRender();});
 document.getElementById('ttTodayBtn').addEventListener('click',()=>{ttDate=today();ttSubscribe();ttRender();});
