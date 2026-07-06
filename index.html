@@ -1865,8 +1865,7 @@ if(_auth){
       enterDash();
     }catch(e){
       console.error(e);
-      alert('로그인 확인 중 문제가 생겼어요.\n'+((e&&e.message)||e)+'\n\n(Firestore 보안 규칙을 게시했는지 확인해주세요.)');
-      try{await _auth.signOut();}catch(_){}
+      alert('로그인 확인 중 일시적인 문제가 생겼어요.\n'+((e&&e.message)||e)+'\n\n네트워크 상태를 확인하고 새로고침 해보세요. (로그인은 유지됩니다)');
     }
   });
 }
