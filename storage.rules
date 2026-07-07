@@ -1,0 +1,18 @@
+rules_version = '2';
+// ⚠️ Firebase Storage 규칙 (yourprofessor-94a2d.firebasestorage.app)
+// 워크스페이스 포털의 파일 저장소: Surf In 문서 사진(ws-docs/*), 사내 드라이브(ws-files/*).
+// 2026-06-23 초기 세팅 때 잠금 모드(전부 거부)로 게시된 채 방치 → 업로드 전멸 (2026-07-07 발견·교체).
+// 원칙: Firestore ws_members 명단에 있는 팀 멤버만 읽기/쓰기 (Firestore 규칙의 isMember()와 동일 기준).
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isMember() {
+      return request.auth != null
+        && firestore.exists(/databases/(default)/documents/ws_members/$(request.auth.token.email));
+    }
+    match /{allPaths=**} {
+      allow read, delete: if isMember();
+      // 업로드는 50MB 상한 (무료 요금제 총 5GB 보호)
+      allow create, update: if isMember() && request.resource.size < 50 * 1024 * 1024;
+    }
+  }
+}

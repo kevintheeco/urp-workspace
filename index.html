@@ -3552,22 +3552,32 @@ function openBoardModal(){
 function closeBoardModal(){
   document.getElementById('boardOverlay').classList.remove('show');
   document.body.style.overflow='';
+  restoreNoteForm();   // 보드 안에 옮겨둔 추가 폼을 제자리로
 }
 
-/* 노트 추가 폼 */
+/* 노트 추가 폼 — 전체 보드에서 누르면 보드를 닫지 않고 그 안에서 폼을 연다 */
 let bsAddInModal=false;
+let noteFormHome=null;   // 폼의 원래 자리(대시보드 패널) 기억
+function restoreNoteForm(){
+  const f=document.getElementById('noteForm');
+  if(noteFormHome&&f.parentNode!==noteFormHome.parent)noteFormHome.parent.insertBefore(f,noteFormHome.next);
+  f.classList.remove('show');
+}
 function openNoteForm(inModal){
   bsAddInModal=!!inModal;
-  if(!inModal){
-    const f=document.getElementById('noteForm');
-    f.classList.toggle('show');
-    if(f.classList.contains('show'))document.getElementById('nfNoteTitle').focus();
-  } else {
-    closeBoardModal();
-    const f=document.getElementById('noteForm');
+  const f=document.getElementById('noteForm');
+  if(!noteFormHome)noteFormHome={parent:f.parentNode,next:f.nextSibling};
+  if(inModal){
+    const body=document.querySelector('#boardOverlay .board-modal-body');
+    if(body&&f.parentNode!==body)body.insertBefore(f,body.firstChild);
     f.classList.add('show');
+  } else {
+    if(f.parentNode!==noteFormHome.parent)noteFormHome.parent.insertBefore(f,noteFormHome.next);
+    f.classList.toggle('show');
+  }
+  if(f.classList.contains('show')){
     document.getElementById('nfNoteTitle').focus();
-    setTimeout(()=>document.getElementById('nfNoteTitle').scrollIntoView({behavior:'smooth',block:'center'}),100);
+    setTimeout(()=>f.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
   }
 }
 async function saveNote(){
@@ -3583,7 +3593,7 @@ async function saveNote(){
     const ref=await _db.collection('ws_brainstorm').add(data);
     document.getElementById('nfNoteTitle').value='';
     document.getElementById('nfNoteBody').value='';
-    document.getElementById('noteForm').classList.remove('show');
+    restoreNoteForm();   // 보드 안에서 썼으면 보드는 열린 채 폼만 정리 — 새 포스트잇이 바로 붙는 게 보임
     notionSyncNote(ref.id,data);
   }catch(e){
     console.error('포스트잇 저장 실패',e);
@@ -3600,7 +3610,7 @@ document.querySelectorAll('.color-opt').forEach(el=>el.addEventListener('click',
 document.getElementById('bsAddToggle').addEventListener('click',()=>openNoteForm(false));
 document.getElementById('bsModalAddBtn').addEventListener('click',()=>openNoteForm(true));
 document.getElementById('nfNoteCancel').addEventListener('click',()=>{
-  document.getElementById('noteForm').classList.remove('show');
+  restoreNoteForm();
   document.getElementById('nfNoteTitle').value='';
   document.getElementById('nfNoteBody').value='';
 });
