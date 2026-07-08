@@ -1185,10 +1185,38 @@
       <button class="appicon" data-appid="timetracker" onclick="openApp('app-timetracker','⏱ Time Tracker');ttOpen();"><span class="tile" style="background:linear-gradient(150deg,#3e9e8f,#1f6b5e)">⏱</span><span class="lbl">Time Tracker</span></button>
       <button class="appicon" data-appid="meetingpoll" onclick="openApp('app-meetingpoll','🗓 미팅 잡기');mpOpen();"><span class="tile" style="background:linear-gradient(150deg,#c98a3e,#8a5a1f)">🗓</span><span class="lbl">미팅 잡기</span></button>
       <button class="appicon" data-appid="prayer" onclick="openApp('app-prayer','🕊 기도제목')"><span class="tile" style="background:linear-gradient(150deg,#5e8aa6,#33566e)">🕊</span><span class="lbl">기도제목</span></button>
+      <button class="appicon" data-appid="futurescan" onclick="openApp('app-futurescan','🔮 미래예측');fsOpen();"><span class="tile" style="background:linear-gradient(150deg,#8b5cf6,#5b34c9)">🔮</span><span class="lbl">미래예측</span></button>
     </div>
 
     <!-- 앱 본체 보관소 (아이콘 클릭 시 창으로 이동, 닫으면 되돌아옴) -->
     <div class="grid" id="appStash" style="display:none">
+
+      <!-- 🔮 미래예측 (ws_futurescan) -->
+      <style>
+        #app-futurescan .fs-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+        #app-futurescan .fs-row input{flex:1;min-width:200px}
+        .fs-gallery{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+        .fs-card{background:var(--paper,#fdfaf3);border:1px solid rgba(124,45,42,.18);border-radius:12px;padding:12px 14px}
+        .fs-ttl{font-weight:700;font-size:14px;word-break:keep-all}
+        .fs-date{font-size:11px;color:#9a8a6a;font-weight:400;margin-left:6px}
+        .fs-sum{font-size:13px;color:#4a4038;margin-top:5px;line-height:1.55;word-break:keep-all}
+        .fs-open{display:inline-block;margin-top:8px;font-size:12px;color:var(--gold-deep,#7c2d2a);font-weight:700;text-decoration:none}
+        .fs-pend{margin:4px 0 2px}
+        .fs-pendrow{font-size:13px;color:#6a5a48;padding:4px 0;word-break:keep-all}
+        .fs-h4{margin:16px 0 4px;font-size:14px;color:var(--gold-deep,#7c2d2a)}
+      </style>
+      <div class="panel col-8" id="app-futurescan">
+        <h3><span class="ic">🔮</span> 미래예측 · EnvironmentScan</h3>
+        <p class="desc">주제를 넣으면 요나단·어푸가 세상을 스캔해 미래 리포트를 만들어 드립니다. 지난 스캔은 바로 열어볼 수 있어요.</p>
+        <div class="fs-row">
+          <input id="fsTopic" placeholder="예: 미국 학원 시장, AI 코딩교육, 학부모 리포트 트렌드" />
+          <button class="save" id="fsGo" style="width:auto;padding:10px 18px">🔮 미래스캔 요청</button>
+        </div>
+        <div id="fsMine"></div>
+        <div class="fs-h4">📚 지난 미래 스캔</div>
+        <div id="fsGallery" class="fs-gallery"></div>
+      </div>
+
 
       <!-- 위젯 미니 -->
       <div class="panel col-4">
@@ -1872,6 +1900,7 @@ function enterDash(){
   subscribePrayers();
   subscribeTeamPrayer();
   subscribeTodos();
+  subscribeFuturescan();
   initFcm();
   applyAppOrder();
   setTimeout(ggAutoConnect,800);   // GIS 스크립트 로드 시간 여유
@@ -3455,6 +3484,52 @@ document.getElementById('nfSave').addEventListener('click',async()=>{
   document.getElementById('nfContent').value='';
   document.getElementById('noticeForm').classList.remove('show');
 });
+
+/* ===== 🔮 미래예측 (ws_futurescan) ===== */
+const FS_SEED=[{
+  title:'AI 수학 에듀테크 미래스캔', date:'2026-07-09',
+  summary:'시장은 폭발하지만 규제 + "답 주는 AI" 역풍이 동시에 온다. 우리의 답 안 주는 소크라테스 + 결정론 채점이 두 위험을 정면으로 비껴간다 — 역풍이 곧 기회.',
+  link:'https://urp-ufh8583.slack.com/docs/T0BFJFHA9UL/F0BFXEW2C0M'
+}];
+let fsUnsub=null, fsDocs=[];
+function fsOpen(){ fsRender(); const t=document.getElementById('fsTopic'); if(t) setTimeout(()=>t.focus(),50); }
+function subscribeFuturescan(){
+  if(!_db||fsUnsub)return;
+  fsUnsub=_db.collection('ws_futurescan').orderBy('createdAt','desc').limit(60).onSnapshot(snap=>{
+    fsDocs=snap.docs.map(d=>({id:d.id,...d.data()})); fsRender();
+  },err=>console.error('futurescan',err));
+}
+function fsRender(){
+  const g=document.getElementById('fsGallery'), mine=document.getElementById('fsMine');
+  if(!g)return;
+  const done=fsDocs.filter(x=>x.status==='done');
+  const pend=fsDocs.filter(x=>x.status!=='done');
+  if(mine){
+    mine.innerHTML = pend.length? '<div class="fs-pend">'+pend.map(x=>`<div class="fs-pendrow">⏳ <b>${esc(x.topic||'')}</b> — ${esc(x.requesterName||'')}님 요청 · 요나단·어푸가 생성 중</div>`).join('')+'</div>' : '';
+  }
+  const cards=[];
+  done.forEach(x=>cards.push({title:x.topic||x.title||'미래스캔', date:x.dateStr||'', summary:x.summary||'', link:x.link||''}));
+  FS_SEED.forEach(s=>cards.push(s));
+  g.innerHTML = cards.length? cards.map(c=>`<div class="fs-card">
+    <div class="fs-ttl">🔮 ${esc(c.title)}${c.date?`<span class="fs-date">${esc(c.date)}</span>`:''}</div>
+    <div class="fs-sum">${esc(c.summary)}</div>
+    ${c.link?`<a class="fs-open" href="${esc(c.link)}" target="_blank" rel="noopener">리포트 열기 →</a>`:''}
+  </div>`).join('') : '<p class="desc" style="opacity:.7">아직 스캔이 없어요. 위에서 주제를 요청해 보세요.</p>';
+}
+(function(){ const b=document.getElementById('fsGo'); if(!b)return; b.addEventListener('click',async()=>{
+  if(!_db||!CUR){alert('로그인 후 이용해주세요.');return;}
+  const topic=document.getElementById('fsTopic').value.trim();
+  if(!topic){alert('미래를 예측할 주제를 입력해주세요.');return;}
+  try{
+    await _db.collection('ws_futurescan').add({
+      topic, status:'요청됨',
+      requesterName:CUR.name, requesterEmail:CUR.email,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById('fsTopic').value='';
+    alert('🔮 미래스캔을 요청했어요! 요나단·어푸가 만들어 아래 갤러리에 올려드립니다.');
+  }catch(e){ alert('요청 저장 실패: '+((e&&e.message)||e)); }
+}); })();
 
 /* ===== 팀 감사 나눔 (ws_grats) ===== */
 let gratsUnsub=null;

@@ -97,6 +97,58 @@ exports.onMyGratCreate = functions.firestore.document('ws_mygrats/{id}').onCreat
   await pushTo(tokens, '🌿 오늘의 감사', `${nm}님이 오늘의 감사를 기록했어요`);
 });
 
+/* 새 공지 → 슬랙 #공지 채널에 어푸가 알림 */
+exports.onNoticeCreate = functions.firestore.document('ws_notices/{id}').onCreate(async (snap) => {
+  const n = snap.data() || {};
+  if (n.archived) return;
+  const token = process.env.SLACK_BOT_TOKEN;
+  const channel = process.env.SLACK_NOTICE_CHANNEL;
+  if (!token || !channel) { console.warn('슬랙 토큰/채널 미설정 — 공지 알림 건너뜀'); return; }
+  const type = n.type || '일반';
+  const icon = type === '긴급' ? '🚨' : type === '정보' ? 'ℹ️' : '📢';
+  const lines = [
+    `${icon} *새 공지 · ${type}*`,
+    `*${n.title || '(제목 없음)'}*`,
+  ];
+  if (n.content) lines.push(n.content);
+  if (n.authorName) lines.push(`\n— ${n.authorName}`);
+  lines.push(`\n<${SITE}|워크스페이스에서 보기>`);
+  try {
+    const res = await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ channel, text: lines.join('\n'), username: '어푸', icon_emoji: ':robot_face:', unfurl_links: false })
+    });
+    const j = await res.json();
+    if (!j.ok) console.error('공지→슬랙 실패:', j.error);
+  } catch (e) { console.error('공지→슬랙 오류:', e); }
+});
+
+/* 새 미래스캔 요청 → 슬랙에 어푸가 알림 (요나단·어푸가 받아 EnvironmentScan 생성) */
+exports.onFuturescanCreate = functions.firestore.document('ws_futurescan/{id}').onCreate(async (snap) => {
+  const f = snap.data() || {};
+  if (f.status === 'done') return;
+  const token = process.env.SLACK_BOT_TOKEN;
+  const channel = process.env.SLACK_NOTICE_CHANNEL;
+  if (!token || !channel) { console.warn('슬랙 토큰/채널 미설정 — 미래스캔 알림 건너뜀'); return; }
+  const lines = [
+    `🔮 *새 미래스캔 요청*`,
+    `*주제:* ${f.topic || '(주제 없음)'}`,
+    f.requesterName ? `— ${f.requesterName}님 요청` : '',
+    `\n요나단·어푸가 EnvironmentScan(STEEPs·미래신호·시나리오)으로 생성해 주세요.`,
+    `\n<${SITE}|워크스페이스에서 보기>`,
+  ].filter(Boolean);
+  try {
+    const res = await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ channel, text: lines.join('\n'), username: '어푸', icon_emoji: ':crystal_ball:', unfurl_links: false })
+    });
+    const j = await res.json();
+    if (!j.ok) console.error('미래스캔→슬랙 실패:', j.error);
+  } catch (e) { console.error('미래스캔→슬랙 오류:', e); }
+});
+
 /* 새 미팅 잡기 → 참여자(만든 사람 제외) */
 exports.onMeetingPollCreate = functions.firestore.document('ws_meetingpolls/{id}').onCreate(async (snap) => {
   const p = snap.data() || {};
