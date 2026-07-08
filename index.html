@@ -340,6 +340,7 @@
   .cal .day.sun{color:#a14a44;}
   .cal .day.has::after{content:"";position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--gold);}
   .cal .day.today.has::after{background:#f3e6c8;}
+  .cal .day.team::before{content:"⭐";position:absolute;top:-3px;right:-3px;font-size:10px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25));}
   .cal .memo{margin-top:12px;border-top:1px dashed rgba(168,132,63,.3);padding-top:12px;}
   .cal .memo .lab{font-size:12px;color:var(--ink-soft);margin-bottom:6px;}
   .cal .memo input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;}
@@ -352,10 +353,21 @@
   .evt-text{font-size:13px;color:var(--ink);line-height:1.45;}
   .evt-del{border:none;background:none;color:#b99;font-size:16px;opacity:.5;cursor:pointer;padding:0 2px;flex:none;align-self:flex-start;margin-top:2px;}
   .evt-del:hover{opacity:1;color:var(--seal);}
-  .cal .add-event{display:flex;gap:6px;margin-top:8px;}
-  .cal .add-event input{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;color:var(--ink);}
+  .cal .add-event{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px;}
+  .cal .add-event #calMemo{flex:1;min-width:120px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;color:var(--ink);}
   .cal .add-event input:focus{outline:none;border-color:var(--gold);}
-  .cal .add-event button{padding:0 13px;border:none;border-radius:7px;background:var(--seal);color:#f3e6c8;font-size:18px;line-height:1;}
+  .cal .add-event button#calAddBtn{padding:0 13px;border:none;border-radius:7px;background:var(--seal);color:#f3e6c8;font-size:18px;line-height:1;height:34px;}
+  .team-toggle{color:var(--gold-deep);font-weight:700;}
+  .team-toggle input{accent-color:var(--gold-deep);}
+  .cal-time-row{flex-basis:100%;display:flex;align-items:center;gap:6px;margin-top:2px;padding-top:8px;border-top:1px dashed rgba(168,132,63,.22);}
+  .cal-time-lab{font-size:11.5px;color:var(--ink-soft);white-space:nowrap;}
+  .cal-time-row input[type=time]{padding:6px 8px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:12.5px;color:var(--ink);background:#fff;}
+  .cal-time-row input[type=time]:focus{outline:none;border-color:var(--gold);}
+  .cal-time-sep{color:var(--ink-soft);}
+  .cal-time-hint{font-size:11px;color:var(--ink-soft);margin-left:auto;white-space:nowrap;}
+  .evt-item.evt-team{background:rgba(168,132,63,.08);border-radius:7px;padding-left:6px;padding-right:6px;}
+  .evt-star{margin-right:3px;}
+  .evt-time{display:inline-block;font-size:11px;font-weight:700;background:rgba(124,45,42,.1);color:var(--seal);padding:1px 8px;border-radius:10px;margin-left:6px;vertical-align:middle;white-space:nowrap;}
 
   /* 프로젝트 보드 */
   .proj-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
@@ -726,6 +738,21 @@
   .notice-form-row textarea{min-height:72px;resize:vertical;}
   .notice-form-row input:focus,.notice-form-row select:focus,.notice-form-row textarea:focus{outline:none;border-color:var(--gold);}
   .notice-empty{text-align:center;color:var(--ink-soft);font-size:13px;padding:20px 0;}
+  /* 보관함 (공지·기도제목 공용) */
+  .arch-wrap{margin-top:12px;border-top:1px dashed rgba(168,132,63,.28);padding-top:10px;}
+  .arch-wrap .archive-toggle{color:var(--gold-deep);font-weight:600;}
+  .arch-list{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
+  .arch-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.35);}
+  .arch-item .arch-body{flex:1;min-width:0;}
+  .arch-item .arch-ttl{font-family:"Nanum Myeongjo",serif;font-weight:700;font-size:13px;color:var(--ink);}
+  .arch-item .arch-sub{font-size:11.5px;color:var(--ink-soft);margin-top:3px;line-height:1.5;white-space:pre-wrap;}
+  .arch-item .arch-meta{font-size:10.5px;color:var(--ink-soft);margin-top:4px;}
+  .arch-btn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:3px 9px;font-size:11.5px;color:var(--gold-deep);cursor:pointer;font-family:inherit;white-space:nowrap;flex:none;}
+  .arch-btn:hover{border-color:var(--gold);}
+  .arch-btn.del{color:var(--seal);}
+  .arch-btn.del:hover{border-color:var(--seal);}
+  .tp-arch-mini{border:none;background:none;color:var(--gold-deep);cursor:pointer;font-size:11px;padding:0 2px;opacity:.55;flex:none;margin-left:auto;align-self:center;}
+  .tp-arch-mini:hover{opacity:1;}
 
   /* 아이디어 게시판 */
   .idea-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;}
@@ -1093,6 +1120,10 @@
         </div>
         <div class="notice-list" id="noticeList"></div>
         <div class="notice-empty" id="noticeEmpty" style="display:none">등록된 공지가 없어요.</div>
+        <div class="arch-wrap" id="noticeArchWrap" style="display:none">
+          <button class="archive-toggle" id="noticeArchToggle">🗄 보관된 공지 <span id="noticeArchCount">0</span>개 ▸</button>
+          <div class="arch-list" id="noticeArchList" style="display:none"></div>
+        </div>
       </div>
       </div><!-- /hero-left -->
       <div class="hero-right">
@@ -1122,6 +1153,10 @@
         <ul class="tp-list" id="tpList"></ul>
         <div class="tp-empty" id="tpEmpty" style="display:none">아직 팀 기도제목이 없어요.</div>
         <div class="tp-meta" id="tpMeta"></div>
+        <div class="arch-wrap" id="tpArchWrap" style="display:none">
+          <button class="archive-toggle" id="tpArchToggle">🗄 응답·보관된 기도제목 <span id="tpArchCount">0</span>개 ▸</button>
+          <div class="arch-list" id="tpArchList" style="display:none"></div>
+        </div>
       </div>
       </div><!-- /hero-right -->
     </div>
@@ -1209,9 +1244,17 @@
           <div class="events-list" id="calEvents"></div>
           <div class="add-event" id="calAddWrap" style="display:none">
             <input id="calMemo" placeholder="일정 이름" />
+            <label class="range-toggle team-toggle"><input type="checkbox" id="calTeamCk"> ⭐팀일정</label>
             <label class="range-toggle"><input type="checkbox" id="calRangeCk"> 기간</label>
             <input id="calEndDate" type="date" style="display:none" />
             <button id="calAddBtn">+</button>
+            <div class="cal-time-row">
+              <span class="cal-time-lab">🕑 시간</span>
+              <input id="calStart" type="time" />
+              <span class="cal-time-sep">~</span>
+              <input id="calEnd" type="time" />
+              <span class="cal-time-hint">비우면 종일</span>
+            </div>
           </div>
         </div>
       </div>
@@ -2148,13 +2191,14 @@ function renderCal(){
     const has=(calCache[ds]&&calCache[ds].length)?'has':'';
     const sun=(col%7===0)?'sun':'';
     const bars=calRangeEvents.filter(e=>inRange(ds,e.date,e.endDate));
+    const isTeamDay=((calCache[ds]||[]).some(e=>e.isTeam)||bars.some(e=>e.isTeam))?'team':'';
     const barsHtml=bars.length?`<div class="cal-bars">${bars.map(e=>{
       const isS=ds===e.date,isE=ds===e.endDate;
       const r=(isS&&isE)?'3px':isS?'3px 0 0 3px':isE?'0 3px 3px 0':'0';
       const c=MEMBER_COLORS[e.authorCode]||'#888';
       return`<div class="cal-bar" style="background:${c};border-radius:${r}" title="${esc(e.author)}: ${esc(e.text||'')}"></div>`;
     }).join('')}</div>`:'';
-    html+=`<td><div class="day ${isToday?'today':''} ${has} ${sun}" data-d="${ds}">${d}</div>${barsHtml}</td>`;
+    html+=`<td><div class="day ${isToday?'today':''} ${has} ${sun} ${isTeamDay}" data-d="${ds}">${d}</div>${barsHtml}</td>`;
     col++;if(col%7===0)html+='</tr><tr>';
   }
   html+='</tr>';
@@ -2177,6 +2221,12 @@ function renderCalEvents(ds){
   const pointEvs=calCache[ds]||[];
   const rangeEvs=calRangeEvents.filter(e=>inRange(ds,e.date,e.endDate));
   const events=[...pointEvs,...rangeEvs];
+  // 팀 일정 먼저, 그 다음 시작 시간 순
+  events.sort((a,b)=>{
+    const t=(b.isTeam?1:0)-(a.isTeam?1:0); if(t)return t;
+    const as=a.startTime||'99:99', bs=b.startTime||'99:99';
+    return as<bs?-1:as>bs?1:0;
+  });
   const el=document.getElementById('calEvents');
   if(!el)return;
   if(!events.length){el.innerHTML='<div style="font-size:12.5px;color:var(--ink-soft);padding:6px 0">이 날 등록된 일정이 없어요.</div>';return;}
@@ -2184,10 +2234,13 @@ function renderCalEvents(ds){
     const isRange=e.endDate&&e.endDate!==e.date;
     const dot=isRange?`<span class="evt-color-dot" style="background:${MEMBER_COLORS[e.authorCode]||'#888'}"></span>`:'';
     const badge=isRange?`<span class="evt-range-badge">${fmtDs(e.date)} – ${fmtDs(e.endDate)}</span>`:'';
-    return`<div class="evt-item">
+    const star=e.isTeam?'<span class="evt-star">⭐</span>':'';
+    const tl=evtTimeLabel(e);
+    const timeChip=tl?`<span class="evt-time">🕑 ${esc(tl)}</span>`:'';
+    return`<div class="evt-item${e.isTeam?' evt-team':''}">
       <div class="evt-meta">
-        <div class="evt-author" style="display:flex;align-items:center">${dot}${esc(e.author||'')} · ${esc(e.authorCode||'')}${badge}</div>
-        <div class="evt-text">${esc(e.text||'')}</div>
+        <div class="evt-author" style="display:flex;align-items:center">${star}${dot}${esc(e.author||'')} · ${esc(e.authorCode||'')}${badge}</div>
+        <div class="evt-text">${esc(e.text||'')}${timeChip}</div>
       </div>
       ${(CUR&&(e.authorEmail===CUR.id||CUR.code==='CEO'))?`<button class="evt-del" data-id="${e.id}">×</button>`:''}
     </div>`;
@@ -2195,6 +2248,12 @@ function renderCalEvents(ds){
   el.querySelectorAll('.evt-del').forEach(b=>b.addEventListener('click',()=>delCalEvent(b.dataset.id)));
 }
 function fmtDs(ds){if(!ds)return'';const[,m,d]=ds.split('-');return`${m}/${d}`;}
+function evtTimeLabel(e){
+  if(e.startTime&&e.endTime)return`${e.startTime}~${e.endTime}`;
+  if(e.startTime)return`${e.startTime}~`;
+  if(e.endTime)return`~${e.endTime}`;
+  return'';
+}
 
 async function addCalEvent(){
   const inp=document.getElementById('calMemo');
@@ -2203,13 +2262,25 @@ async function addCalEvent(){
   const rangeCk=document.getElementById('calRangeCk');
   const endInp=document.getElementById('calEndDate');
   const endDate=rangeCk&&rangeCk.checked&&endInp&&endInp.value?endInp.value:null;
+  const teamCk=document.getElementById('calTeamCk');
+  const startInp=document.getElementById('calStart');
+  const endTimeInp=document.getElementById('calEnd');
+  const isTeam=!!(teamCk&&teamCk.checked);
+  const startTime=(startInp&&startInp.value)||'';
+  const endTime=(endTimeInp&&endTimeInp.value)||'';
   try{
     const data={date:calSelDate,text,author:CUR.name,authorEmail:CUR.id,authorCode:CUR.code||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
     if(endDate&&endDate!==calSelDate)data.endDate=endDate;
+    if(isTeam)data.isTeam=true;
+    if(startTime)data.startTime=startTime;
+    if(endTime)data.endTime=endTime;
     await _db.collection('ws_calendar').add(data);
     inp.value='';
     if(rangeCk){rangeCk.checked=false;}
     if(endInp){endInp.value='';endInp.style.display='none';}
+    if(teamCk)teamCk.checked=false;
+    if(startInp)startInp.value='';
+    if(endTimeInp)endTimeInp.value='';
   }catch(e){alert('일정 추가 실패: '+((e&&e.message)||e));}
 }
 
@@ -3313,31 +3384,57 @@ function subscribeNotices(){
     const list=document.getElementById('noticeList');
     const empty=document.getElementById('noticeEmpty');
     if(!list)return;
-    const docs=snap.docs;
-    if(docs.length===0){list.innerHTML='';empty.style.display='block';return;}
-    empty.style.display='none';
-    list.innerHTML=docs.map(d=>{
-      const n=d.data();const id=d.id;
-      const ts=n.createdAt?.toDate?n.createdAt.toDate():new Date();
-      const dateStr=`${ts.getMonth()+1}/${ts.getDate()} ${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}`;
-      const canDel=CUR&&CUR.code==='CEO';
-      return`<div class="notice-card ${n.type}">
-        <span class="notice-type ${n.type}">${n.type}</span>
-        <div class="notice-body">
-          <div class="notice-title">${esc(n.title)}</div>
-          <div class="notice-content">${esc(n.content)}</div>
-          <div class="notice-meta">${esc(n.authorName)} · ${dateStr}${canDel?` &nbsp;<button onclick="deleteNotice('${id}')" style="font-size:11px;color:#a03030;background:none;border:none;cursor:pointer;padding:0">삭제</button>`:''}</div>
-        </div>
-      </div>`;
-    }).join('');
+    const canDel=CUR&&CUR.code==='CEO';
+    const active=snap.docs.filter(d=>!d.data().archived);
+    const archived=snap.docs.filter(d=>d.data().archived);
+    const nDate=n=>{const ts=n.createdAt?.toDate?n.createdAt.toDate():new Date();return`${ts.getMonth()+1}/${ts.getDate()} ${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}`;};
+    if(active.length===0){list.innerHTML='';empty.style.display='block';}
+    else{
+      empty.style.display='none';
+      list.innerHTML=active.map(d=>{
+        const n=d.data();const id=d.id;const dateStr=nDate(n);
+        return`<div class="notice-card ${n.type}">
+          <span class="notice-type ${n.type}">${n.type}</span>
+          <div class="notice-body">
+            <div class="notice-title">${esc(n.title)}</div>
+            <div class="notice-content">${esc(n.content)}</div>
+            <div class="notice-meta">${esc(n.authorName)} · ${dateStr}${canDel?` &nbsp;<button onclick="archiveNotice('${id}')" style="font-size:11px;color:var(--gold-deep);background:none;border:none;cursor:pointer;padding:0">🗄 보관</button> &nbsp;<button onclick="deleteNotice('${id}')" style="font-size:11px;color:#a03030;background:none;border:none;cursor:pointer;padding:0">삭제</button>`:''}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    // 보관함
+    const wrap=document.getElementById('noticeArchWrap'),alist=document.getElementById('noticeArchList'),cnt=document.getElementById('noticeArchCount');
+    if(wrap){
+      wrap.style.display=archived.length?'block':'none';
+      if(cnt)cnt.textContent=archived.length;
+      if(alist)alist.innerHTML=archived.map(d=>{
+        const n=d.data();const id=d.id;const dateStr=nDate(n);
+        return`<div class="arch-item">
+          <div class="arch-body">
+            <div class="arch-ttl">${esc(n.title)}</div>
+            <div class="arch-sub">${esc(n.content)}</div>
+            <div class="arch-meta">${esc(n.authorName)} · ${dateStr}</div>
+          </div>
+          ${canDel?`<button class="arch-btn" onclick="restoreNotice('${id}')">되살리기</button><button class="arch-btn del" onclick="deleteNotice('${id}')">삭제</button>`:''}
+        </div>`;
+      }).join('');
+    }
   },err=>console.error('notices',err));
 }
 function deleteNotice(id){if(!_db||!confirm('공지를 삭제할까요?'))return;_db.collection('ws_notices').doc(id).delete();}
+function archiveNotice(id){if(!_db)return;_db.collection('ws_notices').doc(id).update({archived:true,archivedAt:firebase.firestore.FieldValue.serverTimestamp()});}
+function restoreNotice(id){if(!_db)return;_db.collection('ws_notices').doc(id).update({archived:false});}
 document.getElementById('noticeAddToggle').addEventListener('click',()=>{
   const f=document.getElementById('noticeForm');
   f.classList.toggle('show');
   if(f.classList.contains('show'))document.getElementById('nfTitle').focus();
 });
+(function(){const t=document.getElementById('noticeArchToggle');if(!t)return;t.addEventListener('click',()=>{
+  const l=document.getElementById('noticeArchList');const open=l.style.display!=='none';
+  l.style.display=open?'none':'flex';
+  t.innerHTML=t.innerHTML.replace(open?'▾':'▸',open?'▸':'▾');
+});})();
 document.getElementById('nfCancel').addEventListener('click',()=>{
   document.getElementById('noticeForm').classList.remove('show');
   document.getElementById('nfTitle').value='';
@@ -3944,9 +4041,17 @@ async function ggExportCalendar(){
   for(const e of all){
     const start=ggYmd(e.date);
     const endBase=(e.endDate&&e.endDate!==e.date)?e.endDate:e.date;
-    const body={summary:(e.text||'(제목 없음)')+' · '+(e.author||''),
-      description:'URP 워크스페이스 팀 일정',
-      start:{date:start}, end:{date:ggPlusDay(ggYmd(endBase))}};
+    const isRange=e.endDate&&e.endDate!==e.date;
+    const body={summary:(e.isTeam?'⭐ ':'')+(e.text||'(제목 없음)')+' · '+(e.author||''),
+      description:'URP 워크스페이스 팀 일정'};
+    if(!isRange&&e.startTime){
+      // 하루 안의 시간 일정: 시작~끝 시각으로 내보내기
+      const et=e.endTime||e.startTime;
+      body.start={dateTime:`${start}T${e.startTime}:00`,timeZone:'Asia/Seoul'};
+      body.end={dateTime:`${start}T${et}:00`,timeZone:'Asia/Seoul'};
+    }else{
+      body.start={date:start}; body.end={date:ggPlusDay(ggYmd(endBase))};
+    }
     try{
       if(map[e.id]){
         try{await ggApi(GG_CAL+'/'+map[e.id],{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});}
@@ -3996,7 +4101,7 @@ async function ggImportCalendar(){
         if(map[ev.id]){try{await _db.collection('ws_calendar').doc(map[ev.id]).delete();}catch(_){}delete map[ev.id];del++;}
         continue;
       }
-      let date,endDate=null;
+      let date,endDate=null,startTime='',endTime='';
       if(ev.start&&ev.start.date){
         date=ggIsoToYmdLocal(ev.start.date+'T00:00:00');
         if(ev.end&&ev.end.date){
@@ -4007,13 +4112,18 @@ async function ggImportCalendar(){
         }
       }else if(ev.start&&ev.start.dateTime){
         date=ggIsoToYmdLocal(ev.start.dateTime);
+        const sd=new Date(ev.start.dateTime);
+        startTime=`${String(sd.getHours()).padStart(2,'0')}:${String(sd.getMinutes()).padStart(2,'0')}`;
         if(ev.end&&ev.end.dateTime){
           const e2=ggIsoToYmdLocal(ev.end.dateTime);
-          if(e2!==date)endDate=e2;
+          if(e2!==date){endDate=e2;}
+          else{const ed=new Date(ev.end.dateTime);endTime=`${String(ed.getHours()).padStart(2,'0')}:${String(ed.getMinutes()).padStart(2,'0')}`;}
         }
       }else{continue;}
       const data={date,text:ev.summary||'(제목 없음)',author:CUR.name,authorEmail:CUR.id,authorCode:CUR.code||'',source:'google',googleEventId:ev.id};
       if(endDate)data.endDate=endDate;
+      if(startTime)data.startTime=startTime;
+      if(endTime)data.endTime=endTime;
       if(map[ev.id]){
         await _db.collection('ws_calendar').doc(map[ev.id]).set(data,{merge:true});
       }else{
@@ -4913,8 +5023,9 @@ function subscribeTeamPrayer(){
 function renderTeamPrayer(){
   const list=document.getElementById('tpList'),empty=document.getElementById('tpEmpty'),meta=document.getElementById('tpMeta');
   if(!list)return;
+  const isCEO=CUR&&CUR.code==='CEO';
   const lines=(tpData&&tpData.lines)||[];
-  list.innerHTML=lines.map(t=>`<li><span class="b">✼</span><span>${esc(t)}</span></li>`).join('');
+  list.innerHTML=lines.map((t,i)=>`<li><span class="b">✼</span><span>${esc(t)}</span>${isCEO?`<button class="tp-arch-mini" title="보관" onclick="tpArchiveLine(${i})">🗄</button>`:''}</li>`).join('');
   if(empty)empty.style.display=lines.length?'none':'block';
   if(meta){
     let s='';
@@ -4924,6 +5035,54 @@ function renderTeamPrayer(){
     }
     meta.textContent=s;
   }
+  // 보관함
+  const arch=(tpData&&tpData.archivedLines)||[];
+  const wrap=document.getElementById('tpArchWrap'),alist=document.getElementById('tpArchList'),cnt=document.getElementById('tpArchCount');
+  if(wrap){
+    wrap.style.display=arch.length?'block':'none';
+    if(cnt)cnt.textContent=arch.length;
+    if(alist)alist.innerHTML=arch.map((it,i)=>{
+      const at=it.archivedAt?new Date(it.archivedAt):null;
+      const ds=at?`${at.getMonth()+1}월 ${at.getDate()}일 보관`:'';
+      return`<div class="arch-item">
+        <div class="arch-body">
+          <div class="arch-sub" style="font-size:13px;color:var(--ink)">✼ ${esc(it.text||'')}</div>
+          ${ds?`<div class="arch-meta">${ds}</div>`:''}
+        </div>
+        ${isCEO?`<button class="arch-btn" onclick="tpRestoreArch(${i})">되살리기</button><button class="arch-btn del" onclick="tpDeleteArch(${i})">삭제</button>`:''}
+      </div>`;
+    }).join('');
+  }
+}
+async function tpSaveDoc(patch){
+  return _db.collection('ws_team_prayer').doc('main').set(Object.assign({
+    updatedByName:CUR?CUR.name||'':'',updatedByEmail:CUR?CUR.id||'':'',
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  },patch),{merge:true});
+}
+function tpArchiveLine(i){
+  if(!_db||!tpData)return;
+  const lines=(tpData.lines||[]).slice();
+  const t=lines[i]; if(t==null)return;
+  lines.splice(i,1);
+  const arch=(tpData.archivedLines||[]).slice();
+  arch.unshift({text:t,archivedAt:Date.now()});
+  tpSaveDoc({lines,archivedLines:arch}).catch(e=>alert('보관 실패: '+((e&&e.message)||e)));
+}
+function tpRestoreArch(i){
+  if(!_db||!tpData)return;
+  const arch=(tpData.archivedLines||[]).slice();
+  const it=arch[i]; if(!it)return;
+  arch.splice(i,1);
+  const lines=(tpData.lines||[]).slice();
+  lines.push(it.text);
+  tpSaveDoc({lines,archivedLines:arch}).catch(e=>alert('되살리기 실패: '+((e&&e.message)||e)));
+}
+function tpDeleteArch(i){
+  if(!_db||!tpData||!confirm('보관된 기도제목을 완전히 삭제할까요?'))return;
+  const arch=(tpData.archivedLines||[]).slice();
+  arch.splice(i,1);
+  tpSaveDoc({archivedLines:arch}).catch(e=>alert('삭제 실패: '+((e&&e.message)||e)));
 }
 (function(){
   const btn=document.getElementById('tpEditBtn'),box=document.getElementById('tpEdit'),ta=document.getElementById('tpText');
@@ -4941,9 +5100,15 @@ function renderTeamPrayer(){
       await _db.collection('ws_team_prayer').doc('main').set({
         lines,updatedByName:CUR.name||'',updatedByEmail:CUR.id||'',
         updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-      });
+      },{merge:true});
       box.style.display='none';btn.style.display='inline-block';
     }catch(e){alert('저장 실패: '+((e&&e.message)||e));}
+  });
+  const at=document.getElementById('tpArchToggle');
+  if(at)at.addEventListener('click',()=>{
+    const l=document.getElementById('tpArchList');const open=l.style.display!=='none';
+    l.style.display=open?'none':'flex';
+    at.innerHTML=at.innerHTML.replace(open?'▾':'▸',open?'▸':'▾');
   });
 })();
 
