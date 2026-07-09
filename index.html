@@ -1836,7 +1836,10 @@ const ROLES = [
   {code:"CBO", label:"브랜드 총괄 · CBO"},
 ];
 let _auth=null,_db=null,_storage=null;
-try{ firebase.initializeApp(FB_CONFIG); _auth=firebase.auth(); _db=firebase.firestore(); _storage=firebase.storage(); }
+try{ firebase.initializeApp(FB_CONFIG); _auth=firebase.auth(); _db=firebase.firestore(); _storage=firebase.storage();
+  // 로그인 상태를 이 기기에 계속 저장 → 새로고침·재접속해도 다시 로그인 안 해도 됨
+  _auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e=>console.warn('로그인 유지 설정 실패',e));
+}
 catch(e){ console.error('Firebase 초기화 실패', e); }
 
 /* ===== 모트(빛 입자) ===== */
