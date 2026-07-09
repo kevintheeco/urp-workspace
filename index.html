@@ -504,6 +504,7 @@
   .mc-role{font-size:10.5px;color:var(--gold-deep);font-weight:700;}
   .mc-task-item{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--ink);padding:4px 0;border-bottom:1px dashed rgba(168,132,63,.12);}
   .mc-task-item:last-child{border-bottom:0;}
+  .mc-summary{font-size:11.5px;line-height:1.6;color:var(--ink);background:rgba(168,132,63,.08);border:1px solid rgba(168,132,63,.2);border-radius:8px;padding:8px 10px;margin:6px 0 2px;word-break:keep-all;}
   .mc-empty{font-size:12px;color:var(--ink-soft);font-style:italic;padding:4px 0;}
   .member-card.idle{border-color:rgba(190,50,50,.4);background:rgba(190,50,50,.045);}
   .mc-idle-badge{display:inline-block;margin-top:3px;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(190,50,50,.14);color:#a03030;letter-spacing:.3px;}
@@ -2998,6 +2999,7 @@ async function openWorkflow(){
 }
 
 let memberTodosCache={};   // 팀 현황: 멤버별 개인 할일(ws_todos) 캐시
+let memberFleetCache={};   // 팀 현황: 멤버별 어푸 자동요약(ws_fleet) 캐시
 function renderCeoCards(members,containerId,summaryId){
   containerId=containerId||'ceoCards';
   members=members||ceoMembersCache;
@@ -3036,10 +3038,12 @@ function renderCeoCards(members,containerId,summaryId){
       ?`<div class="mc-recur-head">✓ 개인 할일 (${myTodos.length})</div>`+myTodos.slice(0,4).map(t=>`<div class="mc-task-item" style="opacity:.9">${esc(t.text||'')}</div>`).join('')+(myTodos.length>4?`<div class="mc-empty">외 ${myTodos.length-4}건</div>`:'')
       :'';
     const idleBadge=idle?'<div class="mc-idle-badge">⚠ 지금 새 업무 없음</div>':'';
+    const fleet=memberFleetCache[m.email];
+    const summaryHtml=(fleet&&fleet.summary)?`<div class="mc-summary">🦉 ${esc(fleet.summary)}</div>`:'';
     return `<div class="member-card ${idle?'idle':''}">
       <div class="mc-top"><div class="mc-av">${esc((m.name||'?')[0])}</div>
       <div><div class="mc-name">${esc(m.name||'')}</div><div class="mc-role">${esc(m.code||'')}</div>${idleBadge}</div></div>
-      ${taskHtml}${projHtml}${todosHtml}${recurHtml}
+      ${summaryHtml}${taskHtml}${projHtml}${todosHtml}${recurHtml}
     </div>`;
   }).join('');
 }
@@ -3052,6 +3056,7 @@ async function openTeamStatus(){
       ceoMembersCache=snap.docs.map(d=>d.data()).filter(m=>m.email!==CUR.id);
     }
     try{ const td=await _db.collection('ws_todos').get(); memberTodosCache={}; td.forEach(d=>{ memberTodosCache[d.id]=(d.data().items||[]); }); }catch(e){}
+    try{ const fl=await _db.collection('ws_fleet').get(); memberFleetCache={}; fl.forEach(d=>{ memberFleetCache[d.id]=d.data(); }); }catch(e){}
     renderCeoCards(ceoMembersCache,'teamStatusCards','tsSummary');
   }catch(e){console.error('팀 현황 오류',e);}
 }
