@@ -2997,6 +2997,7 @@ async function openWorkflow(){
   }catch(e){console.error('전체뷰 오류',e);}
 }
 
+let memberTodosCache={};   // 팀 현황: 멤버별 개인 할일(ws_todos) 캐시
 function renderCeoCards(members,containerId,summaryId){
   containerId=containerId||'ceoCards';
   members=members||ceoMembersCache;
@@ -3030,11 +3031,15 @@ function renderCeoCards(members,containerId,summaryId){
           return `<div class="mc-recur-item"><span>${esc(t.title||'')}</span><span class="mc-recur-check ${done?'done':'pending'}">${done?'이번주 완료 ✓':'이번주 아직'}</span></div>`;
         }).join('')
       :'';
+    const myTodos=(memberTodosCache[m.email]||[]).filter(t=>t&&!t.done);
+    const todosHtml=myTodos.length
+      ?`<div class="mc-recur-head">✓ 개인 할일 (${myTodos.length})</div>`+myTodos.slice(0,4).map(t=>`<div class="mc-task-item" style="opacity:.9">${esc(t.text||'')}</div>`).join('')+(myTodos.length>4?`<div class="mc-empty">외 ${myTodos.length-4}건</div>`:'')
+      :'';
     const idleBadge=idle?'<div class="mc-idle-badge">⚠ 지금 새 업무 없음</div>':'';
     return `<div class="member-card ${idle?'idle':''}">
       <div class="mc-top"><div class="mc-av">${esc((m.name||'?')[0])}</div>
       <div><div class="mc-name">${esc(m.name||'')}</div><div class="mc-role">${esc(m.code||'')}</div>${idleBadge}</div></div>
-      ${taskHtml}${projHtml}${recurHtml}
+      ${taskHtml}${projHtml}${todosHtml}${recurHtml}
     </div>`;
   }).join('');
 }
@@ -3046,6 +3051,7 @@ async function openTeamStatus(){
       const snap=await _db.collection('ws_members').orderBy('createdAt').get();
       ceoMembersCache=snap.docs.map(d=>d.data()).filter(m=>m.email!==CUR.id);
     }
+    try{ const td=await _db.collection('ws_todos').get(); memberTodosCache={}; td.forEach(d=>{ memberTodosCache[d.id]=(d.data().items||[]); }); }catch(e){}
     renderCeoCards(ceoMembersCache,'teamStatusCards','tsSummary');
   }catch(e){console.error('팀 현황 오류',e);}
 }
