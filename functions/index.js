@@ -166,3 +166,93 @@ exports.onMeetingPollConfirm = functions.firestore.document('ws_meetingpolls/{id
   const tokens = await collectTokens(emails);
   await pushTo(tokens, '✓ 미팅 확정', `${after.title || ''} — ${after.confirmedDate || ''} ${String(after.confirmedHour).padStart(2, '0')}:00`);
 });
+
+/* 클로드 릴레이 — Anthropic이 홍콩(어푸 워커 콜로) 차단 → 미국(us-central1) 함수가 대신 호출.
+ * urp-agents 워커가 x-relay-key 헤더 + Anthropic 요청 본문을 POST → 그대로 forward → 원본 응답 반환. */
+exports.claudeRelay = functions.https.onRequest(async (req, res) => {
+  if (req.method !== 'POST') { res.status(405).send('POST only'); return; }
+  if (req.get('x-relay-key') !== process.env.CLAUDE_RELAY_KEY) { res.status(403).json({ error: { type: 'forbidden', message: 'bad relay key' } }); return; }
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify(req.body || {}),
+    });
+    const text = await r.text();
+    res.status(r.status).set('content-type', 'application/json; charset=utf-8').send(text);
+  } catch (e) {
+    res.status(502).json({ error: { type: 'relay_error', message: String(e && e.message) } });
+  }
+});
+
+/* ===== 공유 캘린더 새 팀 일정 → 슬랙 #일정 (개인 구글 동기화분은 제외) ===== */
+exports.onCalendarCreate = functions.firestore.document('ws_calendar/{id}').onCreate(async (snap) => {
+  const e = snap.data() || {};
+  if (e.source === 'google') return;   // 개인 구글에서 딸려온 일정(교회 등)은 알림 제외 — 포털에 직접 올린 팀 일정만
+  const token = process.env.SLACK_BOT_TOKEN;
+  const channel = process.env.SLACK_CAL_CHANNEL;
+  if (!token || !channel) { console.warn('슬랙 토큰/일정채널 미설정 — 캘린더 알림 건너뜀'); return; }
+  const when = (e.date || '') + (e.endDate ? ` ~ ${e.endDate}` : '') + (e.startTime ? ` ${e.startTime}${e.endTime ? '~' + e.endTime : ''}` : '');
+  const lines = [
+    `📅 *새 일정*`,
+    `*${e.text || '(제목 없음)'}*`,
+    when ? `🗓 ${when}` : '',
+    (e.author || e.authorName) ? `— ${e.author || e.authorName}` : '',
+    `\n<${SITE}|워크스페이스에서 보기>`,
+  ].filter(Boolean);
+  try {
+    const res = await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ channel, text: lines.join('\n'), username: '어푸', icon_emoji: ':calendar:', unfurl_links: false })
+    });
+    const j = await res.json();
+    if (!j.ok) console.error('캘린더→슬랙 실패:', j.error);
+  } catch (err) { console.error('캘린더→슬랙 오류:', err); }
+});
+
+/* ===== 타임트래커 미기입 알림 → 어푸가 슬랙 DM (평일 10·13·17시 KST, 대표 포함 전원) ===== */
+async function slackFindUser(token, email, name) {
+  try {
+    const r = await fetch('https://slack.com/api/users.lookupByEmail?email=' + encodeURIComponent(email), { headers: { Authorization: 'Bearer ' + token } }).then(x => x.json());
+    if (r.ok && r.user) return r.user.id;
+  } catch (e) { /* scope 없으면 아래로 폴백 */ }
+  try {
+    const l = await fetch('https://slack.com/api/users.list?limit=200', { headers: { Authorization: 'Bearer ' + token } }).then(x => x.json());
+    const u = (l.members || []).find(m => {
+      if (m.is_bot || m.deleted) return false;
+      const p = m.profile || {};
+      return p.email === email || (name && (p.real_name === name || p.display_name === name));
+    });
+    if (u) return u.id;
+  } catch (e) { /* skip */ }
+  return null;
+}
+
+exports.timetrackerNudge = functions.pubsub.schedule('0 10,13,17 * * 1-5').timeZone('Asia/Seoul').onRun(async () => {
+  const token = process.env.SLACK_BOT_TOKEN;
+  if (!token) { console.warn('슬랙 토큰 미설정 — 타임트래커 알림 건너뜀'); return null; }
+  const today = seoulDateKey();
+  // 오늘 가능시간을 실제로 칠한 사람(hours 1칸 이상) 집합
+  const av = await db.collection('ws_availability').where('date', '==', today).get();
+  const filled = new Set();
+  av.forEach(d => { const v = d.data() || {}; if ((v.hours || []).length > 0) filled.add(v.email); });
+  // 전체 멤버 중 안 칠한 사람에게 어푸가 DM (대표 포함 전원, 현우는 명단에서 이미 빠짐)
+  const members = await db.collection('ws_members').get();
+  const msg = `⏱ 오늘 타임트래커에 가능시간이 아직 비어 있어요! 잠깐 칠해주세요 🙏\n<${SITE}|워크스페이스 열기>`;
+  let sent = 0, missed = 0;
+  for (const m of members.docs) {
+    const email = m.id; const v = m.data() || {};
+    if (filled.has(email)) continue;
+    const uid = await slackFindUser(token, email, v.name);
+    if (!uid) { missed++; console.warn('타임트래커 알림: 슬랙 유저 못 찾음 —', email, v.name); continue; }
+    try {
+      const open = await fetch('https://slack.com/api/conversations.open', { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ users: uid }) }).then(x => x.json());
+      if (!open.ok) { missed++; continue; }
+      await fetch('https://slack.com/api/chat.postMessage', { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json; charset=utf-8' }, body: JSON.stringify({ channel: open.channel.id, text: msg, username: '어푸', icon_emoji: ':owl:' }) });
+      sent++;
+    } catch (e) { missed++; }
+  }
+  console.log(`타임트래커 알림(${today}): ${sent}명 발송, ${missed}명 실패`);
+  return null;
+});
