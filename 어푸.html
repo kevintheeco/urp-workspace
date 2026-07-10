@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>어푸 · URP 비서실</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2b2622; --ink-soft:#5c534b; --paper:#faf4e6; --paper-2:#f1e7d2;
+    --line:#d6c6a0; --gold:#bb924a; --gold-deep:#8d6a27; --seal:#7c2d2a;
+    --bg:#0e160f; --card:#f8f2e4; --mist:rgba(238,226,198,.2);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{background:var(--bg); color:#e9dcc0; font-family:"Gowun Batang","Nanum Myeongjo",serif; word-break:keep-all; min-height:100vh;}
+  .forest{position:fixed; inset:0; z-index:0; background:#0e160f url("assets/forest.jpg") center/cover no-repeat;}
+  .forest::after{content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(8,16,10,.62), rgba(8,16,10,.30) 40%, rgba(8,16,10,.82));}
+  .wrap{position:relative; z-index:1; max-width:1060px; margin:0 auto; padding:34px 20px 60px;}
+
+  header.top{text-align:center; margin-bottom:26px;}
+  .seal{display:inline-flex; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%;
+    background:radial-gradient(circle at 50% 42%, #d8b25e, var(--gold-deep)); color:#2b2010; font-weight:700; font-size:26px;
+    box-shadow:0 0 0 3px rgba(238,226,198,.18), 0 6px 24px rgba(0,0,0,.4); margin-bottom:12px;}
+  h1{margin:0; font-size:30px; letter-spacing:.06em; color:#f4e7c4;}
+  .sub{margin-top:6px; color:#cdbf98; font-size:14px; letter-spacing:.02em;}
+
+  .whoami{display:inline-flex; gap:8px; align-items:center; margin-top:16px; background:rgba(20,28,20,.5);
+    border:1px solid rgba(214,198,160,.4); border-radius:999px; padding:6px 8px 6px 16px;}
+  .whoami span{font-size:13px; color:#cdbf98;}
+  .whoami select{font-family:inherit; font-size:14px; color:var(--ink); background:var(--paper); border:1px solid var(--line);
+    border-radius:999px; padding:5px 12px;}
+
+  .grid{display:grid; grid-template-columns:1fr 380px; gap:20px; align-items:start;}
+  @media(max-width:860px){ .grid{grid-template-columns:1fr;} }
+
+  .card{background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:16px;
+    box-shadow:0 14px 40px rgba(0,0,0,.4); overflow:hidden;}
+  .card > h2{margin:0; padding:16px 20px; font-size:17px; letter-spacing:.04em; color:var(--gold-deep);
+    border-bottom:1px solid var(--line); display:flex; align-items:center; gap:8px;}
+
+  /* 대화 */
+  .chat{display:flex; flex-direction:column; height:min(66vh,620px);}
+  .log{flex:1; overflow-y:auto; padding:18px 20px; display:flex; flex-direction:column; gap:14px;}
+  .msg{max-width:82%; padding:11px 14px; border-radius:14px; font-size:15px; line-height:1.65; white-space:pre-wrap;}
+  .msg.me{align-self:flex-end; background:var(--gold); color:#2b2010; border-bottom-right-radius:4px;}
+  .msg.bot{align-self:flex-start; background:var(--paper-2); color:var(--ink); border:1px solid var(--line); border-bottom-left-radius:4px;}
+  .msg .nm{display:block; font-size:11px; color:var(--gold-deep); margin-bottom:3px; letter-spacing:.04em;}
+  .typing{align-self:flex-start; color:var(--ink-soft); font-size:14px; font-style:italic;}
+  .composer{display:flex; gap:10px; padding:14px; border-top:1px solid var(--line); background:var(--paper);}
+  .composer textarea{flex:1; resize:none; height:46px; font-family:inherit; font-size:15px; color:var(--ink);
+    background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 14px; line-height:1.4;}
+  .composer button{border:none; background:var(--gold-deep); color:#fff5df; font-weight:700; font-size:15px;
+    border-radius:12px; padding:0 20px; letter-spacing:.04em;}
+  .composer button:disabled{opacity:.5;}
+
+  /* 업무판 */
+  .board{padding:8px 14px 16px;}
+  .grp{margin-top:12px;}
+  .grp h3{margin:0 0 6px; font-size:13px; letter-spacing:.05em; color:var(--ink-soft); display:flex; gap:6px; align-items:center;}
+  .wo{background:var(--paper); border:1px solid var(--line); border-left:4px solid var(--gold); border-radius:10px;
+    padding:9px 12px; margin-bottom:8px;}
+  .wo.done{border-left-color:#7c9a63; opacity:.72;}
+  .wo .t{font-size:14px; color:var(--ink); line-height:1.45;}
+  .wo .meta{font-size:12px; color:var(--ink-soft); margin-top:3px;}
+  .empty{color:var(--ink-soft); font-size:13px; padding:8px 2px;}
+  .foot{grid-column:1/-1; text-align:center; color:#9c8f6d; font-size:12px; margin-top:22px; line-height:1.7;}
+  .dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:#7c9a63; margin-right:5px;}
+</style>
+</head>
+<body>
+<div class="forest"></div>
+<div class="wrap">
+  <header class="top">
+    <div class="seal">語</div>
+    <h1>어 푸</h1>
+    <div class="sub">URP 비서실 · 당신의 개인 비서가 여기 있습니다</div>
+    <div class="whoami">
+      <span>나는</span>
+      <select id="who">
+        <option value="수민">김수민 · Soom</option>
+        <option value="지민">최지민 · Stark</option>
+        <option value="은우">김은우 · Pheobe</option>
+        <option value="세빈">윤세빈 · Bin</option>
+        <option value="준서">임준서 · Zunsim</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="card chat">
+      <h2>🖋 나의 비서와 대화</h2>
+      <div class="log" id="log"></div>
+      <div class="composer">
+        <textarea id="inp" placeholder="비서에게 말하기…  (Enter 전송, Shift+Enter 줄바꿈)"></textarea>
+        <button id="send">전송</button>
+      </div>
+    </section>
+
+    <aside class="card">
+      <h2>📌 업무 현황판</h2>
+      <div class="board" id="board"><div class="empty">불러오는 중…</div></div>
+    </aside>
+
+    <div class="foot">
+      <span class="dot"></span>어푸는 클라우드에서 24시간 깨어 있습니다 · 이 화면은 슬랙과 같은 두뇌를 씁니다<br>
+      업무는 슬랙 #업무지시 또는 여기서 지시할 수 있고, 현황판은 실시간으로 함께 갱신됩니다
+    </div>
+  </div>
+</div>
+
+<script>
+const API = "https://urp-agents.soomin020114.workers.dev";
+const KEY = "__PORTAL_KEY__";               // 배포 시 주입
+const PERSONA = {수민:"Soom",지민:"Stark",은우:"Pheobe",세빈:"Bin",준서:"Zunsim"};
+
+const who = document.getElementById("who");
+const log = document.getElementById("log");
+const inp = document.getElementById("inp");
+const send = document.getElementById("send");
+const board = document.getElementById("board");
+
+who.value = localStorage.getItem("urp_me") || "수민";
+who.onchange = () => { localStorage.setItem("urp_me", who.value); resetChat(); };
+
+function bubble(cls, name, text){
+  const d = document.createElement("div");
+  d.className = "msg " + cls;
+  d.innerHTML = (name ? '<span class="nm">'+name+'</span>' : "") + "";
+  d.appendChild(document.createTextNode(text));
+  log.appendChild(d); log.scrollTop = log.scrollHeight; return d;
+}
+function resetChat(){
+  log.innerHTML = "";
+  bubble("bot", PERSONA[who.value], "안녕하세요, 저는 "+PERSONA[who.value]+"입니다. 무엇을 도와드릴까요? 오늘 할 일, 자료 정리, 아이디어 정리까지 편하게 말씀해 주세요.");
+}
+async function ask(){
+  const text = inp.value.trim(); if(!text) return;
+  inp.value = ""; send.disabled = true;
+  bubble("me", "", text);
+  const t = document.createElement("div"); t.className="typing"; t.textContent = PERSONA[who.value]+" 생각 중…";
+  log.appendChild(t); log.scrollTop = log.scrollHeight;
+  try{
+    const r = await fetch(API+"/portal/chat", {method:"POST", headers:{"Content-Type":"application/json","x-portal-key":KEY}, body:JSON.stringify({member:who.value, text})});
+    const j = await r.json(); t.remove();
+    bubble("bot", j.persona || PERSONA[who.value], j.reply || j.error || "응답이 없어요.");
+  }catch(e){ t.remove(); bubble("bot", PERSONA[who.value], "지금 연결이 원활하지 않아요. 잠시 후 다시 시도해 주세요."); }
+  send.disabled = false; inp.focus();
+}
+send.onclick = ask;
+inp.addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); ask(); }});
+
+function renderBoard(list){
+  const line = w => '<div class="wo'+(w.status==="완료"?" done":"")+'"><div class="t">#'+w.id+' '+esc(w.title)+'</div>'+
+    '<div class="meta">'+(w.owner&&w.owner!=="미정"?"담당 "+w.owner+" · ":"")+(w.deadline?"기한 "+w.deadline.label:(w.completed?"완료 "+w.completed:""))+'</div></div>';
+  const g = (title,arr) => arr.length ? '<div class="grp"><h3>'+title+' ('+arr.length+')</h3>'+arr.map(line).join("")+'</div>' : "";
+  const act=list.filter(w=>w.status==="진행중"), wait=list.filter(w=>w.status==="대기"), done=list.filter(w=>w.status==="완료").slice(-6).reverse();
+  const html = g("🔴 진행중",act)+g("🟡 대기",wait)+g("✅ 완료",done);
+  board.innerHTML = html || '<div class="empty">아직 등록된 업무가 없어요.<br>슬랙 #업무지시에 “@담당 할일 기한”으로 올리면 여기에 나타납니다.</div>';
+}
+function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+async function loadBoard(){
+  try{
+    const r = await fetch(API+"/portal/board",{method:"POST",headers:{"x-portal-key":KEY}});
+    const j = await r.json(); renderBoard(j.workorders||[]);
+  }catch(e){ board.innerHTML='<div class="empty">현황판을 불러오지 못했어요.</div>'; }
+}
+resetChat(); loadBoard(); setInterval(loadBoard, 20000);
+</script>
+</body>
+</html>
