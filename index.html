@@ -5238,7 +5238,13 @@ function surfUploadImage(file){
     if(!_storage||!surfCurId){reject('업로드 준비 안 됨');return;}
     const path=`ws-docs/${surfCurId}/${Date.now()}_${file.name.replace(/[^\w.\-가-힣]/g,'_')}`;
     _storage.ref(path).put(file).then(snap=>snap.ref.getDownloadURL()).then(url=>resolve({success:1,file:{url,path}}))
-      .catch(err=>{alert('사진 업로드 실패: '+((err&&err.message)||err));reject(err);});
+      .catch(err=>{
+        const code=(err&&err.code)||'';
+        let msg='사진 업로드 실패: '+((err&&err.message)||err);
+        if(code==='storage/unauthorized'||/unauthorized|permission|denied/i.test(msg))
+          msg='사진 업로드 권한이 아직 열려 있지 않아요. 관리자(요나단/대표)에게 "스토리지 규칙 게시"를 요청하면 바로 됩니다.';
+        alert(msg);reject(err);
+      });
   });
 }
 
