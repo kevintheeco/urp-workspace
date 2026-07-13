@@ -2,6 +2,8 @@ rules_version = '2';
 // ⚠️ Firebase Storage 규칙 (yourprofessor-94a2d.firebasestorage.app)
 // 워크스페이스 포털의 파일 저장소: Surf In 문서 사진(ws-docs/*), 사내 드라이브(ws-files/*).
 // 2026-06-23 초기 세팅 때 잠금 모드(전부 거부)로 게시된 채 방치 → 업로드 전멸 (2026-07-07 발견·교체).
+// 2026-07-14 정식 게시: firebase.json에 storage 항목이 빠져 그동안 한번도 배포된 적 없던 것이 진짜 원인.
+//   → firebase.json에 storage 추가 후 `firebase deploy --only storage`로 서비스계정 게시(요나단). 라이브 확인 완료.
 // 원칙: Firestore ws_members 명단에 있는 팀 멤버만 읽기/쓰기 (Firestore 규칙의 isMember()와 동일 기준).
 service firebase.storage {
   match /b/{bucket}/o {
