@@ -1178,8 +1178,128 @@
       </div><!-- /hero-right -->
     </div>
 
+    <style>
+      .mode-switch{display:inline-flex;gap:0;margin:2px 0 14px;background:rgba(12,19,13,.5);border:1px solid rgba(168,132,63,.3);border-radius:12px;padding:3px}
+      .mode-btn{border:none;background:none;color:#c9bd9a;font-family:inherit;font-size:13px;font-weight:700;padding:7px 16px;border-radius:9px;cursor:pointer;transition:all .15s}
+      .mode-btn.on{background:var(--gold-deep,#8d6a27);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+      .ix-wrap{display:flex;gap:16px;align-items:flex-start}
+      @media(max-width:900px){.ix-wrap{flex-direction:column}}
+      .ix-side{flex:0 0 302px;max-width:302px;background:var(--card,#f8f2e4);border:1px solid #e3d5b4;border-radius:16px;padding:16px 14px;box-shadow:0 20px 46px rgba(0,0,0,.24)}
+      @media(max-width:900px){.ix-side{flex:1 1 auto;max-width:100%;width:100%}}
+      .ix-quick{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+      .ix-q{border:none;border-radius:11px;padding:11px 12px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left;transition:transform .12s}
+      .ix-q:hover{transform:translateY(-1px)}
+      .ix-q.board{background:linear-gradient(135deg,#4a9e7f,#286f56);color:#fff}
+      .ix-q.agent{background:linear-gradient(135deg,#7b5cc9,#5b34c9);color:#fff}
+      .ix-q.yona{background:linear-gradient(135deg,#6fa8d6,#3a6ea5);color:#fff}
+      .ix-group{margin-bottom:14px}
+      .ix-gh{font-size:11.5px;font-weight:800;color:var(--gold-deep,#8d6a27);letter-spacing:.5px;margin:0 4px 7px;text-transform:none}
+      .ix-item{display:grid;grid-template-columns:26px 1fr;grid-template-rows:auto auto;column-gap:9px;width:100%;border:none;background:none;text-align:left;cursor:pointer;padding:8px 8px;border-radius:10px;font-family:inherit;transition:background .12s}
+      .ix-item:hover{background:rgba(168,132,63,.12)}
+      .ix-item span{grid-row:1/3;align-self:center;font-size:19px;text-align:center}
+      .ix-item b{font-size:13.5px;color:var(--ink,#2b2622);font-weight:700}
+      .ix-item i{font-size:11px;color:var(--ink-soft,#5c534b);font-style:normal;line-height:1.35}
+      .ix-main{flex:1 1 auto;min-width:0}
+      .ix-dash{background:var(--card,#f8f2e4);border:1px solid #e3d5b4;border-radius:16px;padding:22px 22px 24px;box-shadow:0 20px 46px rgba(0,0,0,.24)}
+      .ix-dash h3{margin:0 0 3px;font-size:19px;color:var(--ink,#2b2622)}
+      .ix-dash .sub{font-size:12.5px;color:var(--ink-soft,#5c534b);margin:0 0 18px;padding-bottom:14px;border-bottom:1px solid rgba(168,132,63,.16)}
+      .ix-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+      @media(max-width:620px){.ix-stats{grid-template-columns:repeat(2,1fr)}}
+      .ix-stat{background:var(--paper,#faf4e6);border:1px solid #ece0c2;border-radius:13px;padding:13px 12px;text-align:center}
+      .ix-stat .k{font-size:11.5px;color:var(--ink-soft,#5c534b);margin-bottom:5px}
+      .ix-stat .v{font-size:26px;font-weight:800;color:var(--seal,#7c2d2a);line-height:1}
+      .ix-stat .v small{font-size:12px;font-weight:600;color:#9a8a6a}
+      .ix-sec-h{font-size:13.5px;font-weight:800;color:var(--seal,#7c2d2a);margin:0 0 9px}
+      .ix-study{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
+      .ix-srow{background:var(--paper,#faf4e6);border:1px solid #ece0c2;border-radius:11px;padding:10px 12px}
+      .ix-srow .t{font-size:13.5px;color:var(--ink,#2b2622);font-weight:600}
+      .ix-srow .lk{display:block;font-size:11px;color:#3a6ea5;text-decoration:none;margin-top:2px;word-break:break-all}
+      .ix-badge{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;border:none;font-family:inherit}
+      .ix-badge.wait{background:#f0e9d6;color:#9a8a6a}
+      .ix-badge.run{background:#fbeecb;color:#8d6a27}
+      .ix-badge.done{background:#e3f1ea;color:#286f56;cursor:pointer}
+      .ix-empty{font-size:12.5px;color:#b8a984;padding:10px 2px}
+      .ix-open-all{margin-top:16px;border:none;background:var(--gold-deep,#8d6a27);color:#fff;font-family:inherit;font-weight:700;font-size:13.5px;padding:11px 20px;border-radius:11px;cursor:pointer}
+      /* 요나단 부르기 모달 */
+      .yo-overlay{position:fixed;inset:0;background:rgba(8,14,9,.6);backdrop-filter:blur(4px);z-index:60;display:none;align-items:center;justify-content:center;padding:20px}
+      .yo-overlay.show{display:flex}
+      .yo-card{background:var(--card,#f8f2e4);border:1px solid #e3d5b4;border-radius:18px;padding:22px;max-width:440px;width:100%;box-shadow:0 30px 70px rgba(0,0,0,.5)}
+      .yo-card h3{margin:0 0 4px;font-size:17px;color:var(--ink,#2b2622)}
+      .yo-card p{margin:0 0 12px;font-size:12.5px;color:var(--ink-soft,#5c534b)}
+      .yo-card textarea{width:100%;min-height:96px;border:1px solid #d6c6a0;border-radius:11px;padding:11px;font-family:inherit;font-size:14px;background:#fffdf7;resize:vertical;box-sizing:border-box}
+      .yo-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+      .yo-btns button{border:none;border-radius:10px;padding:9px 18px;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer}
+      .yo-cancel{background:#ece0c2;color:#6a5a48}
+      .yo-send{background:linear-gradient(135deg,#6fa8d6,#3a6ea5);color:#fff}
+    </style>
+    <!-- 🔀 홈 모드 / 인덱스 모드 전환 -->
+    <div class="mode-switch">
+      <button class="mode-btn" id="modeHomeBtn" onclick="setPortalMode('home')">🏠 홈</button>
+      <button class="mode-btn" id="modeIndexBtn" onclick="setPortalMode('index')">🗂 인덱스</button>
+    </div>
+
+    <!-- 🗂 인덱스 모드 (사이드바 인덱스 + 나의 대시보드) -->
+    <div id="indexMode" style="display:none">
+      <div class="ix-wrap">
+        <aside class="ix-side">
+          <div class="ix-quick">
+            <button class="ix-q board" onclick="openApp('app-myboard','🗂 나의 보드');mbRender()">🗂 나의 보드 열기</button>
+            <button class="ix-q agent" onclick="callAgent()">🤖 내 에이전트(어푸) 부르기</button>
+            <button class="ix-q yona" onclick="openYoCall()">🌤 요나단 부르기</button>
+          </div>
+          <div class="ix-group">
+            <div class="ix-gh">📌 내 일</div>
+            <button class="ix-item" onclick="openApp('app-myboard','🗂 나의 보드');mbRender()"><span>🗂</span><b>나의 보드</b><i>개인 할일·업무방향·공부할거·메모</i></button>
+            <button class="ix-item" onclick="openApp('app-todo','✅ 할 일 목록')"><span>✅</span><b>할 일</b><i>개인 할 일 목록</i></button>
+            <button class="ix-item" onclick="document.getElementById('surfInBtn').click()"><span>✒️</span><b>Surf In</b><i>노션식 작업 공간·문서</i></button>
+            <button class="ix-item" onclick="openApp('app-later','📌 Later Must')"><span>📌</span><b>Later Must</b><i>나중에 볼 링크·공부거리</i></button>
+            <button class="ix-item" onclick="openApp('app-today','📊 오늘 한눈에')"><span>📊</span><b>오늘</b><i>오늘 지표 한눈에</i></button>
+            <button class="ix-item" onclick="openApp('app-grat','🙏 오늘의 감사')"><span>🙏</span><b>감사</b><i>오늘의 감사 세 가지</i></button>
+          </div>
+          <div class="ix-group">
+            <div class="ix-gh">👥 소통 · 팀</div>
+            <button class="ix-item" onclick="openApp('app-task','📥 업무 지시함')"><span>📥</span><b>업무 지시함</b><i>받은·보낸 업무(DACI)</i></button>
+            <button class="ix-item" onclick="openApp('app-cal','📅 공유 캘린더')"><span>📅</span><b>공유 캘린더</b><i>팀 일정</i></button>
+            <button class="ix-item" onclick="openApp('app-proj','📈 프로젝트 · 진행사업 · 업무기한')"><span>📈</span><b>프로젝트</b><i>진행사업·업무기한</i></button>
+            <button class="ix-item" onclick="document.getElementById('dmBtn').click()"><span>💬</span><b>메시지</b><i>팀원과 DM</i></button>
+            <button class="ix-item" onclick="openBoardModal()"><span>🧠</span><b>브레인스토밍</b><i>아이디어 보드</i></button>
+            <button class="ix-item" onclick="openApp('app-meetingpoll','🗓 미팅 잡기');mpOpen()"><span>🗓</span><b>미팅 잡기</b><i>회의 시간 조율</i></button>
+            <button class="ix-item" onclick="openApp('app-prayer','🕊 기도제목')"><span>🕊</span><b>기도제목</b><i>팀 기도제목</i></button>
+            <button class="ix-item ix-ceo" onclick="openApp('app-teamstatus','🧭 팀 현황');openTeamStatus()"><span>🧭</span><b>팀 현황</b><i>팀원별 상태 요약</i></button>
+          </div>
+          <div class="ix-group">
+            <div class="ix-gh">🏢 회사 · 정보</div>
+            <button class="ix-item" onclick="openApp('app-intra','🏢 회사 · 사내 내부망')"><span>🏢</span><b>사내 내부망</b><i>회사 페이지</i></button>
+            <button class="ix-item" onclick="openApp('app-drive','🗂 사내 드라이브')"><span>🗄️</span><b>사내 드라이브</b><i>파일 저장소</i></button>
+            <button class="ix-item" onclick="openApp('app-futurescan','🔮 미래예측');fsOpen()"><span>🔮</span><b>미래예측</b><i>환경 스캔 리포트</i></button>
+            <button class="ix-item" onclick="openWiki()"><span>📚</span><b>팀 위키</b><i>공유 문서</i></button>
+            <button class="ix-item" onclick="openAppPicker()"><span>🎓</span><b>니가교수</b><i>우리 앱 모아보기</i></button>
+          </div>
+          <div class="ix-group">
+            <div class="ix-gh">🛠 도구</div>
+            <button class="ix-item" onclick="openApp('app-timetracker','⏱ Time Tracker');ttOpen()"><span>⏱</span><b>Time Tracker</b><i>가용 시간 입력</i></button>
+            <button class="ix-item ix-ceo" onclick="openWorkflow()"><span>🚀</span><b>Workflow</b><i>업무 배정·발송</i></button>
+          </div>
+        </aside>
+        <main class="ix-main" id="ixMain"></main>
+      </div>
+    </div>
+
+    <!-- 🌤 요나단 부르기 모달 -->
+    <div class="yo-overlay" id="yoOverlay" onclick="if(event.target===this)closeYoCall()">
+      <div class="yo-card">
+        <h3>🌤 요나단 부르기</h3>
+        <p>지금 요나단은 데스크톱 앱·터미널에서 일해요. 여기 남겨두면 다음에 만날 때 제일 먼저 확인하고 처리해드릴게요.</p>
+        <textarea id="yoText" placeholder="예: 이 링크 분석해줘 / 내일 회의자료 초안 잡아줘 / OO 알아봐줘"></textarea>
+        <div class="yo-btns">
+          <button class="yo-cancel" onclick="closeYoCall()">닫기</button>
+          <button class="yo-send" onclick="sendYoCall()">남기기</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 📱 앱 홈 격자 -->
-    <div style="display:flex;justify-content:flex-end;margin:0 0 6px;">
+    <div id="appGridBar" style="display:flex;justify-content:flex-end;margin:0 0 6px;">
       <span class="appgrid-edit-toggle" id="appEditToggle">✏️ 순서 편집</span>
     </div>
     <div class="appgrid" id="appGrid">
@@ -1987,6 +2107,7 @@ function enterDash(){
   subscribeTodos();
   subscribeFuturescan();
   subscribeMyboard();
+  try{setPortalMode(localStorage.getItem('ws:portalMode')||'home');}catch(e){}
   initFcm();
   applyAppOrder();
   setTimeout(ggAutoConnect,800);   // GIS 스크립트 로드 시간 여유
@@ -4843,6 +4964,7 @@ function mbRender(){
   // 홈 아이콘 배지: 분석 완료됐는데 아직 안 열어본 공부거리 수
   const badge=document.getElementById('mbIconBadge');
   if(badge){const n=(mbData.study||[]).filter(x=>x.status==='done'&&x.docId&&!x.seen).length;badge.textContent=n;badge.style.display=n?'flex':'none';}
+  if(typeof portalMode!=='undefined'&&portalMode==='index')ixRenderMain();
 }
 /* 완료 배지를 누르면 해당 Surf In 문서를 연다 (문서가 구독으로 들어올 때까지 잠깐 대기) */
 function openSurfDoc(docId){
@@ -4858,6 +4980,77 @@ function openSurfDoc(docId){
     if(tries++>60)return;
     setTimeout(t,150);
   })();
+}
+
+/* ===== 홈 / 인덱스 모드 전환 + 인덱스 대시보드 ===== */
+let portalMode='home';
+function setPortalMode(m){
+  portalMode=(m==='index')?'index':'home';
+  try{localStorage.setItem('ws:portalMode',portalMode);}catch(e){}
+  const idx=portalMode==='index';
+  const im=document.getElementById('indexMode'); if(im)im.style.display=idx?'block':'none';
+  const hr=document.querySelector('.hero-row'); if(hr)hr.style.display=idx?'none':'';
+  const ag=document.getElementById('appGrid'); if(ag)ag.style.display=idx?'none':'';
+  const agb=document.getElementById('appGridBar'); if(agb)agb.style.display=idx?'none':'flex';
+  const hb=document.getElementById('modeHomeBtn'), ib=document.getElementById('modeIndexBtn');
+  if(hb)hb.classList.toggle('on',!idx); if(ib)ib.classList.toggle('on',idx);
+  if(idx){applyIndexCeo();ixRenderMain();}
+}
+function applyIndexCeo(){
+  const ceo=!!(CUR&&CUR.code==='CEO');
+  document.querySelectorAll('#indexMode .ix-ceo').forEach(el=>{el.style.display=ceo?'':'none';});
+}
+function ixBadge(it){
+  if(it.status==='done'&&it.docId) return `<button class="ix-badge done" onclick="openSurfDoc('${it.docId}')">📄 분석 완료 · 열기</button>`;
+  if(it.status==='analyzing') return `<span class="ix-badge run">⏳ 요나단 분석 중</span>`;
+  if(it.status==='new'&&it.link) return `<span class="ix-badge wait">🔍 곧 분석해드려요</span>`;
+  return '';
+}
+function ixRenderMain(){
+  const el=document.getElementById('ixMain'); if(!el)return;
+  const p=(mbData.personal||[]).filter(x=>!x.done).length;
+  const d=(mbData.direction||[]).filter(x=>!x.done).length;
+  const s=(mbData.study||[]);
+  const doneN=s.filter(x=>x.status==='done'&&x.docId).length;
+  const studyRows=s.length? s.slice(0,8).map(it=>{
+    const lk=it.link?`<a class="lk" href="${mbEsc(it.link)}" target="_blank" rel="noopener">🔗 ${mbEsc(it.link)}</a>`:'';
+    return `<div class="ix-srow"><div class="t">${mbEsc(it.text)}</div>${lk}${ixBadge(it)}</div>`;
+  }).join('') : '<div class="ix-empty">아직 공부할거가 없어요. 나의 보드에서 링크를 달면 요나단이 분석해드려요.</div>';
+  const name=(CUR&&CUR.name)||'';
+  el.innerHTML=`<div class="ix-dash">
+    <h3>🗂 ${mbEsc(name)}님의 대시보드</h3>
+    <div class="sub">오늘 내가 할 일과 공부거리를 한곳에서</div>
+    <div class="ix-stats">
+      <div class="ix-stat"><div class="k">개인 할일</div><div class="v">${p}<small>건</small></div></div>
+      <div class="ix-stat"><div class="k">업무 방향</div><div class="v">${d}<small>개</small></div></div>
+      <div class="ix-stat"><div class="k">공부할거</div><div class="v">${s.length}<small>건</small></div></div>
+      <div class="ix-stat"><div class="k">분석 완료</div><div class="v">${doneN}<small>개</small></div></div>
+    </div>
+    <div class="ix-sec-h">📚 공부할거</div>
+    <div class="ix-study">${studyRows}</div>
+    <button class="ix-open-all" onclick="openApp('app-myboard','🗂 나의 보드');mbRender()">나의 보드 전체 열기 →</button>
+  </div>`;
+}
+/* 에이전트(어푸) 부르기 — 슬랙 봇 DM 열기 (누구나 @어푸 = 자기 전담비서) */
+function callAgent(){
+  window.open('https://urp-ufh8583.slack.com/app_redirect?channel=U0BFHT25Y0N','_blank','noopener');
+}
+/* 요나단 부르기 — 남기면 다음 세션에 요나단이 확인 (ws_yonathan_calls) */
+function openYoCall(){const o=document.getElementById('yoOverlay');if(o){o.classList.add('show');const t=document.getElementById('yoText');if(t){t.value='';setTimeout(()=>t.focus(),50);}}}
+function closeYoCall(){const o=document.getElementById('yoOverlay');if(o)o.classList.remove('show');}
+async function sendYoCall(){
+  const t=document.getElementById('yoText'); const text=(t&&t.value||'').trim();
+  if(!text){t&&t.focus();return;}
+  if(!_db||!CUR){alert('로그인 후 이용할 수 있어요.');return;}
+  try{
+    await _db.collection('ws_yonathan_calls').add({
+      text, fromName:CUR.name, fromEmail:CUR.id, done:false,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    closeYoCall();
+    if(typeof showToast==='function')showToast('🌤','요나단에게 남겼어요. 다음에 만나면 제일 먼저 확인할게요.');
+    else alert('요나단에게 남겼어요. 다음에 만나면 제일 먼저 확인할게요.');
+  }catch(e){alert('전송 실패: '+((e&&e.message)||e));}
 }
 
 /* ===== Surf In · 작업 공간 (ws_docs + Editor.js) ===== */
