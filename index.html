@@ -1203,6 +1203,7 @@
       <button class="appicon" data-appid="meetingpoll" onclick="openApp('app-meetingpoll','🗓 미팅 잡기');mpOpen();"><span class="tile" style="background:linear-gradient(150deg,#c98a3e,#8a5a1f)">🗓</span><span class="lbl">미팅 잡기</span></button>
       <button class="appicon" data-appid="prayer" onclick="openApp('app-prayer','🕊 기도제목')"><span class="tile" style="background:linear-gradient(150deg,#5e8aa6,#33566e)">🕊</span><span class="lbl">기도제목</span></button>
       <button class="appicon" data-appid="futurescan" onclick="openApp('app-futurescan','🔮 미래예측');fsOpen();"><span class="tile" style="background:linear-gradient(150deg,#8b5cf6,#5b34c9)">🔮</span><span class="lbl">미래예측</span></button>
+      <button class="appicon" data-appid="myboard" onclick="openApp('app-myboard','🗂 나의 보드');mbRender();"><span class="tile" style="background:linear-gradient(150deg,#4a9e7f,#286f56)">🗂</span><span class="lbl">나의 보드</span><span class="badge" id="mbIconBadge"></span></button>
     </div>
 
     <!-- 앱 본체 보관소 (아이콘 클릭 시 창으로 이동, 닫으면 되돌아옴) -->
@@ -1234,6 +1235,70 @@
         <div id="fsGallery" class="fs-gallery"></div>
       </div>
 
+      <!-- 🗂 나의 보드 (ws_myboard) -->
+      <style>
+        #app-myboard .mb-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:6px}
+        @media(max-width:1000px){#app-myboard .mb-grid{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:620px){#app-myboard .mb-grid{grid-template-columns:1fr}}
+        #app-myboard .mb-col{background:var(--paper,#faf4e6);border:1px solid #e3d5b4;border-radius:14px;padding:14px 13px 16px;display:flex;flex-direction:column;min-height:210px}
+        #app-myboard .mb-h{font-weight:800;font-size:14px;color:var(--seal,#7c2d2a);word-break:keep-all;margin-bottom:2px}
+        #app-myboard .mb-sub{font-size:11px;color:#9a8a6a;margin-bottom:9px}
+        #app-myboard .mb-add{display:flex;gap:5px;margin-bottom:10px}
+        #app-myboard .mb-add input{flex:1;min-width:0;font-size:13px;padding:8px 9px;border:1px solid #d6c6a0;border-radius:9px;background:#fffdf7;font-family:inherit}
+        #app-myboard .mb-add.stack{flex-direction:column;gap:5px}
+        #app-myboard .mb-add button{flex:0 0 auto;width:34px;border:none;border-radius:9px;background:var(--gold-deep,#8d6a27);color:#fff;font-size:17px;font-weight:700;cursor:pointer}
+        #app-myboard .mb-add.stack button{width:100%;padding:7px 0}
+        #app-myboard .mb-list{display:flex;flex-direction:column;gap:7px;flex:1}
+        #app-myboard .mb-item{display:flex;gap:7px;align-items:flex-start;background:#fffdf7;border:1px solid #ece0c2;border-radius:10px;padding:8px 9px}
+        #app-myboard .mb-item .cbx{flex:0 0 auto;width:17px;height:17px;border:1.5px solid var(--gold,#bb924a);border-radius:5px;cursor:pointer;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--seal,#7c2d2a);background:#fff}
+        #app-myboard .mb-item.done .cbx{background:var(--gold,#bb924a);color:#fff;border-color:var(--gold,#bb924a)}
+        #app-myboard .mb-item.done .mb-txt{text-decoration:line-through;color:#a99}
+        #app-myboard .mb-txt{flex:1;font-size:13px;line-height:1.45;color:var(--ink,#2b2622);word-break:break-word}
+        #app-myboard .mb-link{display:block;font-size:11px;color:#3a6ea5;text-decoration:none;margin-top:3px;word-break:break-all}
+        #app-myboard .mb-link:hover{text-decoration:underline}
+        #app-myboard .mb-del{flex:0 0 auto;border:none;background:none;color:#c9b98f;cursor:pointer;font-size:14px;line-height:1;padding:2px}
+        #app-myboard .mb-del:hover{color:var(--seal,#7c2d2a)}
+        #app-myboard .mb-badge{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;border:none;cursor:default;font-family:inherit}
+        #app-myboard .mb-badge.wait{background:#f0e9d6;color:#9a8a6a}
+        #app-myboard .mb-badge.run{background:#fbeecb;color:#8d6a27}
+        #app-myboard .mb-badge.done{background:#e3f1ea;color:#286f56;cursor:pointer}
+        #app-myboard .mb-badge.done:hover{background:#d0e9dd}
+        #app-myboard .mb-empty{font-size:12px;color:#b8a984;padding:8px 2px;text-align:center}
+      </style>
+      <div class="panel col-12" id="app-myboard" data-app="app-myboard">
+        <h3><span class="ic">🗂</span> 나의 보드</h3>
+        <p class="desc">개인 할일 · 업무 방향 · 공부할거 · 메모를 한곳에. <b>공부할거</b>에 링크를 달면 요나단이 분석해 자료로 만들고, 완료되면 옆에 <b>📄 배지</b>가 떠요 — 누르면 Surf In에서 바로 열립니다.</p>
+        <div class="mb-grid">
+          <div class="mb-col" data-col="personal">
+            <div class="mb-h">🙋 개인 할일</div>
+            <div class="mb-sub">나만의 개인적인 할 일</div>
+            <div class="mb-add"><input id="mbInPersonal" placeholder="할 일 추가" onkeydown="if(event.key==='Enter')mbAdd('personal')"/><button onclick="mbAdd('personal')">＋</button></div>
+            <div class="mb-list" id="mbListPersonal"></div>
+          </div>
+          <div class="mb-col" data-col="direction">
+            <div class="mb-h">🧭 업무 방향</div>
+            <div class="mb-sub">지금 잡고 가는 큰 방향</div>
+            <div class="mb-add"><input id="mbInDirection" placeholder="방향 추가" onkeydown="if(event.key==='Enter')mbAdd('direction')"/><button onclick="mbAdd('direction')">＋</button></div>
+            <div class="mb-list" id="mbListDirection"></div>
+          </div>
+          <div class="mb-col" data-col="study">
+            <div class="mb-h">📚 공부할거</div>
+            <div class="mb-sub">링크를 달면 요나단이 분석해줘요</div>
+            <div class="mb-add stack">
+              <input id="mbInStudyText" placeholder="무엇을 공부할지 (예: 이 에이전트 도입 검토)" onkeydown="if(event.key==='Enter')mbAdd('study')"/>
+              <input id="mbInStudyLink" placeholder="링크 붙여넣기 (선택)" onkeydown="if(event.key==='Enter')mbAdd('study')"/>
+              <button onclick="mbAdd('study')">＋ 공부거리 추가</button>
+            </div>
+            <div class="mb-list" id="mbListStudy"></div>
+          </div>
+          <div class="mb-col" data-col="memo">
+            <div class="mb-h">📝 메모</div>
+            <div class="mb-sub">스쳐가는 생각·기록</div>
+            <div class="mb-add"><input id="mbInMemo" placeholder="메모 추가" onkeydown="if(event.key==='Enter')mbAdd('memo')"/><button onclick="mbAdd('memo')">＋</button></div>
+            <div class="mb-list" id="mbListMemo"></div>
+          </div>
+        </div>
+      </div>
 
       <!-- 위젯 미니 -->
       <div class="panel col-4">
@@ -1921,6 +1986,7 @@ function enterDash(){
   subscribeTeamPrayer();
   subscribeTodos();
   subscribeFuturescan();
+  subscribeMyboard();
   initFcm();
   applyAppOrder();
   setTimeout(ggAutoConnect,800);   // GIS 스크립트 로드 시간 여유
@@ -4705,6 +4771,93 @@ async function ggDriveUpload(file){
   });
   if(!r.ok)throw new Error('drive '+r.status+': '+(await r.text()));
   return r.json();
+}
+
+/* ===== 나의 보드 (ws_myboard) — 개인할일·업무방향·공부할거·메모 + 공부거리 분석 배지 ===== */
+let mbData={personal:[],direction:[],study:[],memo:[]}, mbUnsub=null;
+const MB_COLS=['personal','direction','study','memo'];
+function mbEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function mbUid(){return 'm'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);}
+function subscribeMyboard(){
+  if(!_db||!CUR||mbUnsub)return;
+  mbUnsub=_db.collection('ws_myboard').doc(CUR.id).onSnapshot(snap=>{
+    const d=snap.exists?snap.data():{};
+    mbData={personal:d.personal||[],direction:d.direction||[],study:d.study||[],memo:d.memo||[]};
+    mbRender();
+  },err=>console.warn('myboard 구독 실패',err));
+}
+async function mbSave(){
+  if(!_db||!CUR)return;
+  try{
+    await _db.collection('ws_myboard').doc(CUR.id).set({
+      personal:mbData.personal,direction:mbData.direction,study:mbData.study,memo:mbData.memo,
+      ownerName:CUR.name,ownerEmail:CUR.id,updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+  }catch(e){alert('보드 저장 실패: '+((e&&e.message)||e));}
+}
+function mbAdd(col){
+  if(!CUR){alert('로그인 후 이용할 수 있어요.');return;}
+  if(col==='study'){
+    const t=document.getElementById('mbInStudyText'), l=document.getElementById('mbInStudyLink');
+    const text=(t.value||'').trim(), link=(l.value||'').trim();
+    if(!text&&!link)return;
+    mbData.study.unshift({id:mbUid(),text:text||link,link,status:link?'new':'none',docId:'',ts:Date.now()});
+    t.value='';l.value='';
+  }else{
+    const inp=document.getElementById('mbIn'+col.charAt(0).toUpperCase()+col.slice(1));
+    const text=(inp.value||'').trim(); if(!text)return;
+    mbData[col].unshift({id:mbUid(),text,done:false,ts:Date.now()});
+    inp.value='';
+  }
+  mbRender();mbSave();
+}
+function mbToggle(col,id){
+  const it=mbData[col].find(x=>x.id===id); if(!it)return;
+  it.done=!it.done; mbRender();mbSave();
+}
+function mbDel(col,id){
+  mbData[col]=mbData[col].filter(x=>x.id!==id); mbRender();mbSave();
+}
+function mbStudyBadge(it){
+  if(it.status==='done'&&it.docId) return `<button class="mb-badge done" onclick="openSurfDoc('${it.docId}')">📄 분석 완료 · 열기</button>`;
+  if(it.status==='analyzing') return `<span class="mb-badge run">⏳ 요나단 분석 중</span>`;
+  if(it.status==='new'&&it.link) return `<span class="mb-badge wait">🔍 곧 분석해드려요</span>`;
+  return '';
+}
+function mbRender(){
+  MB_COLS.forEach(col=>{
+    const box=document.getElementById('mbList'+col.charAt(0).toUpperCase()+col.slice(1));
+    if(!box)return;
+    const list=mbData[col]||[];
+    if(!list.length){box.innerHTML='<div class="mb-empty">아직 없어요</div>';return;}
+    box.innerHTML=list.map(it=>{
+      if(col==='study'){
+        const linkHtml=it.link?`<a class="mb-link" href="${mbEsc(it.link)}" target="_blank" rel="noopener">🔗 ${mbEsc(it.link)}</a>`:'';
+        return `<div class="mb-item"><div class="mb-txt">${mbEsc(it.text)}${linkHtml}${mbStudyBadge(it)}</div><button class="mb-del" title="삭제" onclick="mbDel('study','${it.id}')">✕</button></div>`;
+      }
+      const doneCls=it.done?' done':'';
+      const check=it.done?'✓':'';
+      return `<div class="mb-item${doneCls}"><div class="cbx" onclick="mbToggle('${col}','${it.id}')">${check}</div><div class="mb-txt">${mbEsc(it.text)}</div><button class="mb-del" title="삭제" onclick="mbDel('${col}','${it.id}')">✕</button></div>`;
+    }).join('');
+  });
+  // 홈 아이콘 배지: 분석 완료됐는데 아직 안 열어본 공부거리 수
+  const badge=document.getElementById('mbIconBadge');
+  if(badge){const n=(mbData.study||[]).filter(x=>x.status==='done'&&x.docId&&!x.seen).length;badge.textContent=n;badge.style.display=n?'flex':'none';}
+}
+/* 완료 배지를 누르면 해당 Surf In 문서를 연다 (문서가 구독으로 들어올 때까지 잠깐 대기) */
+function openSurfDoc(docId){
+  try{closeApp();}catch(e){}
+  // 열어봤으니 홈 아이콘 알림 배지에서 제외
+  const it=(mbData.study||[]).find(x=>x.docId===docId);
+  if(it&&!it.seen){it.seen=true;mbRender();mbSave();}
+  if(typeof openSurf==='function')openSurf();
+  let tries=0;
+  (function t(){
+    const has=(typeof surfDocs!=='undefined')&&surfDocs.find&&surfDocs.find(d=>d.id===docId);
+    if(has){surfOpenDoc(docId);return;}
+    if(tries++>60)return;
+    setTimeout(t,150);
+  })();
 }
 
 /* ===== Surf In · 작업 공간 (ws_docs + Editor.js) ===== */
