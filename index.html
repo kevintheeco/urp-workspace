@@ -327,6 +327,11 @@
   .todo li .tstate{display:inline-block;font-size:10px;padding:1px 6px;border-radius:6px;margin-left:6px;background:var(--seal);color:#f3e6c8;vertical-align:middle;}
   .todo li .tlink{text-decoration:none;font-size:13px;opacity:.6;flex:none;margin-left:2px;}
   .todo li .tlink:hover{opacity:1;}
+  .todo li.tgrp{display:block;border-bottom:0;padding:11px 2px 3px;font-size:11px;font-weight:700;letter-spacing:.4px;color:var(--gold-deep);}
+  .todo li.tgrp:first-child{padding-top:2px;}
+  .todo li.tgrp .tgrp-n{opacity:.5;font-weight:400;margin-left:3px;}
+  .todo li.tgrp-급함{color:#a23b1e;}
+  .todo li.tgrp-done{color:var(--ink-soft);}
 
   /* 캘린더 */
   .cal .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
@@ -2178,24 +2183,26 @@ function renderTodo(){
   const ul=document.getElementById('todoList');
   if(!todoLoaded){ul.innerHTML='<div class="empty">불러오는 중…</div>';return;}
   const list=todoItems;
-  if(!list.length){ul.innerHTML='<div class="empty">아직 할 일이 없어요. 위에 적어보세요.</div>';}
-  else{
-    const CATORD={'급함':0,'회사':1,'개인':2,'위임':3,'참고':4,'':5};
-    const co=k=>CATORD[k]===undefined?5:CATORD[k];
-    const idx=list.map((t,i)=>({t,i}));
-    idx.sort((a,b)=>((a.t.done?1:0)-(b.t.done?1:0))||(co(a.t.cat||'')-co(b.t.cat||''))||(a.i-b.i));
-    ul.innerHTML=idx.map(({t,i})=>{
-      const cat=t.cat||'';
-      const catB=cat?`<span class="tcat tcat-${cat}">${cat}</span>`:'';
-      const stateB=t.state?`<span class="tstate">${esc(t.state)}</span>`:'';
-      const link=t.link?`<a class="tlink" href="${esc(t.link)}" target="_blank" rel="noopener" title="열기">🔗</a>`:'';
-      return `<li class="${t.done?'done':''}"><span class="box" data-i="${i}">${t.done?'✓':''}</span><span class="tx" data-i="${i}">${catB}${esc(t.text)}${stateB}</span>${link}<button class="del" data-i="${i}">×</button></li>`;
-    }).join('');
-  }
+  if(!list.length){ul.innerHTML='<div class="empty">아직 할 일이 없어요. 위에 적어보세요.</div>';document.getElementById('wTodo').innerHTML='0<small>건</small>';return;}
+  const CATS=['급함','회사','개인','위임','참고',''];
+  const LABEL={'급함':'급함','회사':'회사','개인':'개인','위임':'위임','참고':'참고','':'미분류'};
+  const itemHtml=(t,i)=>{
+    const stateB=t.state?`<span class="tstate">${esc(t.state)}</span>`:'';
+    const link=t.link?`<a class="tlink" href="${esc(t.link)}" target="_blank" rel="noopener" title="열기">🔗</a>`:'';
+    return `<li class="${t.done?'done':''}"><span class="box" data-i="${i}">${t.done?'✓':''}</span><span class="tx" data-i="${i}">${esc(t.text)}${stateB}</span>${link}<button class="del" data-i="${i}">×</button></li>`;
+  };
+  let html='';
+  CATS.forEach(c=>{
+    const grp=list.map((t,i)=>({t,i})).filter(x=>((x.t.cat||'')===c)&&!x.t.done);
+    if(!grp.length)return;
+    html+=`<li class="tgrp tgrp-${c||'none'}">${LABEL[c]} <span class="tgrp-n">${grp.length}</span></li>`+grp.map(x=>itemHtml(x.t,x.i)).join('');
+  });
+  const doneList=list.map((t,i)=>({t,i})).filter(x=>x.t.done);
+  if(doneList.length)html+=`<li class="tgrp tgrp-done">완료 <span class="tgrp-n">${doneList.length}</span></li>`+doneList.map(x=>itemHtml(x.t,x.i)).join('');
+  ul.innerHTML=html;
   ul.querySelectorAll('.box,.tx').forEach(el=>el.addEventListener('click',()=>toggleTodo(+el.dataset.i)));
   ul.querySelectorAll('.del').forEach(el=>el.addEventListener('click',()=>delTodo(+el.dataset.i)));
-  const open=list.filter(t=>!t.done).length;
-  document.getElementById('wTodo').innerHTML=open+'<small>건</small>';
+  document.getElementById('wTodo').innerHTML=list.filter(t=>!t.done).length+'<small>건</small>';
 }
 function addTodo(){
   const inp=document.getElementById('todoIn');const v=inp.value.trim();if(!v)return;
