@@ -317,6 +317,16 @@
   .todo li .del{border:none;background:none;color:#b99;font-size:16px;opacity:.5;}
   .todo li .del:hover{opacity:1;color:var(--seal);}
   .todo .empty{color:var(--ink-soft);font-size:13px;text-align:center;padding:18px 0;}
+  .todo .add select{border:1px solid var(--line);border-radius:8px;background:#fff;font-family:inherit;font-size:12px;color:var(--ink);padding:0 6px;}
+  .todo li .tcat{display:inline-block;font-size:10px;padding:1px 6px;border-radius:6px;margin-right:6px;vertical-align:middle;font-weight:700;letter-spacing:.3px;}
+  .todo li .tcat-급함{background:#f4d9d0;color:#a23b1e;}
+  .todo li .tcat-회사{background:#e7ecf6;color:#2f4a86;}
+  .todo li .tcat-개인{background:#e6f0e6;color:#3a6b3a;}
+  .todo li .tcat-위임{background:#f3ecd9;color:#8a6a1a;}
+  .todo li .tcat-참고{background:#ececec;color:#666;}
+  .todo li .tstate{display:inline-block;font-size:10px;padding:1px 6px;border-radius:6px;margin-left:6px;background:var(--seal);color:#f3e6c8;vertical-align:middle;}
+  .todo li .tlink{text-decoration:none;font-size:13px;opacity:.6;flex:none;margin-left:2px;}
+  .todo li .tlink:hover{opacity:1;}
 
   /* 캘린더 */
   .cal .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
@@ -1253,7 +1263,7 @@
       <div class="panel todo col-4">
         <h3><span class="ic">✓</span> 할 일 목록</h3>
         <p class="desc">오늘 내가 끝낼 것들</p>
-        <div class="add"><input id="todoIn" placeholder="할 일을 적고 Enter" /><button id="todoAdd">+</button></div>
+        <div class="add"><input id="todoIn" placeholder="할 일을 적고 Enter" /><select id="todoCat" title="분류"><option value="">분류</option><option>회사</option><option>개인</option><option>급함</option><option>위임</option><option>참고</option></select><button id="todoAdd">+</button></div>
         <ul id="todoList"></ul>
       </div>
 
@@ -2169,7 +2179,19 @@ function renderTodo(){
   if(!todoLoaded){ul.innerHTML='<div class="empty">불러오는 중…</div>';return;}
   const list=todoItems;
   if(!list.length){ul.innerHTML='<div class="empty">아직 할 일이 없어요. 위에 적어보세요.</div>';}
-  else ul.innerHTML=list.map((t,i)=>`<li class="${t.done?'done':''}"><span class="box" data-i="${i}">${t.done?'✓':''}</span><span class="tx" data-i="${i}">${esc(t.text)}</span><button class="del" data-i="${i}">×</button></li>`).join('');
+  else{
+    const CATORD={'급함':0,'회사':1,'개인':2,'위임':3,'참고':4,'':5};
+    const co=k=>CATORD[k]===undefined?5:CATORD[k];
+    const idx=list.map((t,i)=>({t,i}));
+    idx.sort((a,b)=>((a.t.done?1:0)-(b.t.done?1:0))||(co(a.t.cat||'')-co(b.t.cat||''))||(a.i-b.i));
+    ul.innerHTML=idx.map(({t,i})=>{
+      const cat=t.cat||'';
+      const catB=cat?`<span class="tcat tcat-${cat}">${cat}</span>`:'';
+      const stateB=t.state?`<span class="tstate">${esc(t.state)}</span>`:'';
+      const link=t.link?`<a class="tlink" href="${esc(t.link)}" target="_blank" rel="noopener" title="열기">🔗</a>`:'';
+      return `<li class="${t.done?'done':''}"><span class="box" data-i="${i}">${t.done?'✓':''}</span><span class="tx" data-i="${i}">${catB}${esc(t.text)}${stateB}</span>${link}<button class="del" data-i="${i}">×</button></li>`;
+    }).join('');
+  }
   ul.querySelectorAll('.box,.tx').forEach(el=>el.addEventListener('click',()=>toggleTodo(+el.dataset.i)));
   ul.querySelectorAll('.del').forEach(el=>el.addEventListener('click',()=>delTodo(+el.dataset.i)));
   const open=list.filter(t=>!t.done).length;
@@ -2177,7 +2199,8 @@ function renderTodo(){
 }
 function addTodo(){
   const inp=document.getElementById('todoIn');const v=inp.value.trim();if(!v)return;
-  todoItems.push({text:v,done:false,ts:Date.now()});inp.value='';saveTodos();renderTodo();
+  const cat=(document.getElementById('todoCat')||{}).value||'';
+  todoItems.push({text:v,done:false,ts:Date.now(),cat});inp.value='';saveTodos();renderTodo();
 }
 function toggleTodo(i){if(!todoItems[i])return;todoItems[i].done=!todoItems[i].done;saveTodos();renderTodo();}
 function delTodo(i){todoItems.splice(i,1);saveTodos();renderTodo();}
@@ -3035,7 +3058,7 @@ function renderCeoCards(members,containerId,summaryId){
       :'';
     const myTodos=(memberTodosCache[m.email]||[]).filter(t=>t&&!t.done);
     const todosHtml=myTodos.length
-      ?`<div class="mc-recur-head">✓ 개인 할일 (${myTodos.length})</div>`+myTodos.slice(0,4).map(t=>`<div class="mc-task-item" style="opacity:.9">${esc(t.text||'')}</div>`).join('')+(myTodos.length>4?`<div class="mc-empty">외 ${myTodos.length-4}건</div>`:'')
+      ?`<div class="mc-recur-head">✓ 개인 할일 (${myTodos.length})</div>`+myTodos.slice(0,4).map(t=>`<div class="mc-task-item" style="opacity:.9">${t.cat?`<span class="proj-badge" style="font-size:9px;padding:1px 5px;margin-right:4px">${esc(t.cat)}</span>`:''}${esc(t.text||'')}</div>`).join('')+(myTodos.length>4?`<div class="mc-empty">외 ${myTodos.length-4}건</div>`:'')
       :'';
     const idleBadge=idle?'<div class="mc-idle-badge">⚠ 지금 새 업무 없음</div>':'';
     const fleet=memberFleetCache[m.email];
