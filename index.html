@@ -520,6 +520,11 @@
   .mc-task-item{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--ink);padding:4px 0;border-bottom:1px dashed rgba(168,132,63,.12);}
   .mc-task-item:last-child{border-bottom:0;}
   .mc-summary{font-size:11.5px;line-height:1.6;color:var(--ink);background:rgba(168,132,63,.08);border:1px solid rgba(168,132,63,.2);border-radius:8px;padding:8px 10px;margin:6px 0 2px;word-break:keep-all;}
+  .mc-checkin{background:rgba(63,180,146,.08);border:1px solid rgba(63,180,146,.24);border-radius:8px;padding:7px 10px;margin:6px 0 2px;}
+  .mc-ck-row{display:flex;gap:6px;font-size:11.5px;line-height:1.55;color:var(--ink);word-break:keep-all;margin:2px 0;}
+  .mc-ck-row b{flex:0 0 auto;}
+  .mc-ck-row.bl span{color:#a85028;font-weight:600;}
+  .mc-ck-none{font-size:11px;color:#b8a984;margin:6px 0 2px;padding:2px 2px;}
   .mc-empty{font-size:12px;color:var(--ink-soft);font-style:italic;padding:4px 0;}
   .member-card.idle{border-color:rgba(190,50,50,.4);background:rgba(190,50,50,.045);}
   .mc-idle-badge{display:inline-block;margin-top:3px;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(190,50,50,.14);color:#a03030;letter-spacing:.3px;}
@@ -1252,6 +1257,9 @@
       .ix-qadd input{flex:1;min-width:0;font-size:12.5px;padding:7px 9px;border:1px solid #d6c6a0;border-radius:9px;background:#fffdf7;font-family:inherit}
       .ix-qadd button{flex:0 0 auto;border:none;border-radius:9px;background:var(--gold-deep,#8d6a27);color:#fff;font-size:15px;font-weight:700;cursor:pointer;padding:0 13px}
       .ix-qadd.stack button{padding:8px 0}
+      .ix-ck-cta{display:block;width:100%;box-sizing:border-box;margin-top:14px;border:none;border-radius:13px;background:linear-gradient(135deg,#8d6a27,#6f4f14);color:#fff;font-family:inherit;font-weight:800;font-size:14.5px;padding:14px 18px;cursor:pointer;text-align:left;box-shadow:0 6px 16px rgba(141,106,39,.26)}
+      .ix-ck-cta span{display:block;font-weight:600;font-size:11.5px;opacity:.9;margin-top:3px}
+      .ix-ck-cta:hover{filter:brightness(1.07)}
       /* 요나단 부르기 모달 */
       .yo-overlay{position:fixed;inset:0;background:rgba(8,14,9,.6);backdrop-filter:blur(4px);z-index:60;display:none;align-items:center;justify-content:center;padding:20px}
       .yo-overlay.show{display:flex}
@@ -1282,6 +1290,7 @@
           <div class="ix-group">
             <div class="ix-gh">📌 내 일</div>
             <button class="ix-item" onclick="openApp('app-myboard','🗂 나의 보드');mbRender()"><span>🗂</span><b>나의 보드</b><i>개인 할일·업무방향·공부할거·메모</i></button>
+            <button class="ix-item" onclick="openApp('app-checkin','📋 오늘의 체크인');subscribeCheckin()"><span>📋</span><b>오늘의 체크인</b><i>오늘 한 것·막힌 것·할 것</i></button>
             <button class="ix-item" onclick="openApp('app-todo','✅ 할 일 목록')"><span>✅</span><b>할 일</b><i>개인 할 일 목록</i></button>
             <button class="ix-item" onclick="document.getElementById('surfInBtn').click()"><span>✒️</span><b>Surf In</b><i>노션식 작업 공간·문서</i></button>
             <button class="ix-item" onclick="openApp('app-later','📌 Later Must')"><span>📌</span><b>Later Must</b><i>나중에 볼 링크·공부거리</i></button>
@@ -1356,6 +1365,7 @@
       <button class="appicon" data-appid="prayer" onclick="openApp('app-prayer','🕊 기도제목')"><span class="tile" style="background:linear-gradient(150deg,#5e8aa6,#33566e)">🕊</span><span class="lbl">기도제목</span></button>
       <button class="appicon" data-appid="futurescan" onclick="openApp('app-futurescan','🔮 미래예측');fsOpen();"><span class="tile" style="background:linear-gradient(150deg,#8b5cf6,#5b34c9)">🔮</span><span class="lbl">미래예측</span></button>
       <button class="appicon" data-appid="myboard" onclick="openApp('app-myboard','🗂 나의 보드');mbRender();"><span class="tile" style="background:linear-gradient(150deg,#4a9e7f,#286f56)">🗂</span><span class="lbl">나의 보드</span><span class="badge" id="mbIconBadge"></span></button>
+      <button class="appicon" data-appid="checkin" onclick="openApp('app-checkin','📋 오늘의 체크인');subscribeCheckin();"><span class="tile" style="background:linear-gradient(150deg,#c98a3e,#8d6a27)">📋</span><span class="lbl">오늘의 체크인</span></button>
     </div>
 
     <!-- 앱 본체 보관소 (아이콘 클릭 시 창으로 이동, 닫으면 되돌아옴) -->
@@ -1454,6 +1464,51 @@
             <div class="mb-add"><input id="mbInMemo" placeholder="메모 추가" onkeydown="if(event.key==='Enter')mbAdd('memo')"/><button onclick="mbAdd('memo')">＋</button></div>
             <div class="mb-list" id="mbListMemo"></div>
           </div>
+        </div>
+      </div>
+
+      <!-- 📋 오늘의 체크인 (ws_checkins) -->
+      <style>
+        #app-checkin .ck-date{font-size:12.5px;color:var(--gold-deep,#8d6a27);font-weight:800;margin-bottom:14px}
+        #app-checkin .ck-field{margin-bottom:14px}
+        #app-checkin .ck-lab{display:flex;align-items:center;gap:7px;font-weight:800;font-size:14px;color:var(--seal,#7c2d2a);margin-bottom:6px}
+        #app-checkin .ck-lab .em{font-size:17px}
+        #app-checkin .ck-lab .hint{margin-left:auto;font-size:11px;font-weight:600;color:#b8a984}
+        #app-checkin textarea{width:100%;box-sizing:border-box;min-height:62px;font-size:13.5px;line-height:1.5;padding:10px 12px;border:1px solid #d6c6a0;border-radius:11px;background:#fffdf7;font-family:inherit;resize:vertical}
+        #app-checkin textarea:focus{outline:none;border-color:var(--gold,#bb924a)}
+        #app-checkin .ck-bar{display:flex;align-items:center;gap:13px;margin-top:2px}
+        #app-checkin .ck-save{border:none;background:var(--gold-deep,#8d6a27);color:#fff;font-family:inherit;font-weight:800;font-size:14px;padding:11px 26px;border-radius:11px;cursor:pointer}
+        #app-checkin .ck-save:disabled{opacity:.55;cursor:default}
+        #app-checkin .ck-status{font-size:12px;color:#9a8a6a}
+        #app-checkin .ck-hist{margin-top:20px;border-top:1px solid rgba(168,132,63,.18);padding-top:14px}
+        #app-checkin .ck-hist-h{font-size:12.5px;font-weight:800;color:var(--ink-soft,#5c534b);margin-bottom:8px;cursor:pointer;user-select:none}
+        #app-checkin .ck-hrow{background:var(--paper,#faf4e6);border:1px solid #ece0c2;border-radius:11px;padding:9px 12px;margin-bottom:7px}
+        #app-checkin .ck-hd{font-size:11px;color:#9a8a6a;font-weight:700;margin-bottom:3px}
+        #app-checkin .ck-ht{font-size:12.5px;color:var(--ink,#2b2622);line-height:1.55;white-space:pre-wrap;word-break:break-word}
+      </style>
+      <div class="panel col-12" id="app-checkin" data-app="app-checkin">
+        <h3><span class="ic">📋</span> 오늘의 체크인</h3>
+        <p class="desc">매일 딱 세 줄. 오늘 뭘 했고, 어디서 막혔고, 다음에 뭘 할지 — 팀이 서로를 볼 수 있게, 대표님이 밤에 일일이 묻지 않아도 되게.</p>
+        <div class="ck-date" id="ckDate">—</div>
+        <div class="ck-field">
+          <div class="ck-lab"><span class="em">✅</span>오늘 한 것<span class="hint">진전·완료된 것</span></div>
+          <textarea id="ckDone" placeholder="오늘 실제로 해낸 것 · 진전된 것"></textarea>
+        </div>
+        <div class="ck-field">
+          <div class="ck-lab"><span class="em">🧱</span>막힌 것<span class="hint">도움이 필요한 것</span></div>
+          <textarea id="ckBlocked" placeholder="막힌 것 · 기다리는 것 · 도움이 필요한 것 (없으면 비워도 돼요)"></textarea>
+        </div>
+        <div class="ck-field">
+          <div class="ck-lab"><span class="em">➡️</span>다음에 할 것<span class="hint">내일 / 다음 스텝</span></div>
+          <textarea id="ckNext" placeholder="다음에 이어서 할 것"></textarea>
+        </div>
+        <div class="ck-bar">
+          <button class="ck-save" id="ckSaveBtn" onclick="checkinSave()">저장</button>
+          <span class="ck-status" id="ckStatus"></span>
+        </div>
+        <div class="ck-hist">
+          <div class="ck-hist-h" id="ckHistToggle" onclick="ckToggleHist()">🗂 지난 체크인 ▸</div>
+          <div id="ckHistList" style="display:none"></div>
         </div>
       </div>
 
@@ -2144,6 +2199,7 @@ function enterDash(){
   subscribeTodos();
   subscribeFuturescan();
   subscribeMyboard();
+  subscribeCheckin();
   try{setPortalMode(localStorage.getItem('ws:portalMode')||'home');}catch(e){}
   initFcm();
   applyAppOrder();
@@ -3254,6 +3310,7 @@ async function openWorkflow(){
 
 let memberTodosCache={};   // 팀 현황: 멤버별 개인 할일(ws_todos) 캐시
 let memberFleetCache={};   // 팀 현황: 멤버별 어푸 자동요약(ws_fleet) 캐시
+let memberCheckinCache={}; // 팀 현황: 멤버별 오늘 체크인(ws_checkins)
 function renderCeoCards(members,containerId,summaryId){
   containerId=containerId||'ceoCards';
   members=members||ceoMembersCache;
@@ -3294,10 +3351,14 @@ function renderCeoCards(members,containerId,summaryId){
     const idleBadge=idle?'<div class="mc-idle-badge">⚠ 지금 새 업무 없음</div>':'';
     const fleet=memberFleetCache[m.email];
     const summaryHtml=(fleet&&fleet.summary)?`<div class="mc-summary">🦉 ${esc(fleet.summary)}</div>`:'';
+    const ck=memberCheckinCache[m.email];
+    const ckHtml=ck
+      ?`<div class="mc-checkin">${ck.done?`<div class="mc-ck-row"><b>✅</b><span>${esc(ck.done)}</span></div>`:''}${ck.blocked?`<div class="mc-ck-row bl"><b>🧱</b><span>${esc(ck.blocked)}</span></div>`:''}${ck.next?`<div class="mc-ck-row"><b>➡️</b><span>${esc(ck.next)}</span></div>`:''}</div>`
+      :'<div class="mc-ck-none">📋 오늘 체크인 아직 없음</div>';
     return `<div class="member-card ${idle?'idle':''}">
       <div class="mc-top"><div class="mc-av">${esc((m.name||'?')[0])}</div>
       <div><div class="mc-name">${esc(m.name||'')}</div><div class="mc-role">${esc(m.code||'')}</div>${idleBadge}</div></div>
-      ${summaryHtml}${taskHtml}${projHtml}${todosHtml}${recurHtml}
+      ${summaryHtml}${ckHtml}${taskHtml}${projHtml}${todosHtml}${recurHtml}
     </div>`;
   }).join('');
 }
@@ -3311,6 +3372,7 @@ async function openTeamStatus(){
     }
     try{ const td=await _db.collection('ws_todos').get(); memberTodosCache={}; td.forEach(d=>{ memberTodosCache[d.id]=(d.data().items||[]); }); }catch(e){}
     try{ const fl=await _db.collection('ws_fleet').get(); memberFleetCache={}; fl.forEach(d=>{ memberFleetCache[d.id]=d.data(); }); }catch(e){}
+    try{ const ck=await _db.collection('ws_checkins').get(); memberCheckinCache={}; const _t=ckToday(); ck.forEach(d=>{ const r=d.data(); if(r&&r.date===_t)memberCheckinCache[r.email]=r; }); }catch(e){}
     renderCeoCards(ceoMembersCache,'teamStatusCards','tsSummary');
   }catch(e){console.error('팀 현황 오류',e);}
 }
@@ -5030,6 +5092,83 @@ function openSurfDoc(docId){
   })();
 }
 
+/* ===== 📋 오늘의 체크인 (ws_checkins/{email}_{date}) — 매일 한 것/막힌 것/할 것 ===== */
+let ckUnsub=null, ckHistShown=false, ckDirty=false;
+function ckEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function ckToday(){const d=new Date();const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
+function ckDocId(email,date){return email+'_'+(date||ckToday());}
+function ckFmtDate(date){
+  const wk=['일','월','화','수','목','금','토'];
+  const a=(date||'').split('-').map(Number);
+  const dt=(a[0]&&a[1]&&a[2])?new Date(a[0],a[1]-1,a[2]):new Date();
+  return `${dt.getMonth()+1}월 ${dt.getDate()}일 (${wk[dt.getDay()]})`;
+}
+function ckShowStatus(ts){
+  const s=document.getElementById('ckStatus'); if(!s)return;
+  if(ts&&ts.toDate){const d=ts.toDate();const p=n=>String(n).padStart(2,'0');s.textContent='✓ '+p(d.getHours())+':'+p(d.getMinutes())+' 저장됨';}
+  else s.textContent='';
+}
+function subscribeCheckin(){
+  if(!_db||!CUR||ckUnsub)return;
+  const de=document.getElementById('ckDate'); if(de)de.textContent=ckFmtDate(ckToday())+' · 오늘';
+  ckUnsub=_db.collection('ws_checkins').doc(ckDocId(CUR.id)).onSnapshot(snap=>{
+    const d=snap.exists?snap.data():{};
+    if(!ckDirty){
+      const set=(id,v)=>{const el=document.getElementById(id);if(el&&document.activeElement!==el)el.value=v||'';};
+      set('ckDone',d.done);set('ckBlocked',d.blocked);set('ckNext',d.next);
+    }
+    ckShowStatus(d.updatedAt);
+  },err=>console.warn('체크인 구독 실패',err));
+  ['ckDone','ckBlocked','ckNext'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&!el._ckBound){el._ckBound=true;
+      el.addEventListener('input',()=>{ckDirty=true;const b=document.getElementById('ckSaveBtn');if(b){b.textContent='저장';b.disabled=false;}});
+      el.addEventListener('blur',()=>{if(ckDirty)checkinSave();});
+    }
+  });
+}
+async function checkinSave(){
+  if(!_db||!CUR){alert('로그인 후 이용할 수 있어요.');return;}
+  const g=id=>((document.getElementById(id)||{}).value||'').trim();
+  const done=g('ckDone'), blocked=g('ckBlocked'), next=g('ckNext');
+  const btn=document.getElementById('ckSaveBtn');
+  try{
+    if(btn){btn.disabled=true;btn.textContent='저장 중…';}
+    await _db.collection('ws_checkins').doc(ckDocId(CUR.id)).set({
+      email:CUR.id,name:CUR.name,date:ckToday(),done,blocked,next,
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+    ckDirty=false;
+    if(btn){btn.disabled=false;btn.textContent='저장됨 ✓';}
+    if(typeof showToast==='function')showToast('📋','오늘 체크인을 저장했어요.');
+    if(ckHistShown)ckLoadHist();
+  }catch(e){alert('체크인 저장 실패: '+((e&&e.message)||e));if(btn){btn.disabled=false;btn.textContent='저장';}}
+}
+function ckToggleHist(){
+  ckHistShown=!ckHistShown;
+  const list=document.getElementById('ckHistList'),t=document.getElementById('ckHistToggle');
+  if(list)list.style.display=ckHistShown?'block':'none';
+  if(t)t.textContent=ckHistShown?'🗂 지난 체크인 ▾':'🗂 지난 체크인 ▸';
+  if(ckHistShown)ckLoadHist();
+}
+async function ckLoadHist(){
+  const list=document.getElementById('ckHistList'); if(!list||!_db||!CUR)return;
+  list.innerHTML='<div style="font-size:12px;color:#b8a984;padding:6px 2px">불러오는 중…</div>';
+  try{
+    const snap=await _db.collection('ws_checkins').where('email','==',CUR.id).get();
+    const rows=snap.docs.map(d=>d.data()).filter(r=>r.date&&r.date!==ckToday())
+      .sort((a,b)=>(a.date<b.date?1:-1)).slice(0,14);
+    if(!rows.length){list.innerHTML='<div style="font-size:12px;color:#b8a984;padding:6px 2px">아직 지난 기록이 없어요.</div>';return;}
+    list.innerHTML=rows.map(r=>{
+      const parts=[];
+      if(r.done)parts.push('✅ '+ckEsc(r.done));
+      if(r.blocked)parts.push('🧱 '+ckEsc(r.blocked));
+      if(r.next)parts.push('➡️ '+ckEsc(r.next));
+      return `<div class="ck-hrow"><div class="ck-hd">${ckFmtDate(r.date)}</div><div class="ck-ht">${parts.join('\n')||'(비어 있음)'}</div></div>`;
+    }).join('');
+  }catch(e){list.innerHTML='<div style="font-size:12px;color:#c9962f;padding:6px 2px">불러오기 실패</div>';}
+}
+
 /* ===== 홈 / 인덱스 모드 전환 + 인덱스 대시보드 ===== */
 let portalMode='home';
 function setPortalMode(m){
@@ -5060,6 +5199,7 @@ function ixRenderMain(){
   el.innerHTML=`<div class="ix-dash">
     <h3>🗂 ${mbEsc(name)}님의 보드</h3>
     <div class="sub">개인 할일 · 업무 방향 · 공부할거 · 메모를 한 화면에. 각 칸에서 바로 적고 체크하세요.</div>
+    <button class="ix-ck-cta" onclick="openApp('app-checkin','📋 오늘의 체크인');subscribeCheckin()">📋 오늘의 체크인 쓰기<span> 오늘 한 것 · 막힌 것 · 다음에 할 것 — 1분이면 돼요</span></button>
     <div class="ix-cross">
       ${ixQuad('personal','🙋','개인 할일','나만의 개인적인 할 일')}
       ${ixQuad('direction','🧭','업무 방향','지금 잡고 가는 큰 방향')}
