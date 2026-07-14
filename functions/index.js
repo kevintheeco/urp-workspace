@@ -308,7 +308,7 @@ async function claudeText(prompt) {
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-    body: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] })
+    body: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: 3000, thinking: { type: 'disabled' }, messages: [{ role: 'user', content: prompt }] })
   }).then(x => x.json());
   return (r && r.content && r.content[0] && r.content[0].text) || '';
 }
