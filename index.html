@@ -1432,6 +1432,7 @@
         #app-myboard .mb-badge.done{background:#e3f1ea;color:#286f56;cursor:pointer}
         #app-myboard .mb-badge.done:hover{background:#d0e9dd}
         #app-myboard .mb-badge.study-do{background:#eef1f6;color:#4a5568;cursor:pointer;border:1px solid #d6c6a0}
+        #app-myboard .mb-badge.analyze{background:#3a6ea5;color:#fff;cursor:pointer}
         #app-myboard .mb-badge.study-do:hover{background:#e2e8f0}
         #app-myboard .mb-badge.study-done{background:#3fb492;color:#fff;cursor:pointer}
         #app-myboard .mb-item.studied{opacity:.62}
@@ -5132,9 +5133,26 @@ function mbStudyDone(id){
 }
 function mbStudyBadge(it){
   if(it.status==='done'&&it.docId) return `<button class="mb-badge done" onclick="openSurfDoc('${it.docId}')">📄 분석 완료 · 열기</button>`;
-  if(it.status==='analyzing') return `<span class="mb-badge run">⏳ 요나단 분석 중</span>`;
-  if(it.status==='new'&&it.link) return `<span class="mb-badge wait">🔍 곧 분석해드려요</span>`;
+  if(it.status==='analyzing') return `<span class="mb-badge run">⏳ 분석 중…</span>`;
+  if((it.status==='new'||!it.status)&&(it.link||it.text)) return `<button class="mb-badge analyze" onclick="studyAnalyze('${it.id}')">🔍 지금 분석</button>`;
   return '';
+}
+/* '지금 분석' — 서버(onStudyJobCreate)에 요청. 링크 내용을 읽어 클로드가 도입분석 카드를 만들어 Surf In에 저장 */
+async function studyAnalyze(id){
+  if(!_db||!CUR){alert('로그인 후 이용할 수 있어요.');return;}
+  const it=(mbData.study||[]).find(x=>x.id===id); if(!it)return;
+  if(it.link&&/(?:youtube\.com|youtu\.be)/i.test(it.link)){
+    alert('유튜브는 자막 연결(무료 키) 후 분석돼요. 웹 링크·글은 지금 바로 분석됩니다.');
+    return;
+  }
+  it.status='analyzing'; mbRender(); mbSave();
+  try{
+    await _db.collection('ws_study_jobs').add({
+      email:CUR.id, itemId:id, text:it.text||'', link:it.link||'', shared:!!it.shared,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    if(typeof showToast==='function')showToast('🔍','분석을 시작했어요. 곧 카드가 떠요.');
+  }catch(e){ it.status='new'; mbRender(); mbSave(); alert('분석 요청 실패: '+((e&&e.message)||e)); }
 }
 function mbRender(){
   MB_COLS.forEach(col=>{
@@ -5330,8 +5348,8 @@ function applyIndexCeo(){
 }
 function ixBadge(it){
   if(it.status==='done'&&it.docId) return `<button class="ix-badge done" onclick="openSurfDoc('${it.docId}')">📄 분석 완료 · 열기</button>`;
-  if(it.status==='analyzing') return `<span class="ix-badge run">⏳ 요나단 분석 중</span>`;
-  if(it.status==='new'&&it.link) return `<span class="ix-badge wait">🔍 곧 분석해드려요</span>`;
+  if(it.status==='analyzing') return `<span class="ix-badge run">⏳ 분석 중…</span>`;
+  if((it.status==='new'||!it.status)&&(it.link||it.text)) return `<button class="ix-badge" style="background:#3a6ea5;color:#fff;cursor:pointer" onclick="studyAnalyze('${it.id}')">🔍 지금 분석</button>`;
   return '';
 }
 function ixRenderMain(){
