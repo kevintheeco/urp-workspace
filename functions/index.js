@@ -304,6 +304,30 @@ async function fetchWebText(url) {
       .replace(/\s+/g, ' ').trim().slice(0, 14000);
   } catch (e) { return ''; }
 }
+function isNotionUrl(url) { return /notion\.(so|site)/i.test(url || ''); }
+function extractNotionId(url) {
+  const s = String(url || '');
+  const m = s.match(/([0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12})/i) || s.match(/([0-9a-f]{32})/i);
+  return m ? m[1].replace(/-/g, '') : null;
+}
+async function fetchNotionText(url) {
+  const id = extractNotionId(url);
+  if (!id) return '';
+  try {
+    const j = await fetch('https://notion-api.splitbee.io/v1/page/' + id, { headers: { 'User-Agent': UA_BROWSER } }).then(r => r.json());
+    if (!j) return '';
+    const parts = [];
+    for (const k in j) {
+      const v = j[k] && j[k].value && j[k].value.value;
+      const title = v && v.properties && v.properties.title;
+      if (title && Array.isArray(title)) {
+        const t = title.map(x => Array.isArray(x) ? x[0] : x).join('');
+        if (t && !/\.(png|jpe?g|gif|webp|svg)$/i.test(t.trim())) parts.push(t);
+      }
+    }
+    return parts.join('\n').replace(/[ \t]+/g, ' ').trim().slice(0, 14000);
+  } catch (e) { return ''; }
+}
 async function claudeText(prompt) {
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -332,7 +356,7 @@ exports.onStudyJobCreate = functions.firestore.document('ws_study_jobs/{id}').on
   try {
     await setStudy('analyzing');
     let source = text ? ('제목/메모: ' + text + '\n\n') : '';
-    if (link) { const web = await fetchWebText(link); source += '링크: ' + link + '\n\n본문:\n' + (web || '(본문을 읽지 못함 — 제목·링크만으로 분석)'); }
+    if (link) { const web = isNotionUrl(link) ? await fetchNotionText(link) : await fetchWebText(link); source += '링크: ' + link + '\n\n본문:\n' + (web || '(본문을 읽지 못함 — 제목·링크만으로 분석)'); }
     if (!source.trim()) source = text || link;
     const prompt = `당신은 교육 스타트업 "니가교수(URP)"의 도입검토 분석가입니다. 아래 자료를 우리 팀 도입 관점에서 한국어로 분석하세요. 반드시 아래 JSON만 출력(설명·코드블록 금지):
 {"title":"짧은 제목","sections":[{"h":"한 줄 요약"},{"p":"..."},{"h":"핵심 내용"},{"ul":["..."]},{"h":"니가교수 적용점"},{"ul":["..."]},{"h":"도입 가능성"},{"p":"높음/중간/낮음 + 이유"},{"h":"리스크·한계"},{"ul":["..."]},{"h":"필요 리소스"},{"p":"..."},{"h":"다음 액션"},{"ul":["..."]},{"h":"출처"},{"p":"${link || '(링크 없음)'}"}]}
