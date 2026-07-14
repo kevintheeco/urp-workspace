@@ -385,3 +385,66 @@ ${source}`;
   }
   return null;
 });
+
+/* ===== 🌅 아침 능동 브리핑 — 어푸가 팀 현황을 종합해 대표에게 선제 브리핑 (평일 08시 KST) ===== */
+async function buildMorningBrief() {
+  const today = seoulDateKey();   // 패딩 없음 — ws_availability(today())와 일치
+  const yd = new Date(Date.now() + 9 * 3600 * 1000 - 86400000);
+  const pad = n => String(n).padStart(2, '0');   // ws_checkins는 패딩 있음(ckToday())
+  const kd = new Date(Date.now() + 9 * 3600 * 1000);
+  const todayP = `${kd.getUTCFullYear()}-${pad(kd.getUTCMonth() + 1)}-${pad(kd.getUTCDate())}`;
+  const yestP = `${yd.getUTCFullYear()}-${pad(yd.getUTCMonth() + 1)}-${pad(yd.getUTCDate())}`;
+  const nameBy = {};
+  try { const ms = await db.collection('ws_members').get(); ms.forEach(m => { nameBy[m.id] = (m.data() || {}).name || m.id; }); } catch (e) {}
+  let ctx = `오늘=${today}\n\n[팀 체크인(어제~오늘)]\n`;
+  try {
+    const ck = await db.collection('ws_checkins').get();
+    const rows = ck.docs.map(d => d.data()).filter(r => r && (r.date === todayP || r.date === yestP));
+    if (rows.length) rows.forEach(c => { ctx += `- ${nameBy[c.email] || c.email}: 한것[${(c.done || '-').slice(0, 70)}] 막힌것[${(c.blocked || '-').slice(0, 70)}] 할것[${(c.plan || c.next || '-').slice(0, 70)}]\n`; });
+    else ctx += '(체크인 없음)\n';
+  } catch (e) { ctx += '(체크인 조회 실패)\n'; }
+  ctx += '\n[오늘 가능시간]\n';
+  try {
+    const av = await db.collection('ws_availability').where('date', '==', today).get();
+    if (av.size) av.forEach(d => { const r = d.data() || {}; ctx += `- ${nameBy[r.email] || r.email}: ${r.allDayNo ? '종일불가' : ((r.hours || []).length + '칸')}\n`; });
+    else ctx += '(미입력)\n';
+  } catch (e) {}
+  ctx += '\n[미처리 요청]\n';
+  try {
+    const rq = await db.collection('ws_yonathan_calls').where('done', '==', false).get();
+    if (rq.size) rq.forEach(d => { const r = d.data() || {}; ctx += `- ${r.fromName || '누군가'}: ${(r.text || '').slice(0, 90)}\n`; });
+    else ctx += '(없음)\n';
+  } catch (e) {}
+  const prompt = `너는 URP(니가교수) 대표 김수민의 슬랙 비서 '어푸'다. 아래 팀 현황을 보고 대표가 하루를 시작할 때 딱 필요한 것만 골라 아침 브리핑을 써라. 규칙: 짧은 인사 한 줄로 시작, 전체 5줄 이내, 막힌 것·처리할 요청·오늘 놓치면 안 되는 것을 우선, 없는 건 억지로 만들지 말고 조용한 날이면 짧게. 따뜻하고 간결한 한국어.\n\n${ctx}`;
+  const brief = await claudeText(prompt);
+  return { brief: brief || '', ctx };
+}
+async function sendMorningBrief() {
+  const token = process.env.SLACK_BOT_TOKEN;
+  if (!token || !process.env.ANTHROPIC_API_KEY) { console.warn('아침 브리핑: 토큰/키 미설정'); return 0; }
+  const { brief } = await buildMorningBrief();
+  if (!brief) return 0;
+  const msg = `🌅 *아침 브리핑*\n\n${brief}`;
+  let sent = 0, ceos = [];
+  try { ceos = await ceoEmails(''); } catch (e) {}
+  for (const email of ceos) {
+    const uid = await slackFindUser(token, email);
+    if (!uid) continue;
+    try {
+      const open = await fetch('https://slack.com/api/conversations.open', { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ users: uid }) }).then(x => x.json());
+      if (!open.ok) continue;
+      await fetch('https://slack.com/api/chat.postMessage', { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json; charset=utf-8' }, body: JSON.stringify({ channel: open.channel.id, text: msg, username: '어푸', icon_emoji: ':owl:' }) });
+      sent++;
+    } catch (e) {}
+  }
+  return sent;
+}
+exports.morningBrief = functions.pubsub.schedule('0 8 * * 1-5').timeZone('Asia/Seoul').onRun(async () => {
+  const n = await sendMorningBrief(); console.log('아침 브리핑 발송:', n); return null;
+});
+/* 즉시 테스트용(self-key 보호) — 배포 검증 후 그대로 둬도 무해 */
+exports.testMorningBrief = functions.https.onRequest(async (req, res) => {
+  if (req.get('x-relay-key') !== process.env.CLAUDE_RELAY_KEY) { res.status(403).send('forbidden'); return; }
+  const n = await sendMorningBrief();
+  res.json({ ok: true, sent: n });
+});
