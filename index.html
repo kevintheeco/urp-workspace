@@ -520,6 +520,7 @@
   .mc-task-item{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--ink);padding:4px 0;border-bottom:1px dashed rgba(168,132,63,.12);}
   .mc-task-item:last-child{border-bottom:0;}
   .mc-summary{font-size:11.5px;line-height:1.6;color:var(--ink);background:rgba(168,132,63,.08);border:1px solid rgba(168,132,63,.2);border-radius:8px;padding:8px 10px;margin:6px 0 2px;word-break:keep-all;}
+  .mc-avail{font-size:11.5px;font-weight:700;color:var(--ink-soft);margin:6px 0 2px;}
   .mc-checkin{background:rgba(63,180,146,.08);border:1px solid rgba(63,180,146,.24);border-radius:8px;padding:7px 10px;margin:6px 0 2px;}
   .mc-ck-row{display:flex;gap:6px;font-size:11.5px;line-height:1.55;color:var(--ink);word-break:keep-all;margin:2px 0;}
   .mc-ck-row b{flex:0 0 auto;}
@@ -1287,6 +1288,11 @@
             <button class="ix-q agent" onclick="callAgent()">🤖 내 에이전트(어푸) 부르기</button>
             <button class="ix-q yona" onclick="openYoCall()">🌤 요나단 부르기</button>
           </div>
+          <div class="ix-group ix-ceo">
+            <div class="ix-gh">👑 대표 관제</div>
+            <button class="ix-item" onclick="openApp('app-yoreq','📨 받은 요청함');subscribeYoReqs()"><span>📨</span><b>받은 요청함</b><i>팀원이 남긴 요청·건의</i></button>
+            <button class="ix-item" onclick="openApp('app-teamstatus','🧭 팀 현황');openTeamStatus()"><span>🧭</span><b>팀 현황</b><i>각자 오늘 갱신·타임트래커</i></button>
+          </div>
           <div class="ix-group">
             <div class="ix-gh">📌 내 일</div>
             <button class="ix-item" onclick="openApp('app-myboard','🗂 나의 보드');mbRender()"><span>🗂</span><b>나의 보드</b><i>개인 할일·업무방향·공부할거·메모</i></button>
@@ -1306,8 +1312,6 @@
             <button class="ix-item" onclick="openBoardModal()"><span>🧠</span><b>브레인스토밍</b><i>아이디어 보드</i></button>
             <button class="ix-item" onclick="openApp('app-meetingpoll','🗓 미팅 잡기');mpOpen()"><span>🗓</span><b>미팅 잡기</b><i>회의 시간 조율</i></button>
             <button class="ix-item" onclick="openApp('app-prayer','🕊 기도제목')"><span>🕊</span><b>기도제목</b><i>팀 기도제목</i></button>
-            <button class="ix-item ix-ceo" onclick="openApp('app-teamstatus','🧭 팀 현황');openTeamStatus()"><span>🧭</span><b>팀 현황</b><i>팀원별 상태 요약</i></button>
-            <button class="ix-item ix-ceo" onclick="openApp('app-yoreq','📨 받은 요청함');subscribeYoReqs()"><span>📨</span><b>받은 요청함</b><i>팀원이 남긴 요청·건의</i></button>
           </div>
           <div class="ix-group">
             <div class="ix-gh">🏢 회사 · 정보</div>
@@ -3378,6 +3382,18 @@ async function openWorkflow(){
 let memberTodosCache={};   // 팀 현황: 멤버별 개인 할일(ws_todos) 캐시
 let memberFleetCache={};   // 팀 현황: 멤버별 어푸 자동요약(ws_fleet) 캐시
 let memberCheckinCache={}; // 팀 현황: 멤버별 오늘 체크인(ws_checkins)
+let memberAvailCache={};   // 팀 현황: 멤버별 오늘 가능시간(ws_availability)
+function availSummary(av){
+  if(!av)return '<span style="color:#b8a984">⏱ 오늘 미입력</span>';
+  if(av.allDayNo)return '<span style="color:#a85028">⏱ 오늘 종일 불가</span>';
+  const hs=(av.hours||[]).slice().sort((a,b)=>a-b);
+  if(!hs.length)return '<span style="color:#b8a984">⏱ 오늘 미입력</span>';
+  const ranges=[];let s=hs[0],p=hs[0];
+  for(let i=1;i<hs.length;i++){if(hs[i]===p+1)p=hs[i];else{ranges.push([s,p]);s=hs[i];p=hs[i];}}
+  ranges.push([s,p]);
+  const fmt=h=>String(h%24).padStart(2,'0');
+  return '⏱ '+ranges.map(r=>`${fmt(r[0])}–${fmt(r[1]+1)}시`).join(', ');
+}
 function renderCeoCards(members,containerId,summaryId){
   containerId=containerId||'ceoCards';
   members=members||ceoMembersCache;
@@ -3419,13 +3435,14 @@ function renderCeoCards(members,containerId,summaryId){
     const fleet=memberFleetCache[m.email];
     const summaryHtml=(fleet&&fleet.summary)?`<div class="mc-summary">🦉 ${esc(fleet.summary)}</div>`:'';
     const ck=memberCheckinCache[m.email];
+    const availHtml=`<div class="mc-avail">${availSummary(memberAvailCache[m.email])}</div>`;
     const ckHtml=ck
       ?`<div class="mc-checkin">${ck.plan?`<div class="mc-ck-row"><b>📌</b><span>${esc(ck.plan)}</span></div>`:''}${ck.done?`<div class="mc-ck-row"><b>✅</b><span>${esc(ck.done)}</span></div>`:''}${ck.blocked?`<div class="mc-ck-row bl"><b>🧱</b><span>${esc(ck.blocked)}</span></div>`:''}${ck.next?`<div class="mc-ck-row"><b>➡️</b><span>${esc(ck.next)}</span></div>`:''}</div>`
       :'<div class="mc-ck-none">📋 오늘 체크인 아직 없음</div>';
     return `<div class="member-card ${idle?'idle':''}">
       <div class="mc-top"><div class="mc-av">${esc((m.name||'?')[0])}</div>
       <div><div class="mc-name">${esc(m.name||'')}</div><div class="mc-role">${esc(m.code||'')}</div>${idleBadge}</div></div>
-      ${summaryHtml}${ckHtml}${taskHtml}${projHtml}${todosHtml}${recurHtml}
+      ${summaryHtml}${availHtml}${ckHtml}${taskHtml}${projHtml}${todosHtml}${recurHtml}
     </div>`;
   }).join('');
 }
@@ -3440,6 +3457,7 @@ async function openTeamStatus(){
     try{ const td=await _db.collection('ws_todos').get(); memberTodosCache={}; td.forEach(d=>{ memberTodosCache[d.id]=(d.data().items||[]); }); }catch(e){}
     try{ const fl=await _db.collection('ws_fleet').get(); memberFleetCache={}; fl.forEach(d=>{ memberFleetCache[d.id]=d.data(); }); }catch(e){}
     try{ const ck=await _db.collection('ws_checkins').get(); memberCheckinCache={}; const _t=ckToday(); ck.forEach(d=>{ const r=d.data(); if(r&&r.date===_t)memberCheckinCache[r.email]=r; }); }catch(e){}
+    try{ const av=await _db.collection('ws_availability').where('date','==',today()).get(); memberAvailCache={}; av.forEach(d=>{ const r=d.data(); if(r&&r.email)memberAvailCache[r.email]=r; }); }catch(e){}
     renderCeoCards(ceoMembersCache,'teamStatusCards','tsSummary');
   }catch(e){console.error('팀 현황 오류',e);}
 }
