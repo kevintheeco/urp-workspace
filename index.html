@@ -1220,6 +1220,38 @@
       .ix-badge.done{background:#e3f1ea;color:#286f56;cursor:pointer}
       .ix-empty{font-size:12.5px;color:#b8a984;padding:10px 2px}
       .ix-open-all{margin-top:16px;border:none;background:var(--gold-deep,#8d6a27);color:#fff;font-family:inherit;font-weight:700;font-size:13.5px;padding:11px 20px;border-radius:11px;cursor:pointer}
+      /* 🗂 십자(田) 인터랙티브 보드 — 인덱스 대시보드 */
+      .ix-cross{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+      @media(max-width:760px){.ix-cross{grid-template-columns:1fr}}
+      .ix-quad{background:var(--paper,#faf4e6);border:1px solid #ece0c2;border-radius:15px;padding:14px 14px 15px;display:flex;flex-direction:column;min-height:252px;position:relative;overflow:hidden}
+      .ix-quad::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--qc,#bb924a)}
+      .ix-quad.q-personal{--qc:#3a6ea5}
+      .ix-quad.q-direction{--qc:#2f8f6b}
+      .ix-quad.q-study{--qc:#c9962f}
+      .ix-quad.q-memo{--qc:#9a6bbf}
+      .ix-qhead{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+      .ix-qhead .em{font-size:20px}
+      .ix-qhead .tt{font-weight:800;font-size:15px;color:var(--ink,#2b2622)}
+      .ix-qhead .ct{margin-left:auto;font-size:12px;font-weight:700;color:var(--qc,#8d6a27);background:#fff;border:1px solid #ece0c2;border-radius:20px;padding:2px 10px;min-width:26px;text-align:center}
+      .ix-qsub{font-size:11px;color:#9a8a6a;margin-bottom:10px}
+      .ix-qlist{display:flex;flex-direction:column;gap:6px;flex:1;overflow-y:auto;max-height:260px;margin-bottom:11px}
+      .ix-qitem{display:flex;gap:7px;align-items:flex-start;background:#fffdf7;border:1px solid #ece0c2;border-radius:10px;padding:7px 9px}
+      .ix-qitem .cbx{flex:0 0 auto;width:17px;height:17px;border:1.5px solid var(--gold,#bb924a);border-radius:5px;cursor:pointer;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--seal,#7c2d2a);background:#fff}
+      .ix-qitem.done .cbx{background:var(--gold,#bb924a);color:#fff}
+      .ix-qitem.done .qtxt{text-decoration:line-through;color:#a99}
+      .ix-qitem .qtxt{flex:1;font-size:13px;line-height:1.45;color:var(--ink,#2b2622);word-break:break-word}
+      .ix-qitem .qdel{flex:0 0 auto;border:none;background:none;color:#c9b98f;cursor:pointer;font-size:13px;line-height:1;padding:2px}
+      .ix-qitem .qdel:hover{color:var(--seal,#7c2d2a)}
+      .ix-qlink{display:block;font-size:11px;color:#3a6ea5;text-decoration:none;margin-top:3px;word-break:break-all}
+      .ix-qlink:hover{text-decoration:underline}
+      .ix-qitem.studied{opacity:.6}
+      .ix-qitem.studied .qtxt{color:#7a8a80}
+      .ix-qempty{font-size:12px;color:#b8a984;text-align:center;padding:16px 2px}
+      .ix-qadd{display:flex;gap:5px;margin-top:auto}
+      .ix-qadd.stack{flex-direction:column}
+      .ix-qadd input{flex:1;min-width:0;font-size:12.5px;padding:7px 9px;border:1px solid #d6c6a0;border-radius:9px;background:#fffdf7;font-family:inherit}
+      .ix-qadd button{flex:0 0 auto;border:none;border-radius:9px;background:var(--gold-deep,#8d6a27);color:#fff;font-size:15px;font-weight:700;cursor:pointer;padding:0 13px}
+      .ix-qadd.stack button{padding:8px 0}
       /* 요나단 부르기 모달 */
       .yo-overlay{position:fixed;inset:0;background:rgba(8,14,9,.6);backdrop-filter:blur(4px);z-index:60;display:none;align-items:center;justify-content:center;padding:20px}
       .yo-overlay.show{display:flex}
@@ -5024,32 +5056,71 @@ function ixBadge(it){
 }
 function ixRenderMain(){
   const el=document.getElementById('ixMain'); if(!el)return;
-  const p=(mbData.personal||[]).filter(x=>!x.done).length;
-  const d=(mbData.direction||[]).filter(x=>!x.done).length;
-  const s=(mbData.study||[]);
-  const doneN=s.filter(x=>x.status==='done'&&x.docId).length;
-  const sSorted=[...s].sort((a,b)=>(a.studied?1:0)-(b.studied?1:0));
-  const studyRows=s.length? sSorted.slice(0,8).map(it=>{
-    const lk=it.link?`<a class="lk" href="${mbEsc(it.link)}" target="_blank" rel="noopener">🔗 ${mbEsc(it.link)}</a>`:'';
-    const doneBtn=it.studied
-      ? `<button class="ix-badge" style="background:#3fb492;color:#fff;cursor:pointer" onclick="mbStudyDone('${it.id}')">✅ 공부 완료</button>`
-      : `<button class="ix-badge" style="background:#eef1f6;color:#4a5568;cursor:pointer;border:1px solid #d6c6a0" onclick="mbStudyDone('${it.id}')">✅ 공부 완료</button>`;
-    return `<div class="ix-srow"${it.studied?' style="opacity:.62"':''}><div class="t">${mbEsc(it.text)}</div>${lk}${ixBadge(it)} ${doneBtn}</div>`;
-  }).join('') : '<div class="ix-empty">아직 공부할거가 없어요. 나의 보드에서 링크를 달면 요나단이 분석해드려요.</div>';
   const name=(CUR&&CUR.name)||'';
   el.innerHTML=`<div class="ix-dash">
-    <h3>🗂 ${mbEsc(name)}님의 대시보드</h3>
-    <div class="sub">오늘 내가 할 일과 공부거리를 한곳에서</div>
-    <div class="ix-stats">
-      <div class="ix-stat"><div class="k">개인 할일</div><div class="v">${p}<small>건</small></div></div>
-      <div class="ix-stat"><div class="k">업무 방향</div><div class="v">${d}<small>개</small></div></div>
-      <div class="ix-stat"><div class="k">공부할거</div><div class="v">${s.length}<small>건</small></div></div>
-      <div class="ix-stat"><div class="k">분석 완료</div><div class="v">${doneN}<small>개</small></div></div>
+    <h3>🗂 ${mbEsc(name)}님의 보드</h3>
+    <div class="sub">개인 할일 · 업무 방향 · 공부할거 · 메모를 한 화면에. 각 칸에서 바로 적고 체크하세요.</div>
+    <div class="ix-cross">
+      ${ixQuad('personal','🙋','개인 할일','나만의 개인적인 할 일')}
+      ${ixQuad('direction','🧭','업무 방향','지금 잡고 가는 큰 방향')}
+      ${ixQuad('study','📚','공부할거','링크를 달면 요나단이 분석해줘요')}
+      ${ixQuad('memo','📝','메모','스쳐가는 생각·기록')}
     </div>
-    <div class="ix-sec-h">📚 공부할거</div>
-    <div class="ix-study">${studyRows}</div>
-    <button class="ix-open-all" onclick="openApp('app-myboard','🗂 나의 보드');mbRender()">나의 보드 전체 열기 →</button>
   </div>`;
+}
+/* 십자 보드 한 칸 렌더 — mbData를 나의 보드와 공유 */
+function ixQuad(col,em,title,sub){
+  const list=mbData[col]||[];
+  let rows, cnt;
+  if(col==='study'){
+    const sorted=[...list].sort((a,b)=>(a.studied?1:0)-(b.studied?1:0));
+    cnt=list.length;
+    rows=sorted.length? sorted.map(it=>{
+      const lk=it.link?`<a class="ix-qlink" href="${mbEsc(it.link)}" target="_blank" rel="noopener">🔗 ${mbEsc(it.link)}</a>`:'';
+      const doneBtn=it.studied
+        ? `<button class="ix-badge" style="background:#3fb492;color:#fff;cursor:pointer" onclick="mbStudyDone('${it.id}')">✅ 공부 완료</button>`
+        : `<button class="ix-badge" style="background:#eef1f6;color:#4a5568;cursor:pointer;border:1px solid #d6c6a0" onclick="mbStudyDone('${it.id}')">✅ 공부 완료</button>`;
+      return `<div class="ix-qitem${it.studied?' studied':''}"><div class="qtxt">${mbEsc(it.text)}${lk}${ixBadge(it)} ${doneBtn}</div><button class="qdel" title="삭제" onclick="mbDel('study','${it.id}')">✕</button></div>`;
+    }).join('') : '<div class="ix-qempty">아직 없어요</div>';
+  }else{
+    cnt=list.filter(x=>!x.done).length;
+    rows=list.length? list.map(it=>{
+      const doneCls=it.done?' done':'';const chk=it.done?'✓':'';
+      return `<div class="ix-qitem${doneCls}"><div class="cbx" onclick="mbToggle('${col}','${it.id}')">${chk}</div><div class="qtxt">${mbEsc(it.text)}</div><button class="qdel" title="삭제" onclick="mbDel('${col}','${it.id}')">✕</button></div>`;
+    }).join('') : '<div class="ix-qempty">아직 없어요</div>';
+  }
+  const cap=col.charAt(0).toUpperCase()+col.slice(1);
+  const addBox = col==='study'
+    ? `<div class="ix-qadd stack">
+         <input id="ixInStudyText" placeholder="무엇을 공부할지 (예: 이 에이전트 도입 검토)" onkeydown="if(event.key==='Enter')ixAdd('study')"/>
+         <input id="ixInStudyLink" placeholder="링크 붙여넣기 (선택)" onkeydown="if(event.key==='Enter')ixAdd('study')"/>
+         <button onclick="ixAdd('study')">＋ 공부거리 추가</button>
+       </div>`
+    : `<div class="ix-qadd">
+         <input id="ixIn${cap}" placeholder="추가하기" onkeydown="if(event.key==='Enter')ixAdd('${col}')"/>
+         <button onclick="ixAdd('${col}')">＋</button>
+       </div>`;
+  return `<div class="ix-quad q-${col}">
+    <div class="ix-qhead"><span class="em">${em}</span><span class="tt">${title}</span><span class="ct">${cnt}</span></div>
+    <div class="ix-qsub">${sub}</div>
+    <div class="ix-qlist">${rows}</div>
+    ${addBox}
+  </div>`;
+}
+/* 인덱스 십자 보드에서 바로 추가 (mbAdd와 동일하되 입력 id만 ix 전용) */
+function ixAdd(col){
+  if(!CUR){alert('로그인 후 이용할 수 있어요.');return;}
+  if(col==='study'){
+    const t=document.getElementById('ixInStudyText'), l=document.getElementById('ixInStudyLink');
+    const text=(t&&t.value||'').trim(), link=(l&&l.value||'').trim();
+    if(!text&&!link)return;
+    mbData.study.unshift({id:mbUid(),text:text||link,link,status:link?'new':'none',docId:'',ts:Date.now()});
+  }else{
+    const inp=document.getElementById('ixIn'+col.charAt(0).toUpperCase()+col.slice(1));
+    const text=(inp&&inp.value||'').trim(); if(!text)return;
+    mbData[col].unshift({id:mbUid(),text,done:false,ts:Date.now()});
+  }
+  mbRender();mbSave();
 }
 /* 에이전트(어푸) 부르기 — 슬랙 봇 DM 열기 (누구나 @어푸 = 자기 전담비서) */
 function callAgent(){
