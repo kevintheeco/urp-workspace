@@ -1307,6 +1307,7 @@
             <button class="ix-item" onclick="openApp('app-meetingpoll','🗓 미팅 잡기');mpOpen()"><span>🗓</span><b>미팅 잡기</b><i>회의 시간 조율</i></button>
             <button class="ix-item" onclick="openApp('app-prayer','🕊 기도제목')"><span>🕊</span><b>기도제목</b><i>팀 기도제목</i></button>
             <button class="ix-item ix-ceo" onclick="openApp('app-teamstatus','🧭 팀 현황');openTeamStatus()"><span>🧭</span><b>팀 현황</b><i>팀원별 상태 요약</i></button>
+            <button class="ix-item ix-ceo" onclick="openApp('app-yoreq','📨 받은 요청함');subscribeYoReqs()"><span>📨</span><b>받은 요청함</b><i>팀원이 남긴 요청·건의</i></button>
           </div>
           <div class="ix-group">
             <div class="ix-gh">🏢 회사 · 정보</div>
@@ -1329,9 +1330,9 @@
     <!-- 🌤 요나단 부르기 모달 -->
     <div class="yo-overlay" id="yoOverlay" onclick="if(event.target===this)closeYoCall()">
       <div class="yo-card">
-        <h3>🌤 요나단 부르기</h3>
-        <p>지금 요나단은 데스크톱 앱·터미널에서 일해요. 여기 남겨두면 다음에 만날 때 제일 먼저 확인하고 처리해드릴게요.</p>
-        <textarea id="yoText" placeholder="예: 이 링크 분석해줘 / 내일 회의자료 초안 잡아줘 / OO 알아봐줘"></textarea>
+        <h3>🌤 요나단 부르기 · 요청하기</h3>
+        <p>요청·질문·건의 무엇이든 남겨보세요. 요나단이 다음에 확인해 처리하고, <b>대표님께도 바로 전달</b>됩니다.</p>
+        <textarea id="yoText" placeholder="예: 이 링크 분석해줘 / 회의자료 초안 잡아줘 / OO 도와주세요 / 대표님께 건의"></textarea>
         <div class="yo-btns">
           <button class="yo-cancel" onclick="closeYoCall()">닫기</button>
           <button class="yo-send" onclick="sendYoCall()">남기기</button>
@@ -1366,6 +1367,7 @@
       <button class="appicon" data-appid="futurescan" onclick="openApp('app-futurescan','🔮 미래예측');fsOpen();"><span class="tile" style="background:linear-gradient(150deg,#8b5cf6,#5b34c9)">🔮</span><span class="lbl">미래예측</span></button>
       <button class="appicon" data-appid="myboard" onclick="openApp('app-myboard','🗂 나의 보드');mbRender();"><span class="tile" style="background:linear-gradient(150deg,#4a9e7f,#286f56)">🗂</span><span class="lbl">나의 보드</span><span class="badge" id="mbIconBadge"></span></button>
       <button class="appicon" data-appid="checkin" onclick="openApp('app-checkin','📋 오늘의 체크인');subscribeCheckin();ckLoadExtras();"><span class="tile" style="background:linear-gradient(150deg,#c98a3e,#8d6a27)">📋</span><span class="lbl">오늘의 체크인</span></button>
+      <button class="appicon" data-appid="yonathan" onclick="openYoCall()"><span class="tile" style="background:linear-gradient(150deg,#6db3d9,#3f7fb0)">🌤</span><span class="lbl">요나단·요청</span></button>
     </div>
 
     <!-- 앱 본체 보관소 (아이콘 클릭 시 창으로 이동, 닫으면 되돌아옴) -->
@@ -1544,6 +1546,36 @@
           <div class="ck-hist-h" id="ckHistToggle" onclick="ckToggleHist()">🗂 지난 체크인 ▸</div>
           <div id="ckHistList" style="display:none"></div>
         </div>
+      </div>
+
+      <!-- 📨 받은 요청함 (CEO — ws_yonathan_calls) -->
+      <style>
+        #app-yoreq .yr-sub{font-size:12px;color:#9a8a6a;margin-bottom:13px;line-height:1.5}
+        #app-yoreq .yr-tab{display:flex;gap:8px;margin-bottom:13px}
+        #app-yoreq .yr-tab button{border:1px solid #d6c6a0;background:#fffdf7;color:#6a5a48;font-family:inherit;font-size:12.5px;font-weight:700;padding:6px 15px;border-radius:20px;cursor:pointer}
+        #app-yoreq .yr-tab button.on{background:var(--seal,#7c2d2a);color:#fff;border-color:var(--seal,#7c2d2a)}
+        #app-yoreq .yr-empty{font-size:13px;color:#b8a984;text-align:center;padding:28px 2px}
+        #app-yoreq .yr-item{background:var(--paper,#faf4e6);border:1px solid #ece0c2;border-radius:12px;padding:12px 14px;margin-bottom:9px}
+        #app-yoreq .yr-item.done{opacity:.55}
+        #app-yoreq .yr-top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+        #app-yoreq .yr-who{font-weight:800;font-size:13px;color:var(--seal,#7c2d2a)}
+        #app-yoreq .yr-when{font-size:11px;color:#9a8a6a}
+        #app-yoreq .yr-txt{font-size:13.5px;line-height:1.55;color:var(--ink,#2b2622);white-space:pre-wrap;word-break:break-word}
+        #app-yoreq .yr-acts{display:flex;gap:7px;margin-top:10px}
+        #app-yoreq .yr-btn{border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;padding:6px 13px;cursor:pointer}
+        #app-yoreq .yr-done-btn{background:#e3f1ea;color:#286f56}
+        #app-yoreq .yr-done-btn.on{background:#3fb492;color:#fff}
+        #app-yoreq .yr-del{background:none;color:#c9b98f;padding:6px 8px}
+        #app-yoreq .yr-del:hover{color:var(--seal,#7c2d2a)}
+      </style>
+      <div class="panel col-12" id="app-yoreq" data-app="app-yoreq">
+        <h3><span class="ic">📨</span> 받은 요청함</h3>
+        <p class="yr-sub">팀원이 <b>🌤 요나단 부르기</b>로 남긴 요청·건의가 여기 모입니다. 처리한 것은 ✓ 표시하고, 요나단이 처리할 일은 저에게 말씀해 주세요.</p>
+        <div class="yr-tab">
+          <button id="yrTabNew" class="on" onclick="yrSetTab('new')">🔵 처리 전</button>
+          <button id="yrTabDone" onclick="yrSetTab('done')">✓ 처리됨</button>
+        </div>
+        <div id="yrList"></div>
       </div>
 
       <!-- 위젯 미니 -->
@@ -2234,6 +2266,7 @@ function enterDash(){
   subscribeFuturescan();
   subscribeMyboard();
   subscribeCheckin();
+  subscribeYoReqs();
   try{setPortalMode(localStorage.getItem('ws:portalMode')||'home');}catch(e){}
   initFcm();
   applyAppOrder();
@@ -5369,9 +5402,53 @@ async function sendYoCall(){
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     closeYoCall();
-    if(typeof showToast==='function')showToast('🌤','요나단에게 남겼어요. 다음에 만나면 제일 먼저 확인할게요.');
-    else alert('요나단에게 남겼어요. 다음에 만나면 제일 먼저 확인할게요.');
+    if(typeof showToast==='function')showToast('🌤','남겼어요. 요나단이 확인하고 대표님께도 전달됩니다.');
+    else alert('남겼어요. 요나단이 확인하고 대표님께도 전달됩니다.');
   }catch(e){alert('전송 실패: '+((e&&e.message)||e));}
+}
+
+/* ===== 📨 받은 요청함 (CEO — 팀원이 요나단 부르기로 남긴 요청 ws_yonathan_calls) ===== */
+let yrData=[], yrUnsub=null, yrTab='new';
+function subscribeYoReqs(){
+  if(!_db||!CUR||CUR.code!=='CEO'||yrUnsub)return;
+  yrUnsub=_db.collection('ws_yonathan_calls').orderBy('createdAt','desc').limit(200).onSnapshot(snap=>{
+    yrData=snap.docs.map(d=>({id:d.id,...d.data()}));
+    yrRender();
+  },err=>console.warn('받은 요청함 구독 실패',err));
+}
+function yrSetTab(t){
+  yrTab=t;
+  const n=document.getElementById('yrTabNew'),dn=document.getElementById('yrTabDone');
+  if(n)n.classList.toggle('on',t==='new'); if(dn)dn.classList.toggle('on',t==='done');
+  yrRender();
+}
+function yrFmt(ts){
+  if(!ts||!ts.toDate)return '';
+  const d=ts.toDate();const p=x=>String(x).padStart(2,'0');
+  return `${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function yrRender(){
+  const box=document.getElementById('yrList');if(!box)return;
+  const newN=yrData.filter(r=>!r.done).length;
+  const nb=document.getElementById('yrTabNew');if(nb)nb.textContent='🔵 처리 전'+(newN?' '+newN:'');
+  const rows=yrData.filter(r=>yrTab==='done'?r.done:!r.done);
+  if(!rows.length){box.innerHTML=`<div class="yr-empty">${yrTab==='done'?'처리된 요청이 없어요.':'새로 온 요청이 없어요. 👍'}</div>`;return;}
+  box.innerHTML=rows.map(r=>`<div class="yr-item${r.done?' done':''}">
+    <div class="yr-top"><span class="yr-who">${esc(r.fromName||'익명')}</span><span class="yr-when">${yrFmt(r.createdAt)}</span></div>
+    <div class="yr-txt">${esc(r.text||'')}</div>
+    <div class="yr-acts">
+      <button class="yr-btn yr-done-btn${r.done?' on':''}" onclick="yrToggle('${r.id}')">${r.done?'✓ 처리됨 · 되돌리기':'처리 완료로'}</button>
+      <button class="yr-btn yr-del" onclick="yrDel('${r.id}')">삭제</button>
+    </div>
+  </div>`).join('');
+}
+async function yrToggle(id){
+  const r=yrData.find(x=>x.id===id);if(!r||!_db)return;
+  try{await _db.collection('ws_yonathan_calls').doc(id).update({done:!r.done});}catch(e){alert('변경 실패: '+((e&&e.message)||e));}
+}
+async function yrDel(id){
+  if(!_db)return;
+  try{await _db.collection('ws_yonathan_calls').doc(id).delete();}catch(e){alert('삭제 실패: '+((e&&e.message)||e));}
 }
 
 /* ===== Surf In · 작업 공간 (ws_docs + Editor.js) ===== */
