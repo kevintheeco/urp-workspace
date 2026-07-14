@@ -1297,7 +1297,7 @@
             <button class="ix-item" onclick="openApp('app-checkin','📋 오늘의 체크인');subscribeCheckin();ckLoadExtras()"><span>📋</span><b>오늘의 체크인</b><i>할 것·한 것·막힌 것·앞으로·가능시간·감사</i></button>
             <button class="ix-item" onclick="openApp('app-todo','✅ 할 일 목록')"><span>✅</span><b>할 일</b><i>개인 할 일 목록</i></button>
             <button class="ix-item" onclick="document.getElementById('surfInBtn').click()"><span>✒️</span><b>Surf In</b><i>노션식 작업 공간·문서</i></button>
-            <button class="ix-item" onclick="openApp('app-later','📌 Later Must')"><span>📌</span><b>Later Must</b><i>나중에 볼 링크·공부거리</i></button>
+            <button class="ix-item" onclick="openApp('app-later','👥 팀 공유 링크')"><span>👥</span><b>팀 공유 링크</b><i>팀원이 공유한 자료</i></button>
             <button class="ix-item" onclick="openApp('app-today','📊 오늘 한눈에')"><span>📊</span><b>오늘</b><i>오늘 지표 한눈에</i></button>
             <button class="ix-item" onclick="openApp('app-grat','🙏 오늘의 감사')"><span>🙏</span><b>감사</b><i>오늘의 감사 세 가지</i></button>
           </div>
@@ -1354,7 +1354,6 @@
       <button class="appicon" data-appid="todo" onclick="openApp('app-todo','✅ 할 일 목록')"><span class="tile" style="background:linear-gradient(150deg,#3fb492,#2b8a70)">✅</span><span class="lbl">할 일</span></button>
       <button class="appicon" data-appid="cal" onclick="openApp('app-cal','📅 공유 캘린더')"><span class="tile" style="background:linear-gradient(150deg,#e5963d,#c06f22)">📅</span><span class="lbl">캘린더</span></button>
       <button class="appicon" data-appid="grat" onclick="openApp('app-grat','🙏 오늘의 감사')"><span class="tile" style="background:linear-gradient(150deg,#6ea45e,#4a7440)">🙏</span><span class="lbl">감사</span></button>
-      <button class="appicon" data-appid="later" onclick="openApp('app-later','📌 Later Must')"><span class="tile" style="background:linear-gradient(150deg,#d96f92,#b84a70)">📌</span><span class="lbl">Later Must</span></button>
       <button class="appicon" data-appid="task" onclick="openApp('app-task','📥 업무 지시함')"><span class="tile" style="background:linear-gradient(150deg,#828798,#565b74)">📥</span><span class="lbl">업무 지시</span></button>
       <button class="appicon" data-appid="proj" onclick="openApp('app-proj','📈 프로젝트 · 진행사업 · 업무기한')"><span class="tile" style="background:linear-gradient(150deg,#6f6fd6,#4a4ab0)">📈</span><span class="lbl">프로젝트</span></button>
       <button class="appicon" data-appid="brain" onclick="openBoardModal()"><span class="tile" style="background:linear-gradient(150deg,#9f6fca,#7a4aa4)">🧠</span><span class="lbl">브레인스토밍</span></button>
@@ -1651,8 +1650,8 @@
 
       <!-- Later Must (나중에 볼 것) -->
       <div class="panel col-4" id="panelLater">
-        <h3><span class="ic">📌</span> Later Must</h3>
-        <p class="desc">나중에 볼 링크·공부거리 — 🔒개인 또는 👥팀과 공유</p>
+        <h3><span class="ic">👥</span> 팀 공유 링크</h3>
+        <p class="desc">팀원이 공유한 자료·링크를 한곳에. (내 개인 항목은 이제 <b>공부할거</b>로 옮겨졌어요)</p>
         <div class="add"><input id="laterIn" placeholder="URL이나 공부할 거 붙여넣고 Enter" /><button id="laterAdd">+</button></div>
         <ul id="laterList" class="later-list"></ul>
         <div class="later-empty" id="laterEmpty" style="display:none">아직 없어요.<br>보고 싶은 링크나 공부거리를 담아두세요 📚</div>
@@ -2267,6 +2266,7 @@ function enterDash(){
   subscribeTodos();
   subscribeFuturescan();
   subscribeMyboard();
+  migrateLaterToStudy();
   subscribeCheckin();
   subscribeYoReqs();
   try{setPortalMode(localStorage.getItem('ws:portalMode')||'home');}catch(e){}
@@ -5097,6 +5097,33 @@ async function mbSave(){
       ownerName:CUR.name,ownerEmail:CUR.id,updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     },{merge:true});
   }catch(e){alert('보드 저장 실패: '+((e&&e.message)||e));}
+}
+/* 개인 Later Must 항목을 공부할거로 1회 이관(무손실 복사 — ws_later 원본은 그대로 둠) */
+async function migrateLaterToStudy(){
+  if(!_db||!CUR)return;
+  try{
+    const memRef=_db.collection('ws_members').doc(CUR.id);
+    const mem=await memRef.get();
+    if(mem.exists && mem.data().laterMigrated) return;
+    const snap=await _db.collection('ws_later').where('authorEmail','==',CUR.id).get();
+    const mine=snap.docs.map(d=>d.data()).filter(x=>!x.done);
+    if(mine.length){
+      const bRef=_db.collection('ws_myboard').doc(CUR.id);
+      const bDoc=await bRef.get();
+      const cur=(bDoc.exists&&bDoc.data().study)||[];
+      const add=mine.map(r=>{
+        let c=(r.content||'').trim();
+        if(r.label)c=r.label+' — '+c;
+        const um=c.match(/https?:\/\/\S+/);
+        const link=um?um[0]:'';
+        let text=um?c.replace(um[0],'').trim():c;
+        if(!text)text=link||'(제목 없음)';
+        return {id:mbUid(), text, link, status:link?'new':'none', docId:'', ts:Date.now(), fromLater:true};
+      });
+      await bRef.set({study:add.concat(cur), ownerName:CUR.name, ownerEmail:CUR.id, updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    }
+    await memRef.set({laterMigrated:true},{merge:true});
+  }catch(e){console.warn('later→공부할거 이관 실패',e);}
 }
 function mbAdd(col){
   if(!CUR){alert('로그인 후 이용할 수 있어요.');return;}
