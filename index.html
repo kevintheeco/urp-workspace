@@ -1284,7 +1284,6 @@
       <div class="ix-wrap">
         <aside class="ix-side">
           <div class="ix-quick">
-            <button class="ix-q board" onclick="openApp('app-myboard','🗂 나의 보드');mbRender()">🗂 나의 보드 열기</button>
             <button class="ix-q agent" onclick="callAgent()">🤖 내 에이전트(어푸) 부르기</button>
             <button class="ix-q yona" onclick="openYoCall()">🌤 요나단 부르기</button>
           </div>
@@ -1295,7 +1294,6 @@
           </div>
           <div class="ix-group">
             <div class="ix-gh">📌 내 일</div>
-            <button class="ix-item" onclick="openApp('app-myboard','🗂 나의 보드');mbRender()"><span>🗂</span><b>나의 보드</b><i>개인 할일·업무방향·공부할거·메모</i></button>
             <button class="ix-item" onclick="openApp('app-checkin','📋 오늘의 체크인');subscribeCheckin();ckLoadExtras()"><span>📋</span><b>오늘의 체크인</b><i>할 것·한 것·막힌 것·앞으로·가능시간·감사</i></button>
             <button class="ix-item" onclick="openApp('app-todo','✅ 할 일 목록')"><span>✅</span><b>할 일</b><i>개인 할 일 목록</i></button>
             <button class="ix-item" onclick="document.getElementById('surfInBtn').click()"><span>✒️</span><b>Surf In</b><i>노션식 작업 공간·문서</i></button>
@@ -1369,7 +1367,6 @@
       <button class="appicon" data-appid="meetingpoll" onclick="openApp('app-meetingpoll','🗓 미팅 잡기');mpOpen();"><span class="tile" style="background:linear-gradient(150deg,#c98a3e,#8a5a1f)">🗓</span><span class="lbl">미팅 잡기</span></button>
       <button class="appicon" data-appid="prayer" onclick="openApp('app-prayer','🕊 기도제목')"><span class="tile" style="background:linear-gradient(150deg,#5e8aa6,#33566e)">🕊</span><span class="lbl">기도제목</span></button>
       <button class="appicon" data-appid="futurescan" onclick="openApp('app-futurescan','🔮 미래예측');fsOpen();"><span class="tile" style="background:linear-gradient(150deg,#8b5cf6,#5b34c9)">🔮</span><span class="lbl">미래예측</span></button>
-      <button class="appicon" data-appid="myboard" onclick="openApp('app-myboard','🗂 나의 보드');mbRender();"><span class="tile" style="background:linear-gradient(150deg,#4a9e7f,#286f56)">🗂</span><span class="lbl">나의 보드</span><span class="badge" id="mbIconBadge"></span></button>
       <button class="appicon" data-appid="checkin" onclick="openApp('app-checkin','📋 오늘의 체크인');subscribeCheckin();ckLoadExtras();"><span class="tile" style="background:linear-gradient(150deg,#c98a3e,#8d6a27)">📋</span><span class="lbl">오늘의 체크인</span></button>
       <button class="appicon" data-appid="yonathan" onclick="openYoCall()"><span class="tile" style="background:linear-gradient(150deg,#6db3d9,#3f7fb0)">🌤</span><span class="lbl">요나단·요청</span></button>
     </div>
@@ -5154,6 +5151,18 @@ async function studyAnalyze(id){
     if(typeof showToast==='function')showToast('🔍','분석을 시작했어요. 곧 카드가 떠요.');
   }catch(e){ it.status='new'; mbRender(); mbSave(); alert('분석 요청 실패: '+((e&&e.message)||e)); }
 }
+/* 공부거리 팀 공유 토글 — 켜면 분석 자료(Surf In 문서)가 팀 위키에 공유됨 */
+function studyShareBtn(it){
+  return it.shared
+    ? `<button class="ix-badge" style="background:#3fb492;color:#fff;cursor:pointer" title="팀과 공유 중 · 누르면 개인으로" onclick="mbStudyShare('${it.id}')">👥 팀 공유중</button>`
+    : `<button class="ix-badge" style="background:#eef1f6;color:#4a5568;cursor:pointer;border:1px solid #d6c6a0" title="팀과 공유하기" onclick="mbStudyShare('${it.id}')">🔒 개인</button>`;
+}
+function mbStudyShare(id){
+  const it=(mbData.study||[]).find(x=>x.id===id); if(!it)return;
+  it.shared=!it.shared; mbRender(); mbSave();
+  if(it.docId&&_db){ try{ _db.collection('ws_docs').doc(it.docId).update({shared:it.shared}); }catch(e){} }
+  if(typeof showToast==='function')showToast(it.shared?'👥':'🔒', it.shared?'팀과 공유해요. 분석 자료가 팀 위키에 떠요.':'개인용으로 되돌렸어요.');
+}
 function mbRender(){
   MB_COLS.forEach(col=>{
     const box=document.getElementById('mbList'+col.charAt(0).toUpperCase()+col.slice(1));
@@ -5167,7 +5176,7 @@ function mbRender(){
         const studyDoneBtn=it.studied
           ? `<button class="mb-badge study-done" title="공부 완료됨 — 누르면 되돌리기" onclick="mbStudyDone('${it.id}')">✅ 공부 완료</button>`
           : `<button class="mb-badge study-do" title="공부를 마쳤으면 눌러요 (노션 수민 공부에 정리)" onclick="mbStudyDone('${it.id}')">✅ 공부 완료</button>`;
-        return `<div class="mb-item${it.studied?' studied':''}"><div class="mb-txt">${mbEsc(it.text)}${linkHtml}${mbStudyBadge(it)} ${studyDoneBtn}</div><button class="mb-del" title="삭제" onclick="mbDel('study','${it.id}')">✕</button></div>`;
+        return `<div class="mb-item${it.studied?' studied':''}"><div class="mb-txt">${mbEsc(it.text)}${linkHtml}${mbStudyBadge(it)} ${studyShareBtn(it)} ${studyDoneBtn}</div><button class="mb-del" title="삭제" onclick="mbDel('study','${it.id}')">✕</button></div>`;
       }
       const doneCls=it.done?' done':'';
       const check=it.done?'✓':'';
@@ -5379,7 +5388,7 @@ function ixQuad(col,em,title,sub){
       const doneBtn=it.studied
         ? `<button class="ix-badge" style="background:#3fb492;color:#fff;cursor:pointer" onclick="mbStudyDone('${it.id}')">✅ 공부 완료</button>`
         : `<button class="ix-badge" style="background:#eef1f6;color:#4a5568;cursor:pointer;border:1px solid #d6c6a0" onclick="mbStudyDone('${it.id}')">✅ 공부 완료</button>`;
-      return `<div class="ix-qitem${it.studied?' studied':''}"><div class="qtxt">${mbEsc(it.text)}${lk}${ixBadge(it)} ${doneBtn}</div><button class="qdel" title="삭제" onclick="mbDel('study','${it.id}')">✕</button></div>`;
+      return `<div class="ix-qitem${it.studied?' studied':''}"><div class="qtxt">${mbEsc(it.text)}${lk}${ixBadge(it)} ${studyShareBtn(it)} ${doneBtn}</div><button class="qdel" title="삭제" onclick="mbDel('study','${it.id}')">✕</button></div>`;
     }).join('') : '<div class="ix-qempty">아직 없어요</div>';
   }else{
     cnt=list.filter(x=>!x.done).length;
