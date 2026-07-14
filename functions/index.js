@@ -256,3 +256,26 @@ exports.timetrackerNudge = functions.pubsub.schedule('0 10,13,17 * * 1-5').timeZ
   console.log(`타임트래커 알림(${today}): ${sent}명 발송, ${missed}명 실패`);
   return null;
 });
+
+/* 팀원이 요나단 부르기로 요청·건의 → 대표(CEO)에게 어푸가 슬랙 DM (즉시 알림) */
+exports.onYonathanCallCreate = functions.firestore.document('ws_yonathan_calls/{id}').onCreate(async (snap) => {
+  const c = snap.data() || {};
+  const token = process.env.SLACK_BOT_TOKEN;
+  if (!token) { console.warn('슬랙 토큰 미설정 — 요청 알림 건너뜀'); return null; }
+  const who = c.fromName || '누군가';
+  const text = (c.text || '').replace(/\n/g, '\n> ');
+  const msg = `🌤 *${who}* 님이 요청을 남겼어요\n> ${text}\n\n<${SITE}|받은 요청함에서 보기>`;
+  let ceos = [];
+  try { ceos = await ceoEmails(c.fromEmail); } catch (e) { ceos = []; }
+  for (const email of ceos) {
+    const uid = await slackFindUser(token, email);
+    if (!uid) { console.warn('요청 알림: 슬랙 유저 못 찾음 —', email); continue; }
+    try {
+      const open = await fetch('https://slack.com/api/conversations.open', { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ users: uid }) }).then(x => x.json());
+      if (!open.ok) continue;
+      await fetch('https://slack.com/api/chat.postMessage', { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json; charset=utf-8' }, body: JSON.stringify({ channel: open.channel.id, text: msg, username: '어푸', icon_emoji: ':owl:' }) });
+    } catch (e) { console.error('요청→슬랙 오류:', e); }
+  }
+  console.log(`요청 알림: ${who} → CEO ${ceos.length}명`);
+  return null;
+});
