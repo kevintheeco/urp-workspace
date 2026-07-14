@@ -1030,6 +1030,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@1"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@1"></script>
 <script src="https://cdn.jsdelivr.net/npm/editorjs-toggle-block@0"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/code@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/embed@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/inline-code@1"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0/dist/html2pdf.bundle.min.js"></script>
 </head>
 <body>
@@ -5549,6 +5553,9 @@ function surfExcerpt(data){
     else if(b.type==='checklist')out.push((d.items||[]).map(it=>stripHtml(it.text||'')).join(' '));
     else if(b.type==='image')out.push('🖼 사진');
     else if(b.type==='table')out.push('▦ 표');
+    else if(b.type==='code')out.push('💻 코드');
+    else if(b.type==='embed')out.push('🔗 '+((b.data&&b.data.service)||'임베드'));
+    else if(b.type==='quote')out.push('❝ '+stripHtml((b.data&&b.data.text)||'인용'));
     if(out.join(' ').length>140)break;
   }
   const s=out.join(' ').trim();
@@ -5696,9 +5703,13 @@ async function buildEditor(data){
   if(window.Delimiter)tools.delimiter=window.Delimiter;
   if(window.ToggleBlock)tools.toggle={class:window.ToggleBlock,inlineToolbar:true};
   if(window.ImageTool)tools.image={class:window.ImageTool,config:{captionPlaceholder:'사진 설명(선택)',uploader:{uploadByFile:surfUploadImage}}};
+  if(window.CodeTool)tools.code={class:window.CodeTool,config:{placeholder:'코드를 붙여넣으세요'}};
+  if(window.Embed)tools.embed={class:window.Embed,config:{services:{youtube:true,vimeo:true,codepen:true,twitter:true,instagram:true,github:true,figma:true,miro:true}}};
+  if(window.Quote)tools.quote={class:window.Quote,inlineToolbar:true,config:{quotePlaceholder:'인용',captionPlaceholder:'출처(선택)'}};
+  if(window.InlineCode)tools.inlineCode={class:window.InlineCode,shortcut:'CMD+SHIFT+C'};
   surfEditor=new EditorJS({
     holder:'surfEditor',data:data,tools,
-    placeholder:'여기에 자유롭게 적어보세요. 새 줄에서 Tab 또는 ＋ 를 누르면 제목·표·토글·체크리스트·사진 블록을 넣을 수 있어요.',
+    placeholder:'여기에 자유롭게 적어보세요. 새 줄에서 Tab 또는 ＋ 를 누르면 제목·표·토글·체크리스트·사진·💻코드·🔗임베드(유튜브·코드펜 등)·인용 블록을 넣을 수 있어요.',
     onChange:surfScheduleSave,autofocus:true
   });
 }
