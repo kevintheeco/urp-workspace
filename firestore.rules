@@ -52,19 +52,21 @@ service cloud.firestore {
       allow delete: if signedIn() && request.auth.token.email == 'soomin020114@gmail.com';
     }
 
-    // MEUS 그룹방 이름표(meta/info {title}) — 누구나 읽기, 쓰기·삭제는 운영자 계정만
+    // MEUS 그룹방 이름표(meta/info {title, mode?}) — 누구나 읽기, 쓰기·삭제는 운영자 계정만
+    // mode = 업무/친구 모드(2026-07-18 추가) — 없으면 업무로 취급(레거시 방 호환)
     match /meus_rooms/{room}/meta/{doc} {
       allow read: if true;
       allow create, update: if signedIn()
         && request.auth.token.email == 'soomin020114@gmail.com'
-        && request.resource.data.keys().hasOnly(['title'])
+        && request.resource.data.keys().hasOnly(['title', 'mode'])
         && request.resource.data.title is string
         && request.resource.data.title.size() >= 1
-        && request.resource.data.title.size() <= 60;
+        && request.resource.data.title.size() <= 60
+        && (!('mode' in request.resource.data) || request.resource.data.mode in ['work', 'friend']);
       allow delete: if signedIn() && request.auth.token.email == 'soomin020114@gmail.com';
     }
 
-    // MEUS 그룹방 등록부(부모 문서 {title, ts}) — 운영자 대시보드의 방 목록·생성·삭제용
+    // MEUS 그룹방 등록부(부모 문서 {title, mode?, ts}) — 운영자 대시보드의 방 목록·생성·삭제용
     match /meus_rooms/{room} {
       allow read, write: if signedIn() && request.auth.token.email == 'soomin020114@gmail.com';
     }
@@ -84,6 +86,13 @@ service cloud.firestore {
         && docId == request.resource.data.code + '__' + request.auth.uid;
       allow delete: if signedIn() && docId.matches('.*__' + request.auth.uid);
       allow read: if signedIn();
+    }
+
+    // URP 재무 보드 (fin_rooms) — 비밀번호 SHA-256 해시(64자 hex)가 방 경로. 경로 비밀이 보안 경계 (meus_rooms와 동일 모델).
+    // ⚠️ 절대 fin_rooms/{room} 최상위 문서를 만들지 말 것(방 목록 열람 차단 유지). 데이터는 전부 한 단계 아래 컬렉션에.
+    // 단일 세그먼트 와일드카드만 사용 — {document=**}를 쓰면 fin_rooms 목록 조회가 열릴 수 있음.
+    match /fin_rooms/{room}/{coll}/{doc} {
+      allow read, write: if room.matches('^[a-f0-9]{64}$');
     }
 
     // 워크스페이스 컬렉션(ws_*) — 멤버만 읽기/쓰기
