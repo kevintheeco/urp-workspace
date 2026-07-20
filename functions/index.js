@@ -280,54 +280,7 @@ exports.onYonathanCallCreate = functions.firestore.document('ws_yonathan_calls/{
   return null;
 });
 
-/* ===== 📚 공부할거 자동분석 — '지금 분석' → ws_study_jobs 생성 → 서버가 링크 읽고 클로드로 도입분석 카드 → Surf In(ws_docs) 저장 ===== */
-const UA_BROWSER = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36';
-function isYoutubeUrl(url) { return /(?:youtube\.com|youtu\.be)/i.test(url || ''); }
-function studySectionsToBlocks(sections) {
-  const blocks = [];
-  for (const s of sections || []) {
-    if (s.h) blocks.push({ type: 'header', data: { text: String(s.h), level: s.level || 3 } });
-    else if (s.h2) blocks.push({ type: 'header', data: { text: String(s.h2), level: 2 } });
-    else if (s.p) blocks.push({ type: 'paragraph', data: { text: String(s.p) } });
-    else if (s.ul) blocks.push({ type: 'list', data: { style: 'unordered', items: (s.ul || []).map(t => ({ content: String(t), items: [] })) } });
-    else if (s.ol) blocks.push({ type: 'list', data: { style: 'ordered', items: (s.ol || []).map(t => ({ content: String(t), items: [] })) } });
-    else if (s.hr) blocks.push({ type: 'delimiter', data: {} });
-    else if (s.quote) blocks.push({ type: 'paragraph', data: { text: '<i>' + s.quote + '</i>' } });
-  }
-  return blocks;
-}
-async function fetchWebText(url) {
-  try {
-    const html = await fetch(url, { headers: { 'User-Agent': UA_BROWSER, 'Accept-Language': 'ko,en;q=0.9' } }).then(r => r.text());
-    return html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ')
-      .replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'").replace(/&quot;/g, '"')
-      .replace(/\s+/g, ' ').trim().slice(0, 14000);
-  } catch (e) { return ''; }
-}
-function isNotionUrl(url) { return /notion\.(so|site)/i.test(url || ''); }
-function extractNotionId(url) {
-  const s = String(url || '');
-  const m = s.match(/([0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12})/i) || s.match(/([0-9a-f]{32})/i);
-  return m ? m[1].replace(/-/g, '') : null;
-}
-async function fetchNotionText(url) {
-  const id = extractNotionId(url);
-  if (!id) return '';
-  try {
-    const j = await fetch('https://notion-api.splitbee.io/v1/page/' + id, { headers: { 'User-Agent': UA_BROWSER } }).then(r => r.json());
-    if (!j) return '';
-    const parts = [];
-    for (const k in j) {
-      const v = j[k] && j[k].value && j[k].value.value;
-      const title = v && v.properties && v.properties.title;
-      if (title && Array.isArray(title)) {
-        const t = title.map(x => Array.isArray(x) ? x[0] : x).join('');
-        if (t && !/\.(png|jpe?g|gif|webp|svg)$/i.test(t.trim())) parts.push(t);
-      }
-    }
-    return parts.join('\n').replace(/[ \t]+/g, ' ').trim().slice(0, 14000);
-  } catch (e) { return ''; }
-}
+/* ===== 📚 공부할거 — 서버 자동분석 폐기(2026-07-20). 검색·기억 없는 raw API 호출이라 8칸 스펙과 어긋나 요나단 세션 경로로 통일. claudeText는 아침 브리핑용으로 유지 ===== */
 async function claudeText(prompt) {
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -336,55 +289,6 @@ async function claudeText(prompt) {
   }).then(x => x.json());
   return (r && r.content && r.content[0] && r.content[0].text) || '';
 }
-exports.onStudyJobCreate = functions.firestore.document('ws_study_jobs/{id}').onCreate(async (snap) => {
-  const job = snap.data() || {};
-  const email = job.email, itemId = job.itemId, text = job.text || '', link = job.link || '';
-  if (!email || !itemId) return null;
-  const ref = db.collection('ws_myboard').doc(email);
-  async function setStudy(status, extra) {
-    try {
-      const doc = await ref.get(); if (!doc.exists) return;
-      const study = doc.data().study || [];
-      const idx = study.findIndex(x => x.id === itemId); if (idx < 0) return;
-      study[idx].status = status;
-      if (extra) Object.assign(study[idx], extra);
-      await ref.update({ study });
-    } catch (e) { console.error('study 상태 업데이트 실패', e); }
-  }
-  if (!process.env.ANTHROPIC_API_KEY) { console.warn('ANTHROPIC_API_KEY 없음 — 자동분석 건너뜀'); await setStudy('new'); return null; }
-  if (isYoutubeUrl(link)) { console.log('유튜브 링크 — 자막 API 연결 전이라 보류:', link); await setStudy('new'); return null; }
-  try {
-    await setStudy('analyzing');
-    let source = text ? ('제목/메모: ' + text + '\n\n') : '';
-    if (link) { const web = isNotionUrl(link) ? await fetchNotionText(link) : await fetchWebText(link); source += '링크: ' + link + '\n\n본문:\n' + (web || '(본문을 읽지 못함 — 제목·링크만으로 분석)'); }
-    if (!source.trim()) source = text || link;
-    const prompt = `당신은 교육 스타트업 "니가교수(URP)"의 도입검토 분석가입니다. 아래 자료를 우리 팀 도입 관점에서 한국어로 분석하세요. 반드시 아래 JSON만 출력(설명·코드블록 금지):
-{"title":"짧은 제목","sections":[{"h":"한 줄 요약"},{"p":"..."},{"h":"핵심 내용"},{"ul":["..."]},{"h":"니가교수 적용점"},{"ul":["..."]},{"h":"도입 가능성"},{"p":"높음/중간/낮음 + 이유"},{"h":"리스크·한계"},{"ul":["..."]},{"h":"필요 리소스"},{"p":"..."},{"h":"다음 액션"},{"ul":["..."]},{"h":"출처"},{"p":"${link || '(링크 없음)'}"}]}
-
-[자료]
-${source}`;
-    const out = await claudeText(prompt);
-    let parsed = null;
-    try { const m = out.match(/\{[\s\S]*\}/); parsed = JSON.parse(m ? m[0] : out); } catch (e) {}
-    let title, sections;
-    if (parsed && Array.isArray(parsed.sections)) { title = parsed.title || text || '요나단 분석'; sections = parsed.sections; }
-    else { title = text || '요나단 분석'; sections = [{ h: '분석' }, { p: out || '분석 결과를 생성하지 못했어요.' }]; }
-    const blocks = studySectionsToBlocks(sections);
-    const nm = await nameOf(email);
-    const now = admin.firestore.FieldValue.serverTimestamp();
-    const docRef = await db.collection('ws_docs').add({
-      title, data: { blocks }, shared: !!job.shared,
-      authorName: nm || '요나단', authorEmail: email, authorCode: '', yonathan: true,
-      createdAt: now, updatedAt: now
-    });
-    await setStudy('done', { docId: docRef.id, seen: false });
-    console.log('공부할거 자동분석 완료:', email, itemId, docRef.id);
-  } catch (e) {
-    console.error('자동분석 오류:', e);
-    await setStudy('new');
-  }
-  return null;
-});
 
 /* ===== 🌅 아침 능동 브리핑 — 어푸가 팀 현황을 종합해 대표에게 선제 브리핑 (평일 08시 KST) ===== */
 async function buildMorningBrief() {

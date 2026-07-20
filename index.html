@@ -5172,25 +5172,16 @@ function mbStudyDone(id){
 function mbStudyBadge(it){
   if(it.status==='done'&&it.docId) return `<button class="mb-badge done" onclick="openSurfDoc('${it.docId}')">📄 분석 완료 · 열기</button>`;
   if(it.status==='analyzing') return `<span class="mb-badge run">⏳ 분석 중…</span>`;
-  if((it.status==='new'||!it.status)&&(it.link||it.text)) return `<button class="mb-badge analyze" onclick="studyAnalyze('${it.id}')">🔍 지금 분석</button>`;
+  if(it.requested) return `<span class="mb-badge run">🙋 요청됨 · 대기중</span>`;
+  if((it.status==='new'||!it.status)&&(it.link||it.text)) return `<button class="mb-badge analyze" onclick="studyRequest('${it.id}')">🙋 요나단에게 요청</button>`;
   return '';
 }
-/* '지금 분석' — 서버(onStudyJobCreate)에 요청. 링크 내용을 읽어 클로드가 도입분석 카드를 만들어 Surf In에 저장 */
-async function studyAnalyze(id){
-  if(!_db||!CUR){alert('로그인 후 이용할 수 있어요.');return;}
+/* '요나단에게 요청' — 서버 자동분석 없이, 다음 요나단 세션에서 검색·기억까지 써서 카드를 만들도록 우선 표시만 남김 */
+function studyRequest(id){
   const it=(mbData.study||[]).find(x=>x.id===id); if(!it)return;
-  if(it.link&&/(?:youtube\.com|youtu\.be)/i.test(it.link)){
-    alert('유튜브는 자막 연결(무료 키) 후 분석돼요. 웹 링크·글은 지금 바로 분석됩니다.');
-    return;
-  }
-  it.status='analyzing'; mbRender(); mbSave();
-  try{
-    await _db.collection('ws_study_jobs').add({
-      email:CUR.id, itemId:id, text:it.text||'', link:it.link||'', shared:!!it.shared,
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    if(typeof showToast==='function')showToast('🔍','분석을 시작했어요. 곧 카드가 떠요.');
-  }catch(e){ it.status='new'; mbRender(); mbSave(); alert('분석 요청 실패: '+((e&&e.message)||e)); }
+  it.requested=true; it.requestedAt=Date.now();
+  mbRender(); mbSave();
+  if(typeof showToast==='function')showToast('🙋','요나단에게 요청했어요. 다음 세션에 카드로 정리해줄게요.');
 }
 /* 공부거리 팀 공유 토글 — 켜면 분석 자료(Surf In 문서)가 팀 위키에 공유됨 */
 function studyShareBtn(it){
@@ -5399,7 +5390,8 @@ function applyIndexCeo(){
 function ixBadge(it){
   if(it.status==='done'&&it.docId) return `<button class="ix-badge done" onclick="openSurfDoc('${it.docId}')">📄 분석 완료 · 열기</button>`;
   if(it.status==='analyzing') return `<span class="ix-badge run">⏳ 분석 중…</span>`;
-  if((it.status==='new'||!it.status)&&(it.link||it.text)) return `<button class="ix-badge" style="background:#3a6ea5;color:#fff;cursor:pointer" onclick="studyAnalyze('${it.id}')">🔍 지금 분석</button>`;
+  if(it.requested) return `<span class="ix-badge run">🙋 요청됨 · 대기중</span>`;
+  if((it.status==='new'||!it.status)&&(it.link||it.text)) return `<button class="ix-badge" style="background:#3a6ea5;color:#fff;cursor:pointer" onclick="studyRequest('${it.id}')">🙋 요나단에게 요청</button>`;
   return '';
 }
 function ixRenderMain(){
