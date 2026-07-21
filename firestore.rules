@@ -49,26 +49,57 @@ service cloud.firestore {
         && request.resource.data.code.size() <= 4000
         && request.resource.data.ts is number
         && member.size() <= 60;
-      allow delete: if signedIn() && request.auth.token.email == 'soomin020114@gmail.com';
+      allow delete: if signedIn() && (
+        request.auth.token.email == 'soomin020114@gmail.com'
+        || get(/databases/$(database)/documents/meus_rooms/$(room)).data.owner == request.auth.uid
+      );
     }
 
-    // MEUS 그룹방 이름표(meta/info {title, mode?}) — 누구나 읽기, 쓰기·삭제는 운영자 계정만
+    // MEUS 그룹방 이름표(meta/info {title, mode?}) — 누구나 읽기, 쓰기·삭제는 운영자 계정 또는 방장(owner) 본인
     // mode = 업무/친구 모드(2026-07-18 추가) — 없으면 업무로 취급(레거시 방 호환)
+    // 2026-07-21: 누구나 방장(owner)이 될 수 있는 "내 방" 기능 추가 — owner uid 매칭 시에도 허용
     match /meus_rooms/{room}/meta/{doc} {
       allow read: if true;
       allow create, update: if signedIn()
-        && request.auth.token.email == 'soomin020114@gmail.com'
+        && (
+          request.auth.token.email == 'soomin020114@gmail.com'
+          || get(/databases/$(database)/documents/meus_rooms/$(room)).data.owner == request.auth.uid
+        )
         && request.resource.data.keys().hasOnly(['title', 'mode'])
         && request.resource.data.title is string
         && request.resource.data.title.size() >= 1
         && request.resource.data.title.size() <= 60
         && (!('mode' in request.resource.data) || request.resource.data.mode in ['work', 'friend']);
-      allow delete: if signedIn() && request.auth.token.email == 'soomin020114@gmail.com';
+      allow delete: if signedIn() && (
+        request.auth.token.email == 'soomin020114@gmail.com'
+        || get(/databases/$(database)/documents/meus_rooms/$(room)).data.owner == request.auth.uid
+      );
     }
 
-    // MEUS 그룹방 등록부(부모 문서 {title, mode?, ts}) — 운영자 대시보드의 방 목록·생성·삭제용
+    // MEUS 그룹방 등록부(부모 문서 {title, mode?, ts, owner?}) — 운영자 대시보드 + 누구나 방장 "내 방" 대시보드 겸용
+    // owner 필드 없는 방=대표님 계정(운영자)이 예전 방식으로 만든 레거시 방. owner 있으면 그 uid가 방장.
     match /meus_rooms/{room} {
-      allow read, write: if signedIn() && request.auth.token.email == 'soomin020114@gmail.com';
+      allow read: if signedIn() && (
+        resource.data.owner == request.auth.uid
+        || request.auth.token.email == 'soomin020114@gmail.com'
+      );
+      allow create: if signedIn() && (
+        (request.resource.data.owner == request.auth.uid)
+        || (request.auth.token.email == 'soomin020114@gmail.com' && !('owner' in request.resource.data))
+      ) && request.resource.data.keys().hasOnly(['title', 'mode', 'ts', 'owner'])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 1 && request.resource.data.title.size() <= 60
+        && (!('mode' in request.resource.data) || request.resource.data.mode in ['work', 'friend'])
+        && request.resource.data.ts is number;
+      allow update: if signedIn() && (
+        resource.data.owner == request.auth.uid
+        || request.auth.token.email == 'soomin020114@gmail.com'
+      )
+        && (!('owner' in request.resource.data) || request.resource.data.owner == resource.data.owner);
+      allow delete: if signedIn() && (
+        resource.data.owner == request.auth.uid
+        || request.auth.token.email == 'soomin020114@gmail.com'
+      );
     }
 
     // MEUS 운영자: 모든 방의 제출을 한 번에 조회 (collectionGroup 'members') — 운영자 계정만.
