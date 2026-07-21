@@ -95,7 +95,12 @@ service cloud.firestore {
         resource.data.owner == request.auth.uid
         || request.auth.token.email == 'soomin020114@gmail.com'
       )
-        && (!('owner' in request.resource.data) || request.resource.data.owner == resource.data.owner);
+        // owner가 이미 있으면 못 바꾼다(탈취 방지). 아직 없던 방(레거시)에 처음 매기는 건 허용.
+        && (
+          !('owner' in resource.data)
+          || !('owner' in request.resource.data)
+          || request.resource.data.owner == resource.data.owner
+        );
       allow delete: if signedIn() && (
         resource.data.owner == request.auth.uid
         || request.auth.token.email == 'soomin020114@gmail.com'
