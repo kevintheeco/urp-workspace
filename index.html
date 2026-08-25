@@ -5129,7 +5129,7 @@ async function twLoad(){
     });
     const spanWeeks=twWeeks>0?twWeeks:Math.max(1,weeks.size);
     const members=mSnap.docs.map(d=>d.data()).filter(m=>m&&m.email);
-    const list=members.map(m=>({name:m.name||m.email,email:m.email,...(rows[m.email]||{total:0,days:0,thisWeek:0,weeks:new Set(),last:''})}))
+    const list=members.map(m=>({name:m.name||m.email,email:m.email,closingMode:m.closingMode,...(rows[m.email]||{total:0,days:0,thisWeek:0,weeks:new Set(),last:''})}))
       .sort((a,b)=>b.total-a.total);
 
     let team={total:0,days:0,thisWeek:0};
@@ -5139,8 +5139,7 @@ async function twLoad(){
     list.forEach(r=>{
       const daily=r.days?r.total/r.days:0;
       const weekly=r.total/spanWeeks;
-      const full=clIsFull(r.email);
-      html+=`<tr><td class="nm">${clEsc(r.name)}<small>${full?'풀타임':'파트타임'}</small></td>`
+      html+=`<tr><td class="nm">${clEsc(r.name)}<small>${clModeOf(r)}</small></td>`
         +`<td>${twFmt(r.thisWeek)}</td><td><b>${twFmt(r.total)}</b></td>`
         +`<td>${r.days?r.days+'일':'<span class="tw-zero">–</span>'}</td>`
         +`<td>${twFmt(daily)}</td><td>${twFmt(weekly)}</td>`
@@ -5931,10 +5930,11 @@ function clOpen(){
   clToday_=clToday();
   clBoardWk=clWeekKey(clToday_);
   clBindOnce();
-  // 파트타임만 요일 지정 UI
+  // 파트타임만 요일 지정 UI (풀타임·자율은 고를 게 없다)
+  const free=(CUR.closingMode==='자율');
   const dw=document.getElementById('clDaysWrap');
-  if(dw)dw.style.display=clIsFull(CUR.id)?'none':'block';
-  if(!clIsFull(CUR.id))clSubscribeDays();
+  if(dw)dw.style.display=(clIsFull(CUR.id)||free)?'none':'block';
+  if(!clIsFull(CUR.id)&&!free)clSubscribeDays();
   clSubscribeToday();
   const ceo=!!(CUR&&CUR.code==='CEO');
   const cw=document.getElementById('clCeoWrap');
@@ -5981,7 +5981,8 @@ function clSubscribeToday(){
 }
 function clRenderMe(d){
   const box=document.getElementById('clMe'); if(!box)return;
-  const due=clIsDue(CUR.id,clToday_,clMyDays);
+  const free=(CUR.closingMode==='자율');
+  const due=clIsDue(CUR.id,clToday_,clMyDays,free?'자율':null);
   let html='<span class="cl-badge">'+clFmtDate(clToday_)+'</span>';
   if(d&&d.status==='제출'){
     html+='<span class="cl-badge done">✓ 오늘 제출 완료'+(d.hours?' · '+d.hours+'시간':'')+'</span>';
@@ -5990,6 +5991,8 @@ function clRenderMe(d){
     html+='<span class="cl-badge excused">🕗 사전 보고함'+(d.advanceHours>=24?' (24시간 전 ✓)':'')+'</span>';
   }else if(due){
     html+='<span class="cl-badge due">오늘은 클로징 데이 — 아직 제출 전</span>';
+  }else if(free){
+    html+='<span class="cl-badge off">자율 제출 — 내고 싶은 날 내시면 됩니다</span>';
   }else{
     html+='<span class="cl-badge off">오늘은 의무 제출일이 아니에요</span>';
   }
@@ -6002,8 +6005,16 @@ function clRenderMe(d){
     if(b&&d.status==='제출')b.textContent='다시 제출(교체)';
   }
 }
-/* 오늘이 제출 의무일인가 — 풀타임=평일 매일, 파트타임=본인이 고른 요일 */
-function clIsDue(email,ds,days){
+/* 제출 방식 — ws_members.closingMode 가 '자율'이면 의무 없음.
+   조건부 합류한 사람(2026-08-25 하승주)에게 대표가 선택권을 준 경우가 여기 해당한다.
+   자율은 내면 그대로 기록되지만 미제출로 잡지 않고, 밤 현황에도 이름이 오르지 않는다. */
+function clModeOf(m){
+  if(m&&m.closingMode==='자율')return '자율';
+  return clIsFull((m&&m.email)||m)?'풀타임':'파트타임';
+}
+/* 오늘이 제출 의무일인가 — 풀타임=평일 매일, 파트타임=본인이 고른 요일, 자율=없음 */
+function clIsDue(email,ds,days,mode){
+  if(mode==='자율')return false;
   const dow=clParse(ds).getDay();
   if(clIsFull(email))return dow>=1&&dow<=5;
   return Array.isArray(days)&&days.indexOf(dow)>=0;
@@ -6184,13 +6195,17 @@ async function clRenderBoard(){
     }).join('')+'<th>합계</th></tr></thead><tbody>';
     let teamHours=0, teamDue=0, teamDone=0;
     members.forEach(m=>{
-      const full=clIsFull(m.email);
-      const days=full?null:(daysBy[m.email]||[]);
+      const mode=clModeOf(m);
+      const full=(mode==='풀타임'), free=(mode==='자율');
+      const days=(full||free)?null:(daysBy[m.email]||[]);
       let hrs=0;
-      html+='<tr><td class="nm">'+clEsc(m.name)+'<small>'+(full?'풀타임 · 평일 매일':'파트타임 · 주 3일'+((days&&days.length)?'':' (미지정)'))+'</small></td>';
+      const sub=free?'자율 · 의무 없음'
+        :full?'풀타임 · 평일 매일'
+        :'파트타임 · 주 3일'+((days&&days.length)?'':' (미지정)');
+      html+='<tr><td class="nm">'+clEsc(m.name)+'<small>'+sub+'</small></td>';
       dates.forEach(ds=>{
         const r=byKey[m.email+'_'+ds];
-        const due=clIsDue(m.email,ds,days);
+        const due=clIsDue(m.email,ds,days,mode);
         if(due&&ds<=todayStr)teamDue++;
         if(r&&r.status==='제출'){
           hrs+=Number(r.hours)||0; if(due)teamDone++;

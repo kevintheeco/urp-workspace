@@ -392,13 +392,15 @@ async function buildClosingBrief(offsetDays) {
   const done = [], excused = [], missing = [], unset = [];
   members.forEach(m => {
     const email = m.id, v = m.data() || {}, nm = v.name || email;
+    // closingMode '자율' = 대표가 선택권을 준 사람(조건부 합류 등). 내면 기록하되 의무로 잡지 않는다.
+    const free = v.closingMode === '자율';
     const full = CLOSING_FULLTIME.includes(email);
-    const due = full ? (dow >= 1 && dow <= 5) : (daysBy[email] || []).includes(dow);
+    const due = free ? false : (full ? (dow >= 1 && dow <= 5) : (daysBy[email] || []).includes(dow));
     const r = rows[email];
     if (r && r.status === '제출') done.push(`${nm} ${r.hours || '?'}시간${r.note ? ' — ' + String(r.note).slice(0, 40) : ''}`);
     else if (r && r.status === '사전보고') excused.push(`${nm} — ${String(r.excuse || '').slice(0, 50)}${r.advanceHours >= 24 ? ' (24시간 전 ✓)' : ''}`);
     else if (due) missing.push(nm);
-    else if (!full && !(daysBy[email] || []).length) unset.push(nm);
+    else if (!full && !free && !(daysBy[email] || []).length) unset.push(nm);
   });
 
   const dueCount = done.length + excused.length + missing.length;
