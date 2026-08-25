@@ -2120,6 +2120,48 @@
         <div class="tt-wrap"><table class="tt-table" id="ttTable"></table></div>
         <div class="tt-best" id="ttBest" style="display:none"></div>
         <div class="tt-legend">칸을 클릭·드래그하면 <b>내 가능 시간</b>이 칠해져요. 다른 사람 칸은 보기만 가능해요.<br>일정상 하루 종일 안 되는 날은 <b>🚫 이날은 안돼요</b>를 눌러주세요 — 빗금(✕ 불가)으로 표시돼서 "아직 안 적음"과 구분돼요.</div>
+
+        <!-- 실제 투자 시간 — 클로징 리포트에 적은 시간이 쌓인다 (2026-08-25 대표 지시) -->
+        <style>
+          .tw-sec{margin-top:22px;padding-top:20px;border-top:1px solid rgba(168,132,63,.18)}
+          body.lit .tw-sec{border-top-color:var(--line)}
+          .tw-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+          .tw-title{font-weight:800;font-size:15px;color:var(--seal)}
+          .tw-sub{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+          .tw-range{display:flex;gap:6px}
+          .tw-rbtn{border:1px solid var(--line);background:#fff;color:var(--ink-soft);font-family:inherit;
+            font-size:12.5px;font-weight:700;padding:7px 14px;border-radius:10px;cursor:pointer}
+          .tw-rbtn.on{background:var(--gold);border-color:var(--gold);color:#fff}
+          body.lit .tw-rbtn{border:none;background:var(--fill)}
+          body.lit .tw-rbtn.on{background:var(--gold);color:#fff}
+          .tw-wrap{overflow-x:auto}
+          table.tw-table{border-collapse:collapse;width:100%;min-width:520px}
+          table.tw-table th,table.tw-table td{border-bottom:1px solid var(--line);padding:10px 8px;font-size:13px;text-align:right;
+            font-variant-numeric:tabular-nums}
+          table.tw-table th{color:var(--ink-soft);font-weight:800;font-size:12px;text-align:right;white-space:nowrap}
+          table.tw-table th:first-child,table.tw-table td:first-child{text-align:left}
+          table.tw-table td.nm{font-weight:800;color:var(--ink);white-space:nowrap}
+          table.tw-table td.nm small{display:block;font-weight:600;color:var(--ink-soft);font-size:10.5px}
+          table.tw-table tr.team td{border-top:2px solid var(--line);border-bottom:none;font-weight:800;color:var(--seal)}
+          table.tw-table td b{color:var(--seal);font-size:14px}
+          .tw-zero{color:#c4b795}
+          .tw-note{font-size:12px;color:var(--ink-soft);margin-top:11px;line-height:1.7}
+        </style>
+        <div class="tw-sec">
+          <div class="tw-head">
+            <div>
+              <div class="tw-title">📕 실제 투자 시간</div>
+              <div class="tw-sub">위 표는 "되는 시간", 아래 표는 <b>실제로 쓴 시간</b>이에요. 각자 클로징 리포트에 적은 시간이 그대로 쌓입니다.</div>
+            </div>
+            <div class="tw-range">
+              <button class="tw-rbtn on" data-w="4" onclick="twSetRange(4)">최근 4주</button>
+              <button class="tw-rbtn" data-w="8" onclick="twSetRange(8)">8주</button>
+              <button class="tw-rbtn" data-w="0" onclick="twSetRange(0)">전체</button>
+            </div>
+          </div>
+          <div class="tw-wrap"><table class="tw-table" id="twTable"></table></div>
+          <div class="tw-note" id="twNote"></div>
+        </div>
       </div>
 
       <!-- 미팅 잡기 (When2Meet형 투표) -->
@@ -4307,6 +4349,11 @@ function subscribeTeamGrats(){
         <div class="grat-feed-date">${dateStr}</div>
       </div>`;
     }).join('');
+    // 오늘 팀에 나눈 게 내 것이면 위 리마인더는 내린다.
+    // (팀 나누기는 ws_grats에만 쌓여서 예전엔 리마인더가 이걸 못 봤다 — 2026-08-25 대표 지적)
+    if(CUR&&docs.some(d=>{const a=d.data().authorEmail;return a&&(a===CUR.id||a===CUR.email);})){
+      const el=document.getElementById('gratRemind'); if(el)el.style.display='none';
+    }
   },err=>console.error('grats',err));
 }
 document.getElementById('gratShareBtn').addEventListener('click',async()=>{
@@ -4319,9 +4366,17 @@ document.getElementById('gratShareBtn').addEventListener('click',async()=>{
   if(items.length===0){alert('감사 내용을 먼저 입력해주세요.');return;}
   await _db.collection('ws_grats').add({
     items,
-    authorName:CUR.name,authorEmail:CUR.email,
+    authorName:CUR.name,authorEmail:CUR.email||CUR.id,
     createdAt:firebase.firestore.FieldValue.serverTimestamp()
   });
+  // 팀에 나눈 것도 '오늘 감사를 적은 것'으로 함께 기록 — 리마인더가 다시 뜨지 않도록
+  try{
+    const three=[document.getElementById('g1').value.trim(),document.getElementById('g2').value.trim(),document.getElementById('g3').value.trim()];
+    LS.set(gratKey(),three);
+    updGratWidget(three);
+    updateGratRemind();
+    saveGratCloud(today(),three);
+  }catch(e){console.warn('감사 동기화 실패',e);}
   const btn=document.getElementById('gratShareBtn');
   btn.textContent='✓ 공유됐어요!';
   setTimeout(()=>{btn.textContent='🌿 팀과 감사 나누기';},2500);
@@ -5000,6 +5055,78 @@ async function ttOpen(){
   await ttLoadMembers();
   ttSubscribe();
   ttRender();
+  twLoad();          // 실제 투자 시간(클로징 리포트 기준) 같이 그린다
+}
+
+/* ===== 실제 투자 시간 — ws_closings.hours 누적 (2026-08-25 대표 지시) =====
+   "각자가 가용한 시간이 다 기록되게. 일 평균·주 평균 몇 시간 일했는지. 기반은 각자의 클로징 리포트."
+   일 평균 = 총 시간 ÷ 리포트 낸 날 수 (그날의 밀도)
+   주 평균 = 총 시간 ÷ 집계 구간의 주 수 (꾸준함)
+   둘을 같이 보여야 "몰아서 한 사람"과 "매일 조금씩 한 사람"이 구분된다. */
+let twWeeks=4;
+function twSetRange(w){
+  twWeeks=w;
+  document.querySelectorAll('.tw-rbtn').forEach(b=>b.classList.toggle('on',Number(b.dataset.w)===w));
+  twLoad();
+}
+function twFmt(h){return h?(Math.round(h*10)/10)+'h':'<span class="tw-zero">–</span>';}
+async function twLoad(){
+  const tb=document.getElementById('twTable'), note=document.getElementById('twNote');
+  if(!tb||!_db)return;
+  tb.innerHTML='<tr><td style="border:none;color:#b8a984;font-size:12.5px;padding:14px 2px">불러오는 중…</td></tr>';
+  try{
+    const [mSnap,cSnap]=await Promise.all([
+      _db.collection('ws_members').get(),
+      _db.collection('ws_closings').get()
+    ]);
+    // 집계 시작일 — 0이면 전체
+    let from='';
+    if(twWeeks>0){
+      const d=clParse(clWeekKey(clToday())); d.setDate(d.getDate()-7*(twWeeks-1));
+      from=clDateStr(d);
+    }
+    const thisWk=clWeekKey(clToday());
+    const rows={}; const weeks=new Set();
+    cSnap.forEach(doc=>{
+      const r=doc.data()||{};
+      if(r.status!=='제출'||!r.date||!(Number(r.hours)>0))return;
+      if(from&&r.date<from)return;
+      const wk=r.weekKey||clWeekKey(r.date);
+      weeks.add(wk);
+      const e=rows[r.email]||(rows[r.email]={total:0,days:0,thisWeek:0,weeks:new Set(),last:''});
+      e.total+=Number(r.hours); e.days++; e.weeks.add(wk);
+      if(wk===thisWk)e.thisWeek+=Number(r.hours);
+      if(r.date>e.last)e.last=r.date;
+    });
+    const spanWeeks=twWeeks>0?twWeeks:Math.max(1,weeks.size);
+    const members=mSnap.docs.map(d=>d.data()).filter(m=>m&&m.email);
+    const list=members.map(m=>({name:m.name||m.email,email:m.email,...(rows[m.email]||{total:0,days:0,thisWeek:0,weeks:new Set(),last:''})}))
+      .sort((a,b)=>b.total-a.total);
+
+    let team={total:0,days:0,thisWeek:0};
+    list.forEach(r=>{team.total+=r.total;team.days+=r.days;team.thisWeek+=r.thisWeek;});
+
+    let html='<thead><tr><th>이름</th><th>이번 주</th><th>총 시간</th><th>낸 날</th><th>일 평균</th><th>주 평균</th><th>마지막 제출</th></tr></thead><tbody>';
+    list.forEach(r=>{
+      const daily=r.days?r.total/r.days:0;
+      const weekly=r.total/spanWeeks;
+      const full=clIsFull(r.email);
+      html+=`<tr><td class="nm">${clEsc(r.name)}<small>${full?'풀타임':'파트타임'}</small></td>`
+        +`<td>${twFmt(r.thisWeek)}</td><td><b>${twFmt(r.total)}</b></td>`
+        +`<td>${r.days?r.days+'일':'<span class="tw-zero">–</span>'}</td>`
+        +`<td>${twFmt(daily)}</td><td>${twFmt(weekly)}</td>`
+        +`<td>${r.last?clFmtDate(r.last):'<span class="tw-zero">–</span>'}</td></tr>`;
+    });
+    html+=`<tr class="team"><td class="nm">팀 합계</td><td>${twFmt(team.thisWeek)}</td><td>${twFmt(team.total)}</td>`
+      +`<td>${team.days?team.days+'일':'–'}</td><td>${twFmt(team.days?team.total/team.days:0)}</td>`
+      +`<td>${twFmt(team.total/spanWeeks)}</td><td></td></tr></tbody>`;
+    tb.innerHTML=html;
+    if(note)note.innerHTML=`<b>일 평균</b>은 리포트를 낸 날만 세서 나눈 값(그날 얼마나 밀도 있게 썼는지), `
+      +`<b>주 평균</b>은 ${twWeeks>0?twWeeks+'주':'집계된 '+spanWeeks+'주'} 전체로 나눈 값(얼마나 꾸준했는지)이에요.<br>`
+      +`클로징 리포트를 안 낸 날은 시간이 안 잡힙니다 — 숫자가 낮으면 안 쓴 게 아니라 안 적은 것일 수 있어요.`;
+  }catch(e){
+    tb.innerHTML='<tr><td style="border:none;color:#c9962f;font-size:12.5px;padding:14px 2px">불러오기 실패: '+clEsc((e&&e.message)||e)+'</td></tr>';
+  }
 }
 function ttRender(){
   const label=document.getElementById('ttLabel'); if(!label)return;
