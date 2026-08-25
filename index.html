@@ -1020,6 +1020,22 @@
      이 <style> 블록과 .lit 한 줄만 지우면 예전 화면으로 그대로 돌아간다.
      기준: 대표 디자인 취향(토스 × 듀오링고) — 테두리 대신 그림자, 강조는 와인 하나, 본문은 고딕. -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<!-- Provee 워드마크용 (앱 쪽 us-math-beta와 같은 서체) -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@900&display=swap" rel="stylesheet" />
+<style id="provee-wordmark">
+  /* 제품 워드마크 — 앱(Provee)에서 쓰는 규격을 그대로 옮겨왔다.
+     Archivo 900 / 자간 -.03em / 뒤에 러스트(#C14F2F) 원점.
+     회사(URP)와 제품(Provee)을 눈으로 구분해주는 장치라 임의로 바꾸지 말 것. */
+  /* 아래 테마 블록(body.lit)이 .lbl·b 의 서체를 덮으므로 선택자를 같은 무게로 맞춰둔다 */
+  .provee-wm,
+  body.lit .appicon .lbl.provee-wm,
+  body.lit .ix-item b.provee-wm,
+  body.lit .app-picker-title .provee-wm{
+    font-family:Archivo,sans-serif;font-weight:900;letter-spacing:-.03em;}
+  .provee-wm .wm-dot{display:inline-block;width:.26em;height:.26em;border-radius:50%;
+    background:#C14F2F;margin-left:.05em;vertical-align:baseline;}
+  .provee-wm.ink{color:#141414;}
+</style>
 <style id="theme-lit">
   body.lit{
     --ink:#241f1c; --ink-soft:#5b524a; --ink-mute:#8b8177;
@@ -1495,7 +1511,7 @@
             <button class="ix-item" onclick="openApp('app-drive','🗂 사내 드라이브')"><span>🗄️</span><b>사내 드라이브</b><i>파일 저장소</i></button>
             <button class="ix-item" onclick="openApp('app-futurescan','🔮 미래예측');fsOpen()"><span>🔮</span><b>미래예측</b><i>환경 스캔 리포트</i></button>
             <button class="ix-item" onclick="openWiki()"><span>📚</span><b>팀 위키</b><i>공유 문서</i></button>
-            <button class="ix-item" onclick="openAppPicker()"><span>🎓</span><b>Provee</b><i>우리 앱 모아보기</i></button>
+            <button class="ix-item" onclick="openAppPicker()"><span>🎓</span><b class="provee-wm">Provee<span class="wm-dot"></span></b><i>우리 앱 모아보기</i></button>
             <button class="ix-item" onclick="window.open('https://youareprofessor.github.io/urp-finance/','_blank','noopener')"><span>💰</span><b>재무 보드</b><i>수익·비용·손익 실시간 공유</i></button>
           </div>
           <div class="ix-group">
@@ -1528,7 +1544,7 @@
     <div class="appgrid" id="appGrid">
       <button class="appicon" data-appid="workflow" onclick="openWorkflow()"><span class="tile" style="background:linear-gradient(150deg,#c25b3e,#7c2d2a)">🚀</span><span class="lbl">Workflow</span></button>
       <button class="appicon" id="teamStatusIcon" data-appid="teamstatus" onclick="openApp('app-teamstatus','🧭 팀 현황');openTeamStatus();"><span class="tile" style="background:linear-gradient(150deg,#4a7ab0,#2a4a7a)">🧭</span><span class="lbl">팀 현황</span></button>
-      <button class="appicon" data-appid="nigakyosoo" onclick="openAppPicker()"><span class="tile" style="background:linear-gradient(150deg,#2fa37a,#17643f)">🎓</span><span class="lbl">Provee</span></button>
+      <button class="appicon" data-appid="nigakyosoo" onclick="openAppPicker()"><span class="tile" style="background:linear-gradient(150deg,#2fa37a,#17643f)">🎓</span><span class="lbl provee-wm">Provee<span class="wm-dot"></span></span></button>
       <button class="appicon" data-appid="today" onclick="openApp('app-today','📊 오늘 한눈에')"><span class="tile" style="background:linear-gradient(150deg,#5b83cf,#31569f)">📊</span><span class="lbl">오늘</span></button>
       <button class="appicon" data-appid="todo" onclick="openApp('app-todo','✅ 할 일 목록')"><span class="tile" style="background:linear-gradient(150deg,#3fb492,#2b8a70)">✅</span><span class="lbl">할 일</span></button>
       <button class="appicon" data-appid="cal" onclick="openApp('app-cal','📅 공유 캘린더')"><span class="tile" style="background:linear-gradient(150deg,#e5963d,#c06f22)">📅</span><span class="lbl">캘린더</span></button>
@@ -2349,7 +2365,7 @@
 <div class="app-picker-overlay" id="appPickerOverlay">
   <div class="app-picker-box">
     <button class="app-picker-close" id="appPickerClose">✕</button>
-    <h2 class="app-picker-title">🎓 Provee 앱</h2>
+    <h2 class="app-picker-title">🎓 <span class="provee-wm ink">Provee<span class="wm-dot"></span></span> 앱</h2>
     <p class="app-picker-sub">어떤 버전을 열까요?</p>
     <div style="font-family:'Nanum Myeongjo',serif;font-weight:700;font-size:13px;color:var(--ink-soft);margin-bottom:8px;">메인</div>
     <div class="app-picker-opts">
