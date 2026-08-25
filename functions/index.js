@@ -7,7 +7,9 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 const db = admin.firestore();
 
-const SITE = 'https://youareprofessor.github.io/urp-workspace/';
+// ⚠️ 라이브 호스팅은 kevintheeco 포크의 GitHub Pages다(YouareProfessor 쪽은 Pages 미설정 → 404).
+// 2026-08-25 확인: 어푸 DM·푸시의 "워크스페이스 열기" 링크가 그동안 404로 가고 있었다.
+const SITE = 'https://kevintheeco.github.io/urp-workspace/';
 
 /* 서울(KST) 기준 오늘 날짜 키 — 클라이언트 형식 "Y-M-D"(0패딩 없음)와 일치 */
 function seoulDateKey() {
