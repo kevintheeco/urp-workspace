@@ -7,9 +7,11 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 const db = admin.firestore();
 
-// 2026-08-26: GitHub Pages(private repo라 미설정 → 404, kevintheeco 개인 포크로 우회하던 것)를
-// Cloudflare Pages로 전환 — org repo를 Git 연동해 org 계정에서 바로 배포된다, 이중 push 불필요.
-const SITE = 'https://urp-workspace.pages.dev/';
+// ⚠️ 라이브 호스팅은 kevintheeco 포크의 GitHub Pages다(YouareProfessor 쪽은 Pages 미설정 → 404).
+// 2026-08-25 확인: 어푸 DM·푸시의 "워크스페이스 열기" 링크가 그동안 404로 가고 있었다.
+// (2026-08-26: Cloudflare Pages로 옮기려다 되돌림 — 월 500회 배포 한도가 계정 전체 합산이라
+//  provee-mvp·provee-univ 배포 여유를 깎아먹는다. 이 워크스페이스는 그대로 GitHub Pages 우회 유지.)
+const SITE = 'https://kevintheeco.github.io/urp-workspace/';
 
 /* 서울(KST) 기준 오늘 날짜 키 — 클라이언트 형식 "Y-M-D"(0패딩 없음)와 일치 */
 function seoulDateKey() {
