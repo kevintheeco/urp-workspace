@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>니가 교수 · 워크스페이스 · URP Corporation</title>
+<title>URP · 워크스페이스</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -433,7 +433,6 @@
   .footer{text-align:center;margin-top:46px;font-size:12px;color:#7d8c74;line-height:1.8;}
   .footer .v{font-family:"Cormorant Garamond",serif;font-style:italic;color:#9aab90;}
 
-  .stamp{position:fixed;bottom:14px;right:16px;z-index:9;font-size:10.5px;color:#5f6e57;letter-spacing:1px;background:rgba(12,19,13,.6);padding:5px 10px;border-radius:20px;border:1px solid rgba(168,132,63,.2);}
 
   /* ===== 구글 로그인 버튼 ===== */
   .gbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:9px;background:#fff;color:#2b2622;font-family:"Nanum Myeongjo",serif;font-weight:700;font-size:15px;letter-spacing:1px;transition:.2s;margin-top:4px;}
@@ -697,7 +696,7 @@
   .comment-add button{padding:10px 18px;background:var(--gold-deep);color:#fff;border:none;border-radius:8px;font-family:"Nanum Myeongjo",serif;font-size:13px;cursor:pointer;white-space:nowrap;}
   .bs-empty{text-align:center;color:rgba(110,80,40,.5);font-size:13px;padding:60px 0;pointer-events:none;}
   .notion-sync-badge{font-size:10px;background:rgba(0,0,0,.08);border-radius:10px;padding:1px 7px;color:rgba(0,0,0,.4);margin-left:4px;}
-  /* 니가 교수 앱 선택 모달 */
+  /* Provee 앱 선택 모달 */
   .app-picker-overlay{display:none;position:fixed;inset:0;z-index:9200;background:rgba(10,8,4,.82);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px;}
   .app-picker-overlay.show{display:flex;}
   .app-picker-box{position:relative;background:var(--card);border-radius:16px;width:min(460px,96vw);padding:30px 28px 28px;box-shadow:0 16px 56px rgba(0,0,0,.5);text-align:center;}
@@ -1014,6 +1013,177 @@
     .pr-card-in{min-height:240px;}
   }
 </style>
+
+<!-- ════════ 낮의 숲 (2026-08-25 시안 A 채택) ════════
+     숲의 문(진입 화면)은 밤 그대로 두고, 문을 열고 들어온 뒤의 일터만 밝은 종이로 바꾼다.
+     enterDash()에서 body에 .lit 을 달아 켜진다. 토큰을 다시 선언하는 방식이라
+     이 <style> 블록과 .lit 한 줄만 지우면 예전 화면으로 그대로 돌아간다.
+     기준: 대표 디자인 취향(토스 × 듀오링고) — 테두리 대신 그림자, 강조는 와인 하나, 본문은 고딕. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style id="theme-lit">
+  body.lit{
+    --ink:#241f1c; --ink-soft:#5b524a; --ink-mute:#8b8177;
+    --paper:#f7f2e7; --paper-2:#f0eade; --card:#fffdf9;
+    --line:#eae2d2;
+    --gold:#8A1C2B; --gold-deep:#6B1420; --seal:#8A1C2B;   /* 강조는 와인 하나 */
+    --moss:#3f7a52; --fill:#f3eee2;
+    --sh-s:0 1px 2px rgba(50,38,28,.04), 0 6px 18px rgba(50,38,28,.06);
+    --sh-m:0 2px 6px rgba(50,38,28,.05), 0 18px 40px rgba(50,38,28,.10);
+    --ease:cubic-bezier(.16,1,.3,1);
+    color:var(--ink);
+    font-family:"Pretendard Variable",Pretendard,"Malgun Gothic","맑은 고딕",-apple-system,system-ui,sans-serif;
+  }
+
+  /* ── 숲: 사진은 그대로, 아침빛으로 올리고 아이보리 안개로 뒤에 물린다 ── */
+  .forest-veil{display:none;}
+  body.lit .forest{filter:brightness(1.5) saturate(.72) blur(1px); transform:scale(1.04);}
+  body.lit .forest::after{display:none;}
+  body.lit .motes{display:none;}          /* 밝은 바탕에선 빛 입자가 먼지처럼 보인다 */
+  body.lit .forest-veil{display:block; position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 50% -10%, rgba(255,253,246,.92), rgba(255,253,246,.55) 45%, rgba(247,244,232,.72) 100%),
+      linear-gradient(180deg, rgba(255,253,246,.5), rgba(243,240,228,.86));}
+
+  /* ── 상단바 ── */
+  body.lit .topbar{height:66px; padding:0 clamp(18px,3vw,34px);
+    background:rgba(255,253,246,.84); backdrop-filter:blur(16px); border-bottom:none;}
+  body.lit .brand .c{width:38px;height:38px;border-radius:13px;background:var(--gold);
+    color:#fff;font-family:inherit;font-size:18px;font-weight:800;letter-spacing:-.04em;
+    box-shadow:0 4px 10px rgba(138,28,43,.28);}
+  body.lit .brand .t b{font-family:inherit;font-size:20px;font-weight:800;letter-spacing:-.03em;color:var(--ink);}
+  body.lit .brand .t span{color:var(--ink-mute);}
+  body.lit .topright{gap:8px;}
+  body.lit .clock{font-family:inherit;color:var(--ink-mute);margin-right:6px;line-height:1.25;}
+  body.lit .clock .time{font-size:15px;font-weight:800;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;}
+  body.lit .clock .date{font-size:11.5px;font-weight:600;color:var(--ink-mute);letter-spacing:0;}
+  body.lit .who{padding:5px 13px 5px 5px;border-radius:999px;background:var(--fill);}
+  body.lit .who .av{width:30px;height:30px;font-family:inherit;font-size:13px;color:#fff;background:var(--moss);}
+  body.lit .who .nm{font-family:inherit;font-size:13px;font-weight:800;color:var(--ink);}
+  body.lit .who .rl{font-size:11px;font-weight:600;color:var(--ink-mute);}
+  body.lit .logout{border:none;background:var(--fill);color:var(--ink-soft);
+    font-size:13px;font-weight:700;letter-spacing:0;padding:9px 15px;border-radius:12px;}
+  body.lit .logout:hover{background:#ece5d6;color:var(--ink);}
+
+  /* ── 인사 ── */
+  body.lit .hello h2{font-family:inherit;font-size:clamp(28px,3.6vw,38px);font-weight:800;
+    letter-spacing:-.04em;color:var(--ink);text-shadow:none;}
+  body.lit .hello h2 .nm{color:var(--gold);}
+  body.lit .hello p{color:var(--ink-soft);font-size:15px;font-weight:500;}
+
+  /* ── 카드: 테두리 대신 그림자 ── */
+  body.lit .panel{background:var(--card);border:none;border-radius:20px;box-shadow:var(--sh-s);padding:24px 26px;}
+  body.lit .panel h3{font-family:inherit;font-size:17px;font-weight:800;letter-spacing:-.03em;}
+  body.lit .panel h3 .ic{color:var(--gold);font-size:17px;}
+  body.lit .panel .desc{font-size:13.5px;color:var(--ink-mute);font-weight:500;border-bottom:none;padding-bottom:0;margin-bottom:15px;}
+
+  /* ── 버튼: 색을 채우고 누르면 들어간다 ── */
+  body.lit .proj-add-btn,body.lit .ok,body.lit .gg-btn,body.lit .tt-today-btn,body.lit .ck-save,
+  body.lit .cl-go,body.lit .grat-share-btn{
+    border:none;background:var(--gold);color:#fff;font-weight:800;border-radius:14px;
+    box-shadow:0 3px 0 var(--gold-deep);transition:transform .12s var(--ease);}
+  body.lit .proj-add-btn:active,body.lit .ok:active,body.lit .gg-btn:active,body.lit .tt-today-btn:active,
+  body.lit .ck-save:active,body.lit .cl-go:active,body.lit .grat-share-btn:active{
+    transform:translateY(3px);box-shadow:0 0 0 var(--gold-deep);}
+  body.lit .cancel,body.lit .cl-ghost,body.lit .mp-mode-btn,body.lit .archive-toggle{
+    border:none;background:var(--fill);color:var(--ink-soft);font-weight:700;border-radius:12px;}
+  body.lit .cancel:hover,body.lit .cl-ghost:hover,body.lit .mp-mode-btn:hover{background:#ece5d6;color:var(--ink);}
+
+  /* ── 잔글씨 키우기 ── */
+  body.lit .tt-hint,body.lit .mp-list-sub,body.lit .cl-empty,body.lit .ck-ht,
+  body.lit .notice-list,body.lit .grat-feed{font-size:13.5px;}
+  body.lit .tt-legend,body.lit .who .rl,body.lit .cl-hrow .h{font-size:12px;}
+  body.lit table.cl-tb th,body.lit table.cl-tb td{font-size:13px;}
+
+  /* ── 앱 타일: 파스텔로 가볍게 ── */
+  body.lit .appicon .tile{width:60px;height:60px;border-radius:19px;font-size:28px;
+    box-shadow:var(--sh-s);transition:transform .16s var(--ease),box-shadow .16s var(--ease);}
+  body.lit .appicon:hover .tile{transform:translateY(-4px);box-shadow:var(--sh-m);}
+  body.lit .appicon:active .tile{transform:translateY(0) scale(.96);}
+  body.lit .appicon .lbl{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink-soft);
+    letter-spacing:-.01em;text-shadow:none;}
+
+  /* 타일 색은 원래 어두운 그라데이션을 덮어쓰기만 한다 (되돌리려면 이 묶음만 지우면 됨).
+     원본이 style= 인라인이라 !important 가 필요하다. */
+  body.lit .appicon .tile{background-image:none !important;}
+  body.lit .appicon[data-appid="workflow"] .tile{background:#fbeef0 !important;}
+  body.lit .appicon[data-appid="teamstatus"] .tile{background:#eaf1fb !important;}
+  body.lit .appicon[data-appid="nigakyosoo"] .tile{background:#eaf4ed !important;}
+  body.lit .appicon[data-appid="today"] .tile{background:#eef3fb !important;}
+  body.lit .appicon[data-appid="todo"] .tile{background:#eaf4ed !important;}
+  body.lit .appicon[data-appid="cal"] .tile{background:#fdf1e3 !important;}
+  body.lit .appicon[data-appid="grat"] .tile{background:#f0f5ea !important;}
+  body.lit .appicon[data-appid="task"] .tile{background:#f2f1f6 !important;}
+  body.lit .appicon[data-appid="proj"] .tile{background:#eeeefb !important;}
+  body.lit .appicon[data-appid="brain"] .tile{background:#f6eefb !important;}
+  body.lit .appicon[data-appid="surfin"] .tile{background:#e9f5f8 !important;}
+  body.lit .appicon[data-appid="wiki"] .tile{background:#faf1e2 !important;}
+  body.lit .appicon[data-appid="drive"] .tile{background:#fbf3e0 !important;}
+  body.lit .appicon[data-appid="dm"] .tile{background:#fdf6e0 !important;}
+  body.lit .appicon[data-appid="intra"] .tile{background:#ecf4ee !important;}
+  body.lit .appicon[data-appid="timetracker"] .tile{background:#e8f4f2 !important;}
+  body.lit .appicon[data-appid="meetingpoll"] .tile{background:#fdf0de !important;}
+  body.lit .appicon[data-appid="prayer"] .tile{background:#eaf1f6 !important;}
+  body.lit .appicon[data-appid="futurescan"] .tile{background:#f3eefb !important;}
+  body.lit .appicon[data-appid="checkin"] .tile{background:#fdf1e6 !important;}
+  body.lit .appicon[data-appid="closing"] .tile{background:#fbeef0 !important;}
+  body.lit .appicon[data-appid="yonathan"] .tile{background:#e9f2fa !important;}
+  body.lit .appicon[data-appid="urpintro"] .tile{background:#fdeee6 !important;}
+  body.lit .appicon[data-appid="urpfinance"] .tile{background:#fdf4e2 !important;}
+
+  /* ── 말씀 카드: 하루의 첫 문장이 가장 먼저 보이도록 와인으로 채운다 ── */
+  body.lit .verse-card{background:linear-gradient(158deg,#8A1C2B,#6B1420);border:none;
+    box-shadow:0 10px 26px rgba(107,20,32,.24);}
+  body.lit .verse-card h3,body.lit .verse-card h3 .ic{color:#fff;}
+  body.lit .verse-card .desc{color:rgba(255,255,255,.72);}
+  body.lit .verse-kr{color:#fff;font-size:20px;}
+  body.lit .verse-en{color:rgba(255,255,255,.72);}
+  body.lit .verse-ref{color:rgba(255,255,255,.8);}   /* 원본이 가운데 정렬 block — 유지 */
+
+  /* ── 홈/인덱스 전환, 인덱스 사이드 ── */
+  body.lit .mode-switch{background:var(--fill);border:none;}
+  body.lit .mode-btn{color:var(--ink-soft);}
+  body.lit .mode-btn.on{background:var(--gold);color:#fff;box-shadow:none;}
+  body.lit .ix-side{background:var(--card);border:none;box-shadow:var(--sh-s);}
+
+  /* ── 앱 격자: 4칸 고정이라 넓은 화면에서 휑했다 — 폭에 맞춰 채운다 ── */
+  body.lit .appgrid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:22px 8px;}
+  body.lit .appgrid-edit-toggle{color:var(--ink-mute);font-weight:700;}
+  body.lit .appgrid-edit-toggle:hover,body.lit .appgrid-edit-toggle.on{color:var(--gold);}
+  body.lit .appgrid.editing .appicon .tile{outline:2px dashed rgba(138,28,43,.45);}
+
+  /* ── 앱 창(모달) ── */
+  body.lit .app-overlay{background:rgba(60,50,38,.55);backdrop-filter:blur(8px);}
+  body.lit .board-modal-head{background:rgba(255,253,246,.92);backdrop-filter:blur(16px);border-bottom:none;}
+  body.lit .board-modal-head-title{font-family:inherit;font-size:17px;font-weight:800;letter-spacing:-.03em;color:var(--ink);}
+  body.lit .board-modal-close{color:var(--ink-mute);}
+  body.lit .board-modal-close:hover{color:var(--ink);}
+  body.lit .cl-badge.due{background:var(--gold);border-color:var(--gold);}
+
+  /* ── 배너 두 개: 원래 어두운 바탕용 글씨색이라 밝은 데선 안 보였다 ── */
+  body.lit .meeting-banner{background:var(--card);border:none;border-radius:18px;
+    box-shadow:var(--sh-s);padding:18px 24px;}
+  body.lit .mb-label{font-family:inherit;font-size:11.5px;font-weight:800;letter-spacing:.1em;
+    color:var(--ink-mute);text-shadow:none;}
+  body.lit .mb-cd{font-family:inherit;font-size:24px;font-weight:800;letter-spacing:-.02em;
+    color:var(--ink);text-shadow:none;font-variant-numeric:tabular-nums;}
+  body.lit .mb-sub{font-size:13.5px;color:var(--ink-soft);text-shadow:none;}
+  body.lit .mb-set-btn{border:none;background:var(--fill);color:var(--ink-soft);
+    font-size:13px;font-weight:700;border-radius:12px;padding:9px 15px;}
+  body.lit .grat-remind{background:var(--card);border:none;border-radius:18px;
+    box-shadow:var(--sh-s);color:var(--ink-soft);}
+  body.lit .grat-remind .gr-tx{font-family:inherit;font-size:14px;font-weight:600;color:var(--ink);}
+  body.lit .grat-remind button{background:var(--gold);color:#fff;border-radius:12px;
+    font-size:13px;padding:9px 16px;box-shadow:0 3px 0 var(--gold-deep);}
+  body.lit .grat-remind button:active{transform:translateY(3px);box-shadow:0 0 0 var(--gold-deep);}
+  body.lit .grat-remind button.ghost{background:var(--fill);color:var(--ink-soft);border:none;box-shadow:none;}
+  body.lit .grat-remind button.ghost:active{transform:none;}
+
+  /* ── 숲빛이 필요한 곳은 서체를 남긴다 ── */
+  body.lit .verse-kr,body.lit .gate h1{font-family:"Gowun Batang",serif;}
+  body.lit .verse-en{font-family:"Cormorant Garamond",serif;}
+  body.lit .verse-ref{font-family:inherit;font-weight:700;letter-spacing:0;}  /* 한글이라 고딕이 낫다 */
+  body.lit .grat-share-btn{font-family:inherit;}
+</style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -1042,14 +1212,16 @@
 <div class="forest">
   <div class="motes" id="motes"></div>
 </div>
+<!-- 낮의 숲 안개 — body.lit 일 때만 보인다 -->
+<div class="forest-veil"></div>
 
 <!-- 진입 -->
 <div class="screen" id="screen">
   <div class="gate" id="gate">
     <div class="crest">URP</div>
-    <div class="kicker">URP Corporation Workspace</div>
-    <h1>니가 교수</h1>
-    <div class="en">You Are Professor</div>
+    <div class="kicker">사내 워크스페이스</div>
+    <h1>URP</h1>
+    <div class="en">Corporation</div>
     <div class="tag">"설명할 수 있는 지식만이 참된 지식이다."<br/>숲의 문을 열고, 오늘 우리의 일터로 들어갑니다.</div>
     <button class="enter-btn" id="enterBtn">숲으로 들어가기 →</button>
     <div class="enter-hint">화면을 누르면 로그인 창이 열립니다</div>
@@ -1061,7 +1233,7 @@
   <div class="topbar">
     <div class="brand">
       <div class="c">URP</div>
-      <div class="t"><b>니가 교수</b><span>Workspace</span></div>
+      <div class="t"><b>URP</b><span>Workspace</span></div>
     </div>
     <div class="topright">
       <div class="clock"><div class="time" id="clkTime">--:--</div><div class="date" id="clkDate"></div></div>
@@ -1319,11 +1491,11 @@
           <div class="ix-group">
             <div class="ix-gh">🏢 회사 · 정보</div>
             <button class="ix-item" onclick="openApp('app-intra','🏢 회사 · 사내 내부망')"><span>🏢</span><b>사내 내부망</b><i>회사 페이지</i></button>
-            <button class="ix-item" onclick="window.open('https://kevintheeco.github.io/urp-sogaeso/','_blank','noopener')"><span>📖</span><b>회사 소개 페이지</b><i>URP·니가교수 공식 소개 (새 탭)</i></button>
+            <button class="ix-item" onclick="window.open('https://kevintheeco.github.io/urp-sogaeso/','_blank','noopener')"><span>📖</span><b>회사 소개 페이지</b><i>URP·Provee 공식 소개 (새 탭)</i></button>
             <button class="ix-item" onclick="openApp('app-drive','🗂 사내 드라이브')"><span>🗄️</span><b>사내 드라이브</b><i>파일 저장소</i></button>
             <button class="ix-item" onclick="openApp('app-futurescan','🔮 미래예측');fsOpen()"><span>🔮</span><b>미래예측</b><i>환경 스캔 리포트</i></button>
             <button class="ix-item" onclick="openWiki()"><span>📚</span><b>팀 위키</b><i>공유 문서</i></button>
-            <button class="ix-item" onclick="openAppPicker()"><span>🎓</span><b>니가교수</b><i>우리 앱 모아보기</i></button>
+            <button class="ix-item" onclick="openAppPicker()"><span>🎓</span><b>Provee</b><i>우리 앱 모아보기</i></button>
             <button class="ix-item" onclick="window.open('https://youareprofessor.github.io/urp-finance/','_blank','noopener')"><span>💰</span><b>재무 보드</b><i>수익·비용·손익 실시간 공유</i></button>
           </div>
           <div class="ix-group">
@@ -1356,7 +1528,7 @@
     <div class="appgrid" id="appGrid">
       <button class="appicon" data-appid="workflow" onclick="openWorkflow()"><span class="tile" style="background:linear-gradient(150deg,#c25b3e,#7c2d2a)">🚀</span><span class="lbl">Workflow</span></button>
       <button class="appicon" id="teamStatusIcon" data-appid="teamstatus" onclick="openApp('app-teamstatus','🧭 팀 현황');openTeamStatus();"><span class="tile" style="background:linear-gradient(150deg,#4a7ab0,#2a4a7a)">🧭</span><span class="lbl">팀 현황</span></button>
-      <button class="appicon" data-appid="nigakyosoo" onclick="openAppPicker()"><span class="tile" style="background:linear-gradient(150deg,#2fa37a,#17643f)">🎓</span><span class="lbl">니가교수</span></button>
+      <button class="appicon" data-appid="nigakyosoo" onclick="openAppPicker()"><span class="tile" style="background:linear-gradient(150deg,#2fa37a,#17643f)">🎓</span><span class="lbl">Provee</span></button>
       <button class="appicon" data-appid="today" onclick="openApp('app-today','📊 오늘 한눈에')"><span class="tile" style="background:linear-gradient(150deg,#5b83cf,#31569f)">📊</span><span class="lbl">오늘</span></button>
       <button class="appicon" data-appid="todo" onclick="openApp('app-todo','✅ 할 일 목록')"><span class="tile" style="background:linear-gradient(150deg,#3fb492,#2b8a70)">✅</span><span class="lbl">할 일</span></button>
       <button class="appicon" data-appid="cal" onclick="openApp('app-cal','📅 공유 캘린더')"><span class="tile" style="background:linear-gradient(150deg,#e5963d,#c06f22)">📅</span><span class="lbl">캘린더</span></button>
@@ -2020,7 +2192,7 @@
 
     <div class="footer">
       <div class="v">"My grace is sufficient for you, for my power is made perfect in weakness."</div>
-      고린도후서 12장 9절 · URP Corporation · 니가 교수
+      고린도후서 12장 9절 · URP Corporation
     </div>
   </div>
 </div>
@@ -2131,11 +2303,11 @@
   </div>
 </div>
 
-<!-- 니가 교수 앱 선택 모달 -->
+<!-- Provee 앱 선택 모달 -->
 <div class="app-picker-overlay" id="appPickerOverlay">
   <div class="app-picker-box">
     <button class="app-picker-close" id="appPickerClose">✕</button>
-    <h2 class="app-picker-title">🎓 니가 교수 앱</h2>
+    <h2 class="app-picker-title">🎓 Provee 앱</h2>
     <p class="app-picker-sub">어떤 버전을 열까요?</p>
     <div style="font-family:'Nanum Myeongjo',serif;font-weight:700;font-size:13px;color:var(--ink-soft);margin-bottom:8px;">메인</div>
     <div class="app-picker-opts">
@@ -2272,8 +2444,6 @@
   </div>
 </div>
 
-<div class="stamp">완성 · ①계정 ②공유캘린더 ③프로젝트보드 ④DM ⑤CEO전체뷰+업무지시 ⑥회의카운트다운 ⑦약속·보고 ⑧연기요청·승인</div>
-
 <script>
 /* ===== 오늘의 말씀 (날짜별 순환) ===== */
 const VERSES = [
@@ -2409,6 +2579,7 @@ function googleSignIn(){
 /* ===== 대시보드 진입 ===== */
 function enterDash(){
   screen.style.display='none';
+  document.body.classList.add('lit');        // 숲의 문을 지나 일터로 — 낮의 숲 테마 켜기
   document.getElementById('dash').classList.add('show');
   const ab=document.getElementById('adminBtn'); if(ab) ab.style.display=(CUR&&CUR.code==='CEO')?'inline-block':'none';
   const cvb=document.getElementById('ceoViewBtn'); if(cvb) cvb.style.display=(CUR&&CUR.code==='CEO')?'inline-block':'none';
@@ -2526,7 +2697,7 @@ async function delMember(email){
 }
 const _adminBtn=document.getElementById('adminBtn'); if(_adminBtn)_adminBtn.addEventListener('click',openAdmin);
 
-/* ===== 니가 교수 앱 선택 모달 ===== */
+/* ===== Provee 앱 선택 모달 ===== */
 function openAppPicker(){document.getElementById('appPickerOverlay').classList.add('show');}
 function closeAppPicker(){document.getElementById('appPickerOverlay').classList.remove('show');}
 document.getElementById('appPickerClose').addEventListener('click',closeAppPicker);
@@ -6269,7 +6440,7 @@ function surfBlocksToHtml(title,data){
     <h1 style="font-size:28px;border-bottom:2px solid #bb924a;padding-bottom:10px;margin:0">${title||'제목 없음'}</h1>
     <div style="font-size:12px;color:#8d6a27;margin:8px 0 22px">${author} · ${n.getFullYear()}.${n.getMonth()+1}.${n.getDate()}</div>
     ${body}
-    <div style="margin-top:40px;font-size:11px;color:#aaa;border-top:1px solid #ddd;padding-top:10px">니가 교수 워크스페이스 · Surf In</div>
+    <div style="margin-top:40px;font-size:11px;color:#aaa;border-top:1px solid #ddd;padding-top:10px">URP 워크스페이스 · Surf In</div>
   </div>`;
 }
 function surfListMd(d,depth){
