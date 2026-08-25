@@ -352,3 +352,91 @@ exports.testMorningBrief = functions.https.onRequest(async (req, res) => {
   const n = await sendMorningBrief();
   res.json({ ok: true, sent: n });
 });
+
+/* ===== 📕 클로징 리포트 밤 현황 — 대표에게만 (팀원 독촉 DM 없음, 2026-08-25 대표 지시) =====
+ * 8/19 대면세션 루틴: 풀타임(수민·지민·정범)=평일 매일 / 파트타임=주 3일 본인 지정.
+ * ws_closings는 0패딩 날짜(ckToday 형식)를 쓴다 — seoulDateKey()(패딩 없음)와 섞지 말 것. */
+const CLOSING_FULLTIME = ['soomin020114@gmail.com', 'tangbole0430@gmail.com', 'sjmjis0208@gmail.com'];
+function seoulPaddedKey(offsetDays) {
+  const k = new Date(Date.now() + 9 * 3600 * 1000 + (offsetDays || 0) * 86400000);
+  const p = n => String(n).padStart(2, '0');
+  return `${k.getUTCFullYear()}-${p(k.getUTCMonth() + 1)}-${p(k.getUTCDate())}`;
+}
+function dowOf(dateStr) { const a = dateStr.split('-').map(Number); return new Date(Date.UTC(a[0], a[1] - 1, a[2])).getUTCDay(); }
+function closingWeekKey(dateStr) {
+  const a = dateStr.split('-').map(Number);
+  const d = new Date(Date.UTC(a[0], a[1] - 1, a[2]));
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));   // 월요일 기준
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}`;
+}
+// offsetDays: 0=오늘, -1=어제. 자정에 돌리므로 기본은 '방금 끝난 하루'(어제).
+async function buildClosingBrief(offsetDays) {
+  const date = seoulPaddedKey(offsetDays == null ? -1 : offsetDays);
+  const dow = dowOf(date);
+  const wk = closingWeekKey(date);
+  const members = await db.collection('ws_members').get();
+  const daysBy = {};
+  try {
+    const ds = await db.collection('ws_closing_days').where('weekKey', '==', wk).get();
+    ds.forEach(d => { const r = d.data() || {}; daysBy[r.email] = r.days || []; });
+  } catch (e) { /* skip */ }
+  const rows = {};
+  try {
+    const cs = await db.collection('ws_closings').where('date', '==', date).get();
+    cs.forEach(d => { const r = d.data() || {}; rows[r.email] = r; });
+  } catch (e) { /* skip */ }
+
+  const done = [], excused = [], missing = [], unset = [];
+  members.forEach(m => {
+    const email = m.id, v = m.data() || {}, nm = v.name || email;
+    const full = CLOSING_FULLTIME.includes(email);
+    const due = full ? (dow >= 1 && dow <= 5) : (daysBy[email] || []).includes(dow);
+    const r = rows[email];
+    if (r && r.status === '제출') done.push(`${nm} ${r.hours || '?'}시간${r.note ? ' — ' + String(r.note).slice(0, 40) : ''}`);
+    else if (r && r.status === '사전보고') excused.push(`${nm} — ${String(r.excuse || '').slice(0, 50)}${r.advanceHours >= 24 ? ' (24시간 전 ✓)' : ''}`);
+    else if (due) missing.push(nm);
+    else if (!full && !(daysBy[email] || []).length) unset.push(nm);
+  });
+
+  const dueCount = done.length + excused.length + missing.length;
+  let msg = `📕 *클로징 리포트 현황* — ${date}\n`;
+  msg += `제출 ${done.length} · 사전보고 ${excused.length} · 미제출 ${missing.length}\n`;
+  if (done.length) msg += `\n✅ ${done.join('\n✅ ')}`;
+  if (excused.length) msg += `\n🕗 ${excused.join('\n🕗 ')}`;
+  if (missing.length) msg += `\n⛔ 아직 안 낸 사람: ${missing.join(', ')}`;
+  if (unset.length) msg += `\n🗓 이번 주 클로징 데이 미지정: ${unset.join(', ')}`;
+  msg += `\n\n<${SITE}|워크스페이스에서 보기>`;
+  return { msg, dueCount, quiet: dueCount === 0 && !unset.length };
+}
+async function sendClosingBrief(offsetDays) {
+  const token = process.env.SLACK_BOT_TOKEN;
+  if (!token) { console.warn('클로징 현황: 슬랙 토큰 미설정'); return 0; }
+  const { msg, quiet } = await buildClosingBrief(offsetDays);
+  if (quiet) { console.log('클로징 현황: 의무 제출자 없는 날 — 건너뜀'); return 0; }
+  let sent = 0, ceos = [];
+  try { ceos = await ceoEmails(''); } catch (e) {}
+  for (const email of ceos) {
+    const uid = await slackFindUser(token, email);
+    if (!uid) continue;
+    try {
+      const open = await fetch('https://slack.com/api/conversations.open', { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ users: uid }) }).then(x => x.json());
+      if (!open.ok) continue;
+      await fetch('https://slack.com/api/chat.postMessage', { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json; charset=utf-8' }, body: JSON.stringify({ channel: open.channel.id, text: msg, username: '어푸', icon_emoji: ':owl:' }) });
+      sent++;
+    } catch (e) { console.error('클로징 현황→슬랙 오류:', e); }
+  }
+  return sent;
+}
+/* 자정(KST)에 '방금 끝난 하루'를 집계 → 화~토 00:00이 곧 월~금 밤이다 (2026-08-25 대표 지시) */
+exports.closingBrief = functions.pubsub.schedule('0 0 * * 2-6').timeZone('Asia/Seoul').onRun(async () => {
+  const n = await sendClosingBrief(-1); console.log('클로징 현황 발송:', n); return null;
+});
+/* 배포 검증용 — 문구만 보려면 ?dry=1, 날짜 바꾸려면 ?offset=0 (0=오늘, -1=어제) */
+exports.testClosingBrief = functions.https.onRequest(async (req, res) => {
+  if (req.get('x-relay-key') !== process.env.CLAUDE_RELAY_KEY) { res.status(403).send('forbidden'); return; }
+  const off = req.query.offset != null ? Number(req.query.offset) : -1;
+  if (req.query.dry) { const b = await buildClosingBrief(off); res.json({ ok: true, dry: true, ...b }); return; }
+  const n = await sendClosingBrief(off);
+  res.json({ ok: true, sent: n });
+});
