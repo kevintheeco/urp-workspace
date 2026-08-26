@@ -30,6 +30,24 @@ service cloud.firestore {
       allow write: if isMember() || request.auth.token.email == 'soomin020114@gmail.com';
     }
 
+    // 대표 일정은 전 직원이 보되, 일정 자체는 대표만 편집한다.
+    match /ws_ceo_schedule/{id} {
+      allow read: if isMember();
+      allow write: if isMember() && request.auth.token.email == 'soomin020114@gmail.com';
+    }
+
+    // 미팅 신청은 본인이 만들고 볼 수 있으며, 대표는 전체 신청을 검토한다.
+    match /ws_ceo_meeting_requests/{id} {
+      allow create: if isMember()
+        && request.resource.data.requesterEmail == request.auth.token.email;
+      allow read: if isMember() && (
+        resource.data.requesterEmail == request.auth.token.email
+        || request.auth.token.email == 'soomin020114@gmail.com'
+      );
+      allow update, delete: if isMember()
+        && request.auth.token.email == 'soomin020114@gmail.com';
+    }
+
     // 니가교수 앱: 본인 데이터 (하위 컬렉션 data/ 까지 포함) — {document=**} 빠지면 동기화 거부됨
     match /users/{uid}/{document=**} {
       allow read, write: if signedIn() && request.auth.uid == uid;
@@ -133,7 +151,10 @@ service cloud.firestore {
 
     // 워크스페이스 컬렉션(ws_*) — 멤버만 읽기/쓰기
     match /{coll}/{id} {
-      allow read, write: if isMember() && coll.matches('ws_.*');
+      allow read, write: if isMember()
+        && coll.matches('ws_.*')
+        && coll != 'ws_ceo_schedule'
+        && coll != 'ws_ceo_meeting_requests';
     }
   }
 }
