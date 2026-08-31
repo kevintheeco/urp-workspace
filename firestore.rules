@@ -142,6 +142,17 @@ service cloud.firestore {
       allow read: if signedIn();
     }
 
+    // 학습 허브(study-hub): 카드 읽기는 링크 소지자 누구나(팀 공유 대시보드, 로그인 없음 — meus_rooms와 같은 모델).
+    // 쓰기는 상태 버튼(status/statusAt)만 바꾸게 제한. 카드 생성·삭제는 Admin SDK(study-push.js)만 하므로 차단.
+    // ⚠️ 2026-08-31: 이 블록이 규칙 재배포 때 빠져서 허브가 "Missing or insufficient permissions"로 죽은 적 있음. 지우지 말 것!
+    match /study_cards/{id} {
+      allow read: if true;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'statusAt'])
+        && request.resource.data.status in ['todo', 'learned', 'adopted', 'dropped']
+        && request.resource.data.statusAt is number;
+      allow create, delete: if false;
+    }
+
     // URP 재무 보드 (fin_rooms) — 비밀번호 SHA-256 해시(64자 hex)가 방 경로. 경로 비밀이 보안 경계 (meus_rooms와 동일 모델).
     // ⚠️ 절대 fin_rooms/{room} 최상위 문서를 만들지 말 것(방 목록 열람 차단 유지). 데이터는 전부 한 단계 아래 컬렉션에.
     // 단일 세그먼트 와일드카드만 사용 — {document=**}를 쓰면 fin_rooms 목록 조회가 열릴 수 있음.
