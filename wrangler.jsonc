@@ -1,0 +1,11 @@
+{
+  // Cloudflare Workers 정적 배포 설정
+  // 빌드 명령이 만든 dist 폴더만 올린다.
+  // functions/ 는 파이어베이스용이라 dist에 담기지 않으며, Cloudflare가 건드리지 않는다.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "urp-workspace",
+  "compatibility_date": "2026-09-02",
+  "assets": {
+    "directory": "./dist"
+  }
+}
