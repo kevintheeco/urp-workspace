@@ -1545,6 +1545,7 @@
       <button class="appicon" data-appid="workflow" onclick="openWorkflow()"><span class="tile" style="background:linear-gradient(150deg,#c25b3e,#7c2d2a)">🚀</span><span class="lbl">Workflow</span></button>
       <button class="appicon" id="teamStatusIcon" data-appid="teamstatus" onclick="openApp('app-teamstatus','🧭 팀 현황');openTeamStatus();"><span class="tile" style="background:linear-gradient(150deg,#4a7ab0,#2a4a7a)">🧭</span><span class="lbl">팀 현황</span></button>
       <button class="appicon" data-appid="nigakyosoo" onclick="openAppPicker()"><span class="tile" style="background:linear-gradient(150deg,#2fa37a,#17643f)">🎓</span><span class="lbl provee-wm">Provee<span class="wm-dot"></span></span></button>
+      <button class="appicon" id="ceoBoardTile" data-appid="ceoboard" style="display:none" onclick="openCeoBoard()"><span class="tile" style="background:linear-gradient(150deg,#8A1C2B,#5d0f1c)">🎛</span><span class="lbl">CEO 보드</span></button>
       <button class="appicon" data-appid="today" onclick="openApp('app-today','📊 오늘 한눈에')"><span class="tile" style="background:linear-gradient(150deg,#5b83cf,#31569f)">📊</span><span class="lbl">오늘</span></button>
       <button class="appicon" data-appid="todo" onclick="openApp('app-todo','✅ 할 일 목록')"><span class="tile" style="background:linear-gradient(150deg,#3fb492,#2b8a70)">✅</span><span class="lbl">할 일</span></button>
       <button class="appicon" data-appid="cal" onclick="openApp('app-cal','📅 공유 캘린더')"><span class="tile" style="background:linear-gradient(150deg,#e5963d,#c06f22)">📅</span><span class="lbl">캘린더</span></button>
@@ -1576,12 +1577,12 @@
         .ceos-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}.ceos-add{border:0;border-radius:10px;background:var(--seal,#7c2d2a);color:#fff;padding:9px 15px;font-family:inherit;font-weight:700;cursor:pointer}
         .ceos-form{display:none;background:#fffaf0;border:1px solid #e8d8b7;border-radius:14px;padding:14px;margin-bottom:18px}.ceos-form.show{display:block}.ceos-form-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:8px}
         .ceos-form input,.ceos-form select,.ceos-form textarea,.ceos-request-form input,.ceos-request-form textarea{box-sizing:border-box;width:100%;border:1px solid #d9c9a8;border-radius:9px;background:#fffdf8;padding:9px 10px;font-family:inherit;font-size:13px}.ceos-form textarea{grid-column:1/-1;min-height:64px;resize:vertical}.ceos-form-actions{display:flex;gap:7px;justify-content:flex-end;margin-top:9px}.ceos-form-actions button{border:0;border-radius:9px;padding:8px 14px;font-family:inherit;font-weight:700;cursor:pointer}.ceos-save{background:#7c2d2a;color:#fff}.ceos-cancel{background:#eee4d2;color:#64594b}
-        .ceos-weeknav{display:flex;align-items:center;justify-content:center;gap:12px;margin:2px 0 12px}.ceos-weeknav button{border:1px solid #dac9a7;background:#fff;border-radius:9px;padding:6px 11px;cursor:pointer;color:#6d5c43}.ceos-weeknav b{min-width:190px;text-align:center;font-size:13px;color:#5d5040}.ceos-gridwrap{overflow-x:auto;border:1px solid #e4d6b9;border-radius:13px;background:#fffdf8}.ceos-grid{width:100%;min-width:760px;border-collapse:collapse;table-layout:fixed}.ceos-grid th{height:45px;background:#f5ecda;border-bottom:1px solid #dfd0b2;font-size:12px;color:#6c5c47}.ceos-grid th.today{background:#ead8d5;color:#7c2d2a}.ceos-grid .hour{width:54px;background:#faf4e8;color:#9b8a70;font-size:10.5px;text-align:center}.ceos-grid td{height:29px;border-right:1px solid #eee4d2;border-bottom:1px solid #eee4d2;padding:0;vertical-align:stretch}.ceos-grid tr.half td{border-bottom-color:#f5eee2}.ceos-grid tr.hourline td{border-bottom-color:#dfd0b2}.ceos-slot{height:100%;box-sizing:border-box;padding:4px 6px;font-size:10px;color:#b6a991;cursor:default;overflow:hidden;white-space:nowrap}.ceos-slot.open{cursor:pointer}.ceos-slot.open:hover{background:#f5ecdd;color:#806c46}.ceos-slot.busy{background:#ead8d5;color:#57211f;font-weight:800;cursor:pointer;border-left:3px solid #7c2d2a}.ceos-slot.busy.cont{color:transparent}.ceos-slot.busy.meetable{background:#e6eee7;color:#245e43;border-left-color:#3a8060}.ceos-slot.busy.meetable.cont{color:transparent}.ceos-slot .slot-sub{font-size:9px;font-weight:500;opacity:.78;margin-left:4px}.ceos-detailbox{display:none;margin-top:12px;background:#fffaf0;border:1px solid #e1d1b2;border-radius:13px;padding:14px}.ceos-detailbox.show{display:block}.ceos-detail-title{font-size:15px;font-weight:800;color:#392f27}.ceos-detail-meta{font-size:12px;color:#8b7659;margin:4px 0 7px}.ceos-detail-text{font-size:12.5px;color:#65584b;line-height:1.5}.ceos-chip{display:inline-block;font-size:10.5px;border-radius:20px;background:#f1e7d2;color:#806c46;padding:3px 8px;margin-left:6px;vertical-align:1px}.ceos-actions{display:flex;gap:6px;align-items:center;margin-top:10px}.ceos-actions button{border:1px solid #dac9a7;background:#fff;border-radius:8px;padding:6px 9px;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;color:#6d5c43}.ceos-actions .meet{background:#7c2d2a;color:#fff;border-color:#7c2d2a}
+        .ceos-weeknav{display:flex;align-items:center;justify-content:center;gap:12px;margin:2px 0 12px}.ceos-weeknav button{border:1px solid #dac9a7;background:#fff;border-radius:9px;padding:6px 11px;cursor:pointer;color:#6d5c43}.ceos-weeknav b{min-width:190px;text-align:center;font-size:13px;color:#5d5040}.ceos-gridwrap{overflow-x:auto;border:1px solid #e4d6b9;border-radius:13px;background:#fffdf8}.ceos-grid{width:100%;min-width:760px;border-collapse:collapse;table-layout:fixed}.ceos-grid th{height:45px;background:#f5ecda;border-bottom:1px solid #dfd0b2;font-size:12px;color:#6c5c47}.ceos-grid th.today{background:#ead8d5;color:#7c2d2a}.ceos-grid .hour{width:54px;background:#faf4e8;color:#9b8a70;font-size:10.5px;text-align:center}.ceos-grid td{height:29px;border-right:1px solid #eee4d2;border-bottom:1px solid #eee4d2;padding:0;vertical-align:stretch}.ceos-grid tr.half td{border-bottom-color:#f5eee2}.ceos-grid tr.hourline td{border-bottom-color:#dfd0b2}.ceos-slot{height:100%;box-sizing:border-box;padding:4px 6px;font-size:10px;color:#b6a991;cursor:default;overflow:hidden;white-space:nowrap}.ceos-slot.open{cursor:crosshair;user-select:none;touch-action:none}.ceos-slot.open:hover{background:#f5ecdd;color:#806c46}.ceos-slot.open.selecting{background:#d9b9b4;color:#57211f;box-shadow:inset 3px 0 #7c2d2a}.ceos-slot.busy{background:#ead8d5;color:#57211f;font-weight:800;cursor:pointer;border-left:3px solid #7c2d2a}.ceos-slot.busy.cont{color:transparent}.ceos-slot.busy.meetable{background:#e6eee7;color:#245e43;border-left-color:#3a8060}.ceos-slot.busy.meetable.cont{color:transparent}.ceos-slot .slot-sub{font-size:9px;font-weight:500;opacity:.78;margin-left:4px}.ceos-detailbox{display:none;margin-top:12px;background:#fffaf0;border:1px solid #e1d1b2;border-radius:13px;padding:14px}.ceos-detailbox.show{display:block}.ceos-detail-title{font-size:15px;font-weight:800;color:#392f27}.ceos-detail-meta{font-size:12px;color:#8b7659;margin:4px 0 7px}.ceos-detail-text{font-size:12.5px;color:#65584b;line-height:1.5}.ceos-chip{display:inline-block;font-size:10.5px;border-radius:20px;background:#f1e7d2;color:#806c46;padding:3px 8px;margin-left:6px;vertical-align:1px}.ceos-actions{display:flex;gap:6px;align-items:center;margin-top:10px}.ceos-actions button{border:1px solid #dac9a7;background:#fff;border-radius:8px;padding:6px 9px;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;color:#6d5c43}.ceos-actions .meet{background:#7c2d2a;color:#fff;border-color:#7c2d2a}
         .ceos-empty{padding:26px;text-align:center;color:#9a8a6a;background:#fffaf0;border:1px dashed #dfcfad;border-radius:13px}.ceos-h4{margin:24px 0 10px;font-size:15px;color:#7c2d2a}.ceos-requests{display:flex;flex-direction:column;gap:7px}.ceos-req{border:1px solid #e5d8bd;background:#fffdf8;border-radius:11px;padding:11px 13px;display:flex;gap:10px;align-items:center;justify-content:space-between}.ceos-req-main{font-size:13px;line-height:1.5}.ceos-req-meta{font-size:11.5px;color:#8b7d6a}.ceos-status{font-size:11px;font-weight:800;border-radius:20px;padding:4px 9px;background:#f2ead9;color:#806c46}.ceos-status.approved{background:#dff0e6;color:#267151}.ceos-status.declined{background:#f3dfdc;color:#93443e}
         .ceos-request-form{display:none;margin-top:9px;padding-top:10px;border-top:1px solid #eee2ca}.ceos-request-form.show{display:grid;grid-template-columns:1fr 1fr auto;gap:7px}.ceos-request-form textarea{grid-column:1/3;min-height:54px;resize:vertical}.ceos-request-form button{grid-row:1/3;grid-column:3;border:0;border-radius:9px;background:#7c2d2a;color:#fff;padding:8px 13px;font-family:inherit;font-weight:700;cursor:pointer}@media(max-width:680px){.ceos-form-grid{grid-template-columns:1fr 1fr}.ceos-request-form.show{grid-template-columns:1fr}.ceos-request-form textarea,.ceos-request-form button{grid-column:1;grid-row:auto}}
       </style>
       <div class="panel col-12" id="app-ceoschedule" data-app="app-ceoschedule">
-        <div class="ceos-head"><div><h3><span class="ic">🗓</span> 대표 일정</h3><p class="desc">대표님이 지금 무엇에 집중하는지 확인하고, 가능한 일정에 미팅을 신청하세요.</p></div><button class="ceos-add" id="ceosAddBtn" style="display:none">＋ 일정 추가</button></div>
+        <div class="ceos-head"><div><h3><span class="ic">🗓</span> 대표 일정</h3><p class="desc">빈 시간대를 위아래로 드래그해 일정을 잡으세요. 팀원은 대표님의 집중 시간과 미팅 가능 시간을 확인할 수 있어요.</p></div><button class="ceos-add" id="ceosAddBtn" style="display:none">＋ 일정 추가</button></div>
         <div class="ceos-form" id="ceosForm"><div class="ceos-form-grid"><input id="ceosTitle" placeholder="일정 제목 *"><input id="ceosDate" type="date"><input id="ceosStart" type="time"><input id="ceosEnd" type="time"><select id="ceosCategory"><option>집중 업무</option><option>회의</option><option>외부 일정</option><option>학습 · 연구</option><option>개인 일정</option></select><label style="display:flex;align-items:center;gap:7px;font-size:12px;color:#6d604f"><input id="ceosMeetingOpen" type="checkbox" style="width:auto"> 미팅 신청 받기</label><textarea id="ceosDetail" placeholder="팀원에게 공유할 설명 (선택)"></textarea></div><div class="ceos-form-actions"><button class="ceos-cancel" id="ceosCancel">취소</button><button class="ceos-save" id="ceosSave">저장</button></div></div>
         <div class="ceos-weeknav"><button id="ceosPrev">‹ 이전 주</button><b id="ceosWeekLabel"></b><button id="ceosToday">이번 주</button><button id="ceosNext">다음 주 ›</button></div><div class="ceos-gridwrap"><table class="ceos-grid" id="ceosGrid"></table></div><div class="ceos-detailbox" id="ceosDetailBox"></div><div><div class="ceos-h4" id="ceosRequestsTitle">내 미팅 신청</div><div class="ceos-requests" id="ceosRequests"></div></div>
       </div>
@@ -2645,6 +2646,7 @@ function enterDash(){
   const cvb=document.getElementById('ceoViewBtn'); if(cvb) cvb.style.display=(CUR&&CUR.code==='CEO')?'inline-block':'none';
   const tsi=document.getElementById('teamStatusIcon'); if(tsi) tsi.style.display=(CUR&&CUR.code==='CEO')?'flex':'none';
   const mbs=document.getElementById('mbSetBtn'); if(mbs) mbs.style.display=(CUR&&CUR.code==='CEO')?'inline-flex':'none';
+  const cbt=document.getElementById('ceoBoardTile'); if(cbt) cbt.style.display=(CUR&&CUR.code==='CEO')?'flex':'none';
   if(typeof Notification!=='undefined'&&Notification.permission==='default') Notification.requestPermission();
   subscribeCalendar();
   subscribeProjects();
@@ -4311,12 +4313,17 @@ function ceosRender(){
   const days=[];for(let i=0;i<7;i++){const d=new Date(ceosWeekStart);d.setDate(d.getDate()+i);days.push(ceosYmd(d));}const last=days[6];document.getElementById('ceosWeekLabel').textContent=`${ceosDayLabel(days[0])} – ${ceosDayLabel(last)}`;
   let html='<thead><tr><th class="hour"></th>'+days.map(ds=>`<th class="${ds===ceosYmd(new Date())?'today':''}">${ceosDaySub(ds)}<br>${ceosDayLabel(ds)}</th>`).join('')+'</tr></thead><tbody>';
   for(let minute=480;minute<1440;minute+=30){const h=Math.floor(minute/60),m=minute%60;html+=`<tr class="${m===30?'half':'hourline'}"><td class="hour">${ceosPad(h)}:${ceosPad(m)}</td>`;days.forEach(ds=>{const item=ceosItems.find(x=>x.date===ds&&ceosSlotHas(x,minute));if(item){const starts=ceosTimeMinutes(item.startTime)===minute;html+=`<td><div class="ceos-slot busy ${starts?'':'cont'} ${item.meetingOpen?'meetable':''}" data-ceos-item="${item.id}">${starts?esc(item.title||''):''}${starts?`<span class="slot-sub">${esc(item.category||'일정')}${item.meetingOpen?' · 미팅 가능':''}</span>`:''}</div></td>`;}else{html+=`<td><div class="ceos-slot ${isCEO?'open':''}" ${isCEO?`data-ceos-empty="${ds}:${minute}"`:''}>미정</div></td>`;}});html+='</tr>';}
-  grid.innerHTML=html+'</tbody>';grid.querySelectorAll('[data-ceos-item]').forEach(x=>x.addEventListener('click',()=>ceosShowDetail(x.dataset.ceosItem)));grid.querySelectorAll('[data-ceos-empty]').forEach(x=>x.addEventListener('click',()=>{const cut=x.dataset.ceosEmpty.lastIndexOf(':'),ds=x.dataset.ceosEmpty.slice(0,cut),minute=+x.dataset.ceosEmpty.slice(cut+1);ceosOpenForm(null,ds,minute);}));ceosRenderRequests();
+  grid.innerHTML=html+'</tbody>';grid.querySelectorAll('[data-ceos-item]').forEach(x=>x.addEventListener('click',()=>ceosShowDetail(x.dataset.ceosItem)));ceosBindGridDrag(grid,isCEO);ceosRenderRequests();
 }
 function ceosTimeMinutes(v){if(!v)return null;const [h,m]=v.split(':').map(Number);return h*60+(m||0);}
 function ceosSlotHas(x,minute){if(!x.startTime)return false;const start=ceosTimeMinutes(x.startTime),rawEnd=ceosTimeMinutes(x.endTime),end=rawEnd!==null?rawEnd:start+60;return minute<Math.max(end,start+30)&&minute+30>start;}
+let ceosDrag=null;
+function ceosSlotParts(el){const raw=el?.dataset?.ceosEmpty;if(!raw)return null;const cut=raw.lastIndexOf(':');return{date:raw.slice(0,cut),minute:+raw.slice(cut+1)};}
+function ceosRangeFree(date,a,b){const lo=Math.min(a,b),hi=Math.max(a,b);for(let m=lo;m<=hi;m+=30)if(ceosItems.some(x=>x.date===date&&ceosSlotHas(x,m)))return false;return true;}
+function ceosPaintDrag(grid){grid.querySelectorAll('.ceos-slot.selecting').forEach(x=>x.classList.remove('selecting'));if(!ceosDrag)return;const lo=Math.min(ceosDrag.start,ceosDrag.end),hi=Math.max(ceosDrag.start,ceosDrag.end);grid.querySelectorAll('[data-ceos-empty]').forEach(el=>{const p=ceosSlotParts(el);if(p&&p.date===ceosDrag.date&&p.minute>=lo&&p.minute<=hi)el.classList.add('selecting');});}
+function ceosBindGridDrag(grid,isCEO){if(!isCEO)return;grid.querySelectorAll('[data-ceos-empty]').forEach(el=>el.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;const p=ceosSlotParts(el);if(!p)return;e.preventDefault();ceosDrag={date:p.date,start:p.minute,end:p.minute,pointerId:e.pointerId};el.setPointerCapture?.(e.pointerId);ceosPaintDrag(grid);}));grid.addEventListener('pointermove',e=>{if(!ceosDrag)return;const hit=document.elementFromPoint(e.clientX,e.clientY)?.closest?.('[data-ceos-empty]'),p=ceosSlotParts(hit);if(!p||p.date!==ceosDrag.date||!ceosRangeFree(p.date,ceosDrag.start,p.minute))return;e.preventDefault();ceosDrag.end=p.minute;ceosPaintDrag(grid);});grid.addEventListener('pointerup',()=>{if(!ceosDrag)return;const drag=ceosDrag,lo=Math.min(drag.start,drag.end),hi=Math.max(drag.start,drag.end);ceosDrag=null;grid.querySelectorAll('.ceos-slot.selecting').forEach(x=>x.classList.remove('selecting'));ceosOpenForm(null,drag.date,lo,Math.min(1440,hi+30));});grid.addEventListener('pointercancel',()=>{ceosDrag=null;grid.querySelectorAll('.ceos-slot.selecting').forEach(x=>x.classList.remove('selecting'));});}
 function ceosShowDetail(id){ceosSelected=id;const x=ceosItems.find(v=>v.id===id),box=document.getElementById('ceosDetailBox');if(!x||!box)return;const isCEO=CUR&&CUR.code==='CEO',time=x.startTime?(x.endTime?`${x.startTime}–${x.endTime}`:x.startTime):'시간 미정';box.innerHTML=`<div class="ceos-detail-title">${esc(x.title||'')}<span class="ceos-chip">${esc(x.category||'일정')}</span></div><div class="ceos-detail-meta">${ceosDayLabel(x.date)} · ${esc(time)}</div>${x.detail?`<div class="ceos-detail-text">${esc(x.detail)}</div>`:''}<div class="ceos-actions">${isCEO?`<button data-ceos-edit="${x.id}">수정</button><button data-ceos-del="${x.id}">삭제</button>`:(x.meetingOpen?`<button class="meet" id="ceosMeetToggle">미팅 신청</button>`:'')}</div>${!isCEO&&x.meetingOpen?`<div class="ceos-request-form" id="ceosReqForm-${x.id}"><input id="ceosReqTopic-${x.id}" placeholder="미팅 주제 *"><input id="ceosReqDuration-${x.id}" placeholder="희망 시간 (예: 30분)"><textarea id="ceosReqMessage-${x.id}" placeholder="대표님께 미리 전할 내용"></textarea><button data-ceos-send="${x.id}">신청 보내기</button></div>`:''}`;box.classList.add('show');const eb=box.querySelector('[data-ceos-edit]'),db=box.querySelector('[data-ceos-del]'),mb=document.getElementById('ceosMeetToggle'),sb=box.querySelector('[data-ceos-send]');if(eb)eb.onclick=()=>ceosEdit(eb.dataset.ceosEdit);if(db)db.onclick=()=>ceosDelete(db.dataset.ceosDel);if(mb)mb.onclick=()=>document.getElementById('ceosReqForm-'+x.id).classList.toggle('show');if(sb)sb.onclick=()=>ceosSendRequest(sb.dataset.ceosSend);}
-function ceosOpenForm(item,presetDate,presetMinute){ceosEditing=item?item.id:null;document.getElementById('ceosForm').classList.add('show');document.getElementById('ceosTitle').value=item?.title||'';document.getElementById('ceosDate').value=item?.date||presetDate||ceosYmd(new Date());const fmtMin=n=>`${ceosPad(Math.floor(n/60))}:${ceosPad(n%60)}`;document.getElementById('ceosStart').value=item?.startTime||(presetMinute!==undefined?fmtMin(presetMinute):'');document.getElementById('ceosEnd').value=item?.endTime||(presetMinute!==undefined?(presetMinute<1410?fmtMin(presetMinute+30):'23:59'):'');document.getElementById('ceosCategory').value=item?.category||'집중 업무';document.getElementById('ceosMeetingOpen').checked=!!item?.meetingOpen;document.getElementById('ceosDetail').value=item?.detail||'';document.getElementById('ceosTitle').focus();}
+function ceosOpenForm(item,presetDate,presetMinute,presetEndMinute){ceosEditing=item?item.id:null;document.getElementById('ceosForm').classList.add('show');document.getElementById('ceosDate').value=item?.date||presetDate||ceosYmd(new Date());const fmtMin=n=>n>=1440?'23:59':`${ceosPad(Math.floor(n/60))}:${ceosPad(n%60)}`;document.getElementById('ceosStart').value=item?.startTime||(presetMinute!==undefined?fmtMin(presetMinute):'');document.getElementById('ceosEnd').value=item?.endTime||(presetEndMinute!==undefined?fmtMin(presetEndMinute):(presetMinute!==undefined?fmtMin(Math.min(1440,presetMinute+30)):''));document.getElementById('ceosTitle').value=item?.title||'';document.getElementById('ceosCategory').value=item?.category||'집중 업무';document.getElementById('ceosMeetingOpen').checked=!!item?.meetingOpen;document.getElementById('ceosDetail').value=item?.detail||'';document.getElementById('ceosTitle').focus();}
 function ceosEdit(id){const item=ceosItems.find(x=>x.id===id);if(item)ceosOpenForm(item);}
 async function ceosSave(){if(!(CUR&&CUR.code==='CEO'))return;const title=document.getElementById('ceosTitle').value.trim(),date=document.getElementById('ceosDate').value;if(!title||!date){alert('일정 제목과 날짜를 입력해주세요.');return;}const data={title,date,startTime:document.getElementById('ceosStart').value,endTime:document.getElementById('ceosEnd').value,category:document.getElementById('ceosCategory').value,meetingOpen:document.getElementById('ceosMeetingOpen').checked,detail:document.getElementById('ceosDetail').value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};try{if(ceosEditing)await _db.collection('ws_ceo_schedule').doc(ceosEditing).update(data);else await _db.collection('ws_ceo_schedule').add({...data,createdAt:firebase.firestore.FieldValue.serverTimestamp()});ceosCloseForm();}catch(e){alert('일정 저장 실패: '+((e&&e.message)||e));}}
 function ceosCloseForm(){ceosEditing=null;document.getElementById('ceosForm').classList.remove('show');}
@@ -7049,6 +7056,312 @@ function killSpellcheck(root){
 
 function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 tick();
+</script>
+
+<!-- ============================================================
+     CEO 보드 (대표 전용) — 2026-09-02 신설
+     · 주제별 칸 + 칸마다 체크리스트     → ws_ceoboard/{email}
+     · 상단 고정 지출 위젯               → ws_ledger (재무보드 지출장부가 같은 자리를 읽는다)
+     기존 화면은 건드리지 않는다. 이 블록만 지우면 원상복구된다.
+     ============================================================ -->
+<style>
+#ceoOverlay{position:fixed;inset:0;background:#f6f1e4;z-index:9500;display:none;overflow-y:auto;}
+#ceoOverlay.show{display:block;}
+#ceoOverlay .cb-head{position:sticky;top:0;z-index:3;background:#8A1C2B;color:#f6eed6;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+#ceoOverlay .cb-head h2{font-family:'Nanum Myeongjo',serif;font-size:19px;margin:0;font-weight:700;}
+#ceoOverlay .cb-x{background:none;border:1px solid rgba(246,238,214,.4);color:#f6eed6;border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;}
+#ceoOverlay .cb-x:hover{background:rgba(246,238,214,.15);}
+#ceoOverlay .cb-body{max-width:1180px;margin:0 auto;padding:18px 20px 80px;}
+
+/* 지출 위젯 */
+#ceoOverlay .cb-spend{background:#fffdf7;border:1px solid #e3d9c6;border-radius:14px;padding:16px 18px;margin-bottom:22px;box-shadow:0 1px 3px rgba(80,60,40,.06);}
+#ceoOverlay .cb-spend h3{font-family:'Nanum Myeongjo',serif;font-size:15px;margin:0 0 12px;color:#8A1C2B;}
+#ceoOverlay .cb-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+#ceoOverlay .cb-row input,#ceoOverlay .cb-row select{border:1px solid #ddd2bd;border-radius:9px;padding:9px 11px;font-size:14px;font-family:inherit;background:#fff;color:#2b2320;}
+#ceoOverlay #cbWhat{flex:1 1 200px;min-width:150px;}
+#ceoOverlay #cbAmt{width:120px;text-align:right;}
+#ceoOverlay .cb-save{background:#8A1C2B;color:#f6eed6;border:none;border-radius:9px;padding:9px 20px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+#ceoOverlay .cb-save:hover{background:#6d1522;}
+#ceoOverlay .cb-quick{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;}
+#ceoOverlay .cb-qbtn{background:#f3ecdd;border:1px solid #e3d9c6;border-radius:999px;padding:6px 13px;font-size:12.5px;cursor:pointer;color:#5c4a3a;font-family:inherit;}
+#ceoOverlay .cb-qbtn:hover{background:#ece2cd;}
+#ceoOverlay .cb-stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;padding-top:13px;border-top:1px dashed #e3d9c6;}
+#ceoOverlay .cb-stat{flex:1 1 150px;background:#faf6ec;border-radius:10px;padding:10px 13px;}
+#ceoOverlay .cb-stat .k{font-size:11.5px;color:#8a7a68;display:block;margin-bottom:3px;}
+#ceoOverlay .cb-stat .v{font-size:19px;font-weight:700;color:#2b2320;font-variant-numeric:tabular-nums;}
+#ceoOverlay .cb-stat.big .v{color:#8A1C2B;}
+#ceoOverlay .cb-recent{margin-top:13px;}
+#ceoOverlay .cb-recent-t{font-size:12px;color:#8a7a68;margin-bottom:6px;}
+#ceoOverlay .cb-li{display:flex;align-items:center;gap:9px;padding:6px 2px;border-bottom:1px solid #f0e9db;font-size:13.5px;}
+#ceoOverlay .cb-li .d{color:#a3947f;font-size:12px;width:44px;flex:none;}
+#ceoOverlay .cb-li .w{flex:1;color:#2b2320;}
+#ceoOverlay .cb-li .who{font-size:11.5px;color:#8a7a68;background:#f3ecdd;border-radius:5px;padding:1px 7px;}
+#ceoOverlay .cb-li .a{font-variant-numeric:tabular-nums;font-weight:600;color:#2b2320;}
+#ceoOverlay .cb-li .x{background:none;border:none;color:#c3b6a2;cursor:pointer;font-size:14px;padding:0 3px;}
+#ceoOverlay .cb-li .x:hover{color:#8A1C2B;}
+
+/* 주제별 칸 */
+#ceoOverlay .cb-cols{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:14px;align-items:start;}
+#ceoOverlay .cb-col{background:#fffdf7;border:1px solid #e3d9c6;border-radius:14px;padding:14px 15px;box-shadow:0 1px 3px rgba(80,60,40,.06);}
+#ceoOverlay .cb-col-h{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+#ceoOverlay .cb-col-h input{flex:1;border:none;background:none;font-family:'Nanum Myeongjo',serif;font-size:15px;font-weight:700;color:#2b2320;padding:2px 3px;border-radius:6px;}
+#ceoOverlay .cb-col-h input:focus{outline:none;background:#f6f1e4;}
+#ceoOverlay .cb-col-h .mini{background:none;border:none;color:#c3b6a2;cursor:pointer;font-size:13px;padding:1px 3px;}
+#ceoOverlay .cb-col-h .mini:hover{color:#8A1C2B;}
+#ceoOverlay .cb-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:14px;line-height:1.5;}
+#ceoOverlay .cb-item input[type=checkbox]{margin-top:3px;flex:none;accent-color:#8A1C2B;width:15px;height:15px;cursor:pointer;}
+#ceoOverlay .cb-item .t{flex:1;color:#2b2320;word-break:keep-all;cursor:text;}
+#ceoOverlay .cb-item.done .t{color:#b0a495;text-decoration:line-through;}
+#ceoOverlay .cb-item .x{background:none;border:none;color:#d6cbb8;cursor:pointer;font-size:13px;}
+#ceoOverlay .cb-item .x:hover{color:#8A1C2B;}
+#ceoOverlay .cb-add{width:100%;border:1px dashed #ddd2bd;background:#fbf8f0;border-radius:9px;padding:7px 10px;font-size:13.5px;margin-top:8px;font-family:inherit;color:#2b2320;}
+#ceoOverlay .cb-add:focus{outline:none;border-color:#8A1C2B;background:#fff;}
+#ceoOverlay .cb-newcol{background:#f3ecdd;border:1px dashed #d6cbb8;border-radius:14px;padding:22px;text-align:center;color:#8a7a68;cursor:pointer;font-size:14px;font-family:inherit;}
+#ceoOverlay .cb-newcol:hover{background:#ece2cd;color:#8A1C2B;}
+#ceoOverlay .cb-note{font-size:12px;color:#a3947f;margin:16px 0 0;}
+@media(max-width:560px){
+  #ceoOverlay .cb-body{padding:14px 12px 70px;}
+  #ceoOverlay #cbAmt{width:100px;}
+}
+</style>
+
+<div id="ceoOverlay">
+  <div class="cb-head">
+    <h2>🎛 CEO 보드</h2>
+    <button class="cb-x" onclick="closeCeoBoard()">✕</button>
+  </div>
+  <div class="cb-body">
+
+    <div class="cb-spend">
+      <h3>지출 기록</h3>
+      <div class="cb-row">
+        <input id="cbWhat" placeholder="무엇에 썼나요 (예: 정범 지민 점심)">
+        <input id="cbAmt" placeholder="얼마" inputmode="numeric">
+        <select id="cbWho">
+          <option value="">대상</option>
+          <option>정범</option><option>지민</option><option>세빈</option>
+          <option>은우</option><option>승주</option><option>준서</option>
+          <option>팀 전체</option><option>회사</option>
+        </select>
+        <select id="cbCat">
+          <option>식대</option><option>회의비</option><option>교통</option>
+          <option>도구·구독</option><option>장비</option><option>사무실</option><option>기타</option>
+        </select>
+        <select id="cbMethod">
+          <option>카드</option><option>계좌이체</option><option>현금</option>
+        </select>
+        <button class="cb-save" id="cbSave">기록</button>
+      </div>
+      <div class="cb-quick" id="cbQuick"></div>
+
+      <div class="cb-stats">
+        <div class="cb-stat"><span class="k">오늘</span><span class="v" id="cbToday">0원</span></div>
+        <div class="cb-stat"><span class="k">이번 달</span><span class="v" id="cbMonth">0원</span></div>
+        <div class="cb-stat big"><span class="k">대표 개인부담 누적</span><span class="v" id="cbTotal">0원</span></div>
+      </div>
+
+      <div class="cb-recent">
+        <div class="cb-recent-t">최근 기록</div>
+        <div id="cbList"></div>
+      </div>
+    </div>
+
+    <div class="cb-cols" id="cbCols"></div>
+    <p class="cb-note">칸 제목은 눌러서 바로 고칠 수 있어요. 지출은 재무보드 지출장부와 같은 자리에 쌓입니다.</p>
+  </div>
+</div>
+
+<script>
+/* ===== CEO 보드 (대표 전용) ===== */
+(function(){
+  "use strict";
+  const DEFAULT_COLS=['법인·지분','자금·지원사업','제품','팀·사람','영업·고객','오늘 결정할 것'];
+  const QUICK=[
+    {label:'정범 식대 12,000',what:'정범 식대',amt:12000,who:'정범',cat:'식대'},
+    {label:'지민 식대 12,000',what:'지민 식대',amt:12000,who:'지민',cat:'식대'},
+    {label:'세빈 저녁 12,000',what:'세빈 저녁',amt:12000,who:'세빈',cat:'식대'},
+    {label:'토요일 회의식사',what:'토요일 대면회의 식사',amt:'',who:'팀 전체',cat:'회의비'}
+  ];
+  let cols=null, unsubBoard=null, unsubLedger=null, ledger=[];
+
+  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  function won(n){ return (n||0).toLocaleString('ko-KR')+'원'; }
+  function dayKey(ts){ const d=new Date(ts); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function boardRef(){ return _db.collection('ws_ceoboard').doc(CUR.id); }
+
+  window.openCeoBoard=function(){
+    if(!CUR||CUR.code!=='CEO'){ alert('대표 전용 화면이에요.'); return; }
+    document.getElementById('ceoOverlay').classList.add('show');
+    if(typeof closeAppPicker==='function') closeAppPicker();
+    renderQuick();
+    subscribe();
+  };
+  window.closeCeoBoard=function(){
+    document.getElementById('ceoOverlay').classList.remove('show');
+    if(unsubBoard){unsubBoard();unsubBoard=null;}
+    if(unsubLedger){unsubLedger();unsubLedger=null;}
+  };
+
+  function subscribe(){
+    if(unsubBoard) return;
+    unsubBoard=boardRef().onSnapshot(function(snap){
+      cols=(snap.exists&&Array.isArray(snap.data().cols))?snap.data().cols:null;
+      if(!cols){ cols=DEFAULT_COLS.map(t=>({id:uid(),title:t,items:[]})); saveBoard(); }
+      renderCols();
+    },function(e){ console.warn('CEO 보드 불러오기 실패',e); });
+
+    unsubLedger=_db.collection('ws_ledger').orderBy('ts','desc').limit(200)
+      .onSnapshot(function(qs){
+        ledger=qs.docs.map(d=>Object.assign({_id:d.id},d.data()));
+        renderLedger();
+      },function(e){ console.warn('지출 불러오기 실패',e); });
+  }
+
+  function saveBoard(){
+    if(!CUR||!_db) return;
+    boardRef().set({cols:cols,updatedAt:Date.now()},{merge:true})
+      .catch(e=>console.warn('CEO 보드 저장 실패',e));
+  }
+
+  /* ---- 주제별 칸 ---- */
+  function renderCols(){
+    const box=document.getElementById('cbCols'); if(!box||!cols) return;
+    box.innerHTML=cols.map(function(c,ci){
+      const items=(c.items||[]).slice().sort((a,b)=>(a.done?1:0)-(b.done?1:0));
+      return '<div class="cb-col" data-ci="'+ci+'">'
+        +'<div class="cb-col-h">'
+          +'<input value="'+esc(c.title||'')+'" data-act="title" data-ci="'+ci+'">'
+          +(ci>0?'<button class="mini" data-act="left" data-ci="'+ci+'" title="왼쪽으로">◀</button>':'')
+          +(ci<cols.length-1?'<button class="mini" data-act="right" data-ci="'+ci+'" title="오른쪽으로">▶</button>':'')
+          +'<button class="mini" data-act="delcol" data-ci="'+ci+'" title="칸 삭제">🗑</button>'
+        +'</div>'
+        + items.map(function(it){
+            return '<div class="cb-item'+(it.done?' done':'')+'">'
+              +'<input type="checkbox" data-act="chk" data-ci="'+ci+'" data-id="'+it.id+'"'+(it.done?' checked':'')+'>'
+              +'<span class="t" data-act="edit" data-ci="'+ci+'" data-id="'+it.id+'">'+esc(it.t||'')+'</span>'
+              +'<button class="x" data-act="delitem" data-ci="'+ci+'" data-id="'+it.id+'">✕</button>'
+            +'</div>';
+          }).join('')
+        +'<input class="cb-add" placeholder="＋ 항목 추가 — Enter" data-act="add" data-ci="'+ci+'">'
+      +'</div>';
+    }).join('')
+    +'<button class="cb-newcol" data-act="newcol">＋ 새 칸</button>';
+  }
+
+  document.getElementById('cbCols').addEventListener('click',function(e){
+    const el=e.target.closest('[data-act]'); if(!el) return;
+    const act=el.dataset.act, ci=+el.dataset.ci, id=el.dataset.id;
+    if(act==='newcol'){ cols.push({id:uid(),title:'새 칸',items:[]}); saveBoard(); renderCols(); return; }
+    if(act==='delcol'){
+      const c=cols[ci]; if(!c) return;
+      if(!confirm('"'+(c.title||'')+'" 칸을 지울까요?\n안에 있는 항목 '+((c.items||[]).length)+'개도 같이 사라져요.')) return;
+      cols.splice(ci,1); saveBoard(); renderCols(); return;
+    }
+    if(act==='left'||act==='right'){
+      const to=act==='left'?ci-1:ci+1;
+      if(to<0||to>=cols.length) return;
+      const t=cols[ci]; cols[ci]=cols[to]; cols[to]=t; saveBoard(); renderCols(); return;
+    }
+    if(act==='chk'){
+      const it=(cols[ci].items||[]).find(x=>x.id===id); if(!it) return;
+      it.done=el.checked; it.doneAt=el.checked?Date.now():null; saveBoard(); renderCols(); return;
+    }
+    if(act==='delitem'){
+      cols[ci].items=(cols[ci].items||[]).filter(x=>x.id!==id); saveBoard(); renderCols(); return;
+    }
+    if(act==='edit'){
+      const it=(cols[ci].items||[]).find(x=>x.id===id); if(!it) return;
+      const v=prompt('내용 수정',it.t); if(v==null) return;
+      it.t=v.trim(); if(!it.t){ cols[ci].items=cols[ci].items.filter(x=>x.id!==id); }
+      saveBoard(); renderCols(); return;
+    }
+  });
+  document.getElementById('cbCols').addEventListener('keydown',function(e){
+    const el=e.target.closest('[data-act="add"]'); if(!el||e.key!=='Enter') return;
+    const v=el.value.trim(); if(!v) return;
+    const ci=+el.dataset.ci;
+    (cols[ci].items=cols[ci].items||[]).push({id:uid(),t:v,done:false,ts:Date.now()});
+    el.value=''; saveBoard(); renderCols();
+  });
+  document.getElementById('cbCols').addEventListener('change',function(e){
+    const el=e.target.closest('[data-act="title"]'); if(!el) return;
+    cols[+el.dataset.ci].title=el.value.trim()||'제목 없음'; saveBoard();
+  });
+
+  /* ---- 지출 ---- */
+  function renderQuick(){
+    document.getElementById('cbQuick').innerHTML=QUICK.map(function(q,i){
+      return '<button class="cb-qbtn" data-qi="'+i+'">'+esc(q.label)+'</button>';
+    }).join('');
+  }
+  document.getElementById('cbQuick').addEventListener('click',function(e){
+    const b=e.target.closest('[data-qi]'); if(!b) return;
+    const q=QUICK[+b.dataset.qi];
+    document.getElementById('cbWhat').value=q.what;
+    document.getElementById('cbAmt').value=q.amt||'';
+    document.getElementById('cbWho').value=q.who||'';
+    document.getElementById('cbCat').value=q.cat||'식대';
+    document.getElementById(q.amt?'cbAmt':'cbAmt').focus();
+  });
+
+  async function addSpend(){
+    const what=document.getElementById('cbWhat').value.trim();
+    const amt=parseInt(String(document.getElementById('cbAmt').value).replace(/[^0-9]/g,''),10);
+    if(!what){ alert('무엇에 썼는지 적어주세요.'); return; }
+    if(!amt||amt<=0){ alert('금액을 숫자로 적어주세요.'); return; }
+    const btn=document.getElementById('cbSave'); btn.disabled=true; btn.textContent='저장 중…';
+    try{
+      await _db.collection('ws_ledger').add({
+        what:what, amount:amt,
+        who:document.getElementById('cbWho').value||'',
+        cat:document.getElementById('cbCat').value||'기타',
+        method:document.getElementById('cbMethod').value||'카드',
+        day:dayKey(Date.now()), ts:Date.now(), by:CUR.id
+      });
+      document.getElementById('cbWhat').value='';
+      document.getElementById('cbAmt').value='';
+      document.getElementById('cbWho').value='';
+    }catch(e){ alert('저장에 실패했어요.\n'+((e&&e.message)||e)); }
+    btn.disabled=false; btn.textContent='기록';
+  }
+  document.getElementById('cbSave').addEventListener('click',addSpend);
+  ['cbWhat','cbAmt'].forEach(function(id){
+    document.getElementById(id).addEventListener('keydown',function(e){ if(e.key==='Enter') addSpend(); });
+  });
+
+  function renderLedger(){
+    const today=dayKey(Date.now()), ym=today.slice(0,7);
+    let tSum=0,mSum=0,all=0;
+    ledger.forEach(function(r){
+      all+=r.amount||0;
+      if(r.day===today) tSum+=r.amount||0;
+      if((r.day||'').slice(0,7)===ym) mSum+=r.amount||0;
+    });
+    document.getElementById('cbToday').textContent=won(tSum);
+    document.getElementById('cbMonth').textContent=won(mSum);
+    document.getElementById('cbTotal').textContent=won(all);
+
+    document.getElementById('cbList').innerHTML=ledger.slice(0,12).map(function(r){
+      return '<div class="cb-li">'
+        +'<span class="d">'+esc((r.day||'').slice(5))+'</span>'
+        +'<span class="w">'+esc(r.what||'')+'</span>'
+        +(r.who?'<span class="who">'+esc(r.who)+'</span>':'')
+        +'<span class="a">'+won(r.amount)+'</span>'
+        +'<button class="x" data-del="'+r._id+'" title="삭제">✕</button>'
+      +'</div>';
+    }).join('')||'<div style="color:#a3947f;font-size:13px;padding:6px 0">아직 기록이 없어요.</div>';
+  }
+  document.getElementById('cbList').addEventListener('click',function(e){
+    const b=e.target.closest('[data-del]'); if(!b) return;
+    if(!confirm('이 기록을 지울까요?')) return;
+    _db.collection('ws_ledger').doc(b.dataset.del).delete()
+      .catch(e=>alert('삭제 실패: '+((e&&e.message)||e)));
+  });
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'&&document.getElementById('ceoOverlay').classList.contains('show')) closeCeoBoard();
+  });
+})();
 </script>
 </body>
 </html>

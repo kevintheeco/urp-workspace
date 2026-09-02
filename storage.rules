@@ -11,6 +11,19 @@ service firebase.storage {
       return request.auth != null
         && firestore.exists(/databases/(default)/documents/ws_members/$(request.auth.token.email));
     }
+    // 초대장 서약서 보관함 (2026-08-24 요나단). 초대장 서명 시 서약 확인서 JPG가 여기 올라온다.
+    // 쓰기만 열고(3MB 이하 JPG/PDF) 수정·삭제는 막아 서명 기록의 위변조를 방지. 읽기는 업로드 토큰 URL로만.
+    match /pledges/{fileName} {
+      allow create: if request.resource.size < 3 * 1024 * 1024
+        && request.resource.contentType.matches('image/jpeg|application/pdf');
+      allow read, update, delete: if false;
+    }
+    // URP 재무 보드 영수증/증빙 — Firestore fin_rooms와 동일한 "경로 비밀" 모델(로그인 없음).
+    // roomId가 비밀번호의 SHA-256 해시(64자 hex)인 걸 아는 사람만 읽고/올릴 수 있음.
+    match /fin_rooms/{room}/receipts/{allPaths=**} {
+      allow read: if room.matches('^[a-f0-9]{64}$');
+      allow write: if room.matches('^[a-f0-9]{64}$') && request.resource.size < 10 * 1024 * 1024;
+    }
     match /{allPaths=**} {
       allow read, delete: if isMember();
       // 업로드는 50MB 상한 (무료 요금제 총 5GB 보호)
