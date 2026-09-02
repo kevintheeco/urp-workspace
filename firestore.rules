@@ -18,15 +18,19 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/ws_members/$(request.auth.token.email));
     }
 
-    // 워크스페이스: 팀 제출 결과 — 로그인한 누구나 읽기, 본인만 쓰기 (isMember 우회)
+    // 워크스페이스: 팀 제출 결과 — 멤버만 읽기, 본인만 쓰기
+    // 2026-09-02: 읽기가 signedIn()이라 로그인한 누구나 볼 수 있었다. OAuth 앱을 프로덕션으로 게시하면서
+    //             아무 구글 계정이나 로그인할 수 있게 되어 isMember()로 조임. 현재 어느 앱도 이 컬렉션을 쓰지 않는다.
     match /ws_team/{uid} {
       allow write: if signedIn() && request.auth.uid == uid;
-      allow read:  if signedIn();
+      allow read:  if isMember();
     }
 
     // 워크스페이스: 멤버 명단
+    // 2026-09-02: 읽기가 signedIn()이라 팀 이메일 목록이 외부에 노출됐다.
+    //             단 본인 문서는 계속 읽혀야 로그인 게이트가 "명단에 없음"을 판별할 수 있으므로 본인 것만 예외로 둔다.
     match /ws_members/{email} {
-      allow read: if signedIn();
+      allow read: if signedIn() && (request.auth.token.email == email || isMember());
       allow write: if isMember() || request.auth.token.email == 'soomin020114@gmail.com';
     }
 
@@ -133,13 +137,20 @@ service cloud.firestore {
 
     // 니가교수 학원 연동: 학생이 옵트인으로 공유한 학습 신호 (aca_shared/{code}__{uid})
     // 쓰기: 본인(uid가 문서 id 끝과 일치 + 데이터의 uid 필드도 본인)만.
-    // 읽기: 로그인 사용자 (v1 — 학원 코드는 사실상 접근 토큰. TODO: aca_admins/{code} 관리자 명단으로 조이기)
+    // 읽기: 본인 것만. (+ 대표 계정은 점검용)
+    // ⚠️ 2026-09-02 변경: 예전에는 read가 signedIn()이라 로그인한 아무나 전체 학생의 공유 데이터를 읽을 수 있었다.
+    //    OAuth 앱을 프로덕션으로 게시하면서 아무 구글 계정이나 로그인 가능해졌고, 학원 연동을 쓰는 곳이 아직 없어(대표 확인)
+    //    본인+대표로 잠갔다. 학원 관리자에게 열어줄 때는 aca_admins/{code}__{email} 명단을 만들어 exists()로 확인할 것.
+    //    그 전까지 학원 대시보드는 동작하지 않는다.
     match /aca_shared/{docId} {
       allow write: if signedIn()
         && request.resource.data.uid == request.auth.uid
         && docId == request.resource.data.code + '__' + request.auth.uid;
       allow delete: if signedIn() && docId.matches('.*__' + request.auth.uid);
-      allow read: if signedIn();
+      allow read: if signedIn() && (
+        docId.matches('.*__' + request.auth.uid)
+        || request.auth.token.email == 'soomin020114@gmail.com'
+      );
     }
 
     // 학습 허브(study-hub): 카드 읽기는 링크 소지자 누구나(팀 공유 대시보드, 로그인 없음 — meus_rooms와 같은 모델).
