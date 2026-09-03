@@ -1124,6 +1124,7 @@
   body.lit .appicon[data-appid="workflow"] .tile{background:#fbeef0 !important;}
   body.lit .appicon[data-appid="teamstatus"] .tile{background:#eaf1fb !important;}
   body.lit .appicon[data-appid="nigakyosoo"] .tile{background:#eaf4ed !important;}
+  body.lit .appicon[data-appid="org"] .tile{background:#fbeef0 !important;}
   body.lit .appicon[data-appid="today"] .tile{background:#eef3fb !important;}
   body.lit .appicon[data-appid="todo"] .tile{background:#eaf4ed !important;}
   body.lit .appicon[data-appid="cal"] .tile{background:#fdf1e3 !important;}
@@ -1506,6 +1507,7 @@
           </div>
           <div class="ix-group">
             <div class="ix-gh">🏢 회사 · 정보</div>
+            <button class="ix-item" onclick="openApp('app-org','🧭 조직 · 누가 무엇을 책임지는가')"><span>🧭</span><b>조직</b><i>팀 구조·역할 도식 5종 (2026-09 개정)</i></button>
             <button class="ix-item" onclick="openApp('app-intra','🏢 회사 · 사내 내부망')"><span>🏢</span><b>사내 내부망</b><i>회사 페이지</i></button>
             <button class="ix-item" onclick="window.open('https://kevintheeco.github.io/urp-sogaeso/','_blank','noopener')"><span>📖</span><b>회사 소개 페이지</b><i>URP·Provee 공식 소개 (새 탭)</i></button>
             <button class="ix-item" onclick="openApp('app-drive','🗂 사내 드라이브')"><span>🗄️</span><b>사내 드라이브</b><i>파일 저장소</i></button>
@@ -1546,6 +1548,7 @@
       <button class="appicon" id="teamStatusIcon" data-appid="teamstatus" onclick="openApp('app-teamstatus','🧭 팀 현황');openTeamStatus();"><span class="tile" style="background:linear-gradient(150deg,#4a7ab0,#2a4a7a)">🧭</span><span class="lbl">팀 현황</span></button>
       <button class="appicon" data-appid="nigakyosoo" onclick="openAppPicker()"><span class="tile" style="background:linear-gradient(150deg,#2fa37a,#17643f)">🎓</span><span class="lbl provee-wm">Provee<span class="wm-dot"></span></span></button>
       <button class="appicon" id="ceoBoardTile" data-appid="ceoboard" style="display:none" onclick="openCeoBoard()"><span class="tile" style="background:linear-gradient(150deg,#8A1C2B,#5d0f1c)">🎛</span><span class="lbl">CEO 보드</span></button>
+      <button class="appicon" data-appid="org" onclick="openApp('app-org','🧭 조직 · 누가 무엇을 책임지는가')"><span class="tile" style="background:linear-gradient(150deg,#a8493f,#6f2320)">🧭</span><span class="lbl">조직</span></button>
       <button class="appicon" data-appid="today" onclick="openApp('app-today','📊 오늘 한눈에')"><span class="tile" style="background:linear-gradient(150deg,#5b83cf,#31569f)">📊</span><span class="lbl">오늘</span></button>
       <button class="appicon" data-appid="todo" onclick="openApp('app-todo','✅ 할 일 목록')"><span class="tile" style="background:linear-gradient(150deg,#3fb492,#2b8a70)">✅</span><span class="lbl">할 일</span></button>
       <button class="appicon" data-appid="cal" onclick="openApp('app-cal','📅 공유 캘린더')"><span class="tile" style="background:linear-gradient(150deg,#e5963d,#c06f22)">📅</span><span class="lbl">캘린더</span></button>
@@ -1571,6 +1574,34 @@
 
     <!-- 앱 본체 보관소 (아이콘 클릭 시 창으로 이동, 닫으면 되돌아옴) -->
     <div class="grid" id="appStash" style="display:none">
+
+      <!-- 🧭 조직 (2026-09-02 직함 재편 반영) -->
+      <style>
+        #app-org .org-head{margin-bottom:14px}
+        #app-org .org-head h3{margin:0 0 4px}
+        #app-org .org-head .desc{margin:0}
+        #app-org .org-who{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 14px}
+        #app-org .org-chip{display:inline-flex;align-items:baseline;gap:6px;border:1px solid #e0d2b4;background:#fffdf8;border-radius:999px;padding:5px 11px;font-size:12.5px;color:#4a3f33}
+        #app-org .org-chip b{font-weight:800}
+        #app-org .org-chip span{font-size:11px;color:#96866a}
+        #app-org .org-chip.vacant{border-style:dashed;color:#9a92a0}
+        #app-org .org-chip.vacant b,#app-org .org-chip.vacant span{color:#9a92a0}
+        #app-org .org-bar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}
+        #app-org .org-note{font-size:12px;color:#8b7d6a}
+        #app-org .org-open{border:1px solid #d9c9a8;background:#fff;border-radius:9px;padding:7px 12px;font-family:inherit;font-size:12.5px;font-weight:700;color:#7c2d2a;cursor:pointer}
+        #app-org .org-frame{width:100%;height:min(72vh,760px);border:1px solid #e4d6b9;border-radius:13px;background:#fff}
+      </style>
+      <div class="panel col-12" id="app-org" data-app="app-org">
+        <div class="org-head">
+          <h3><span class="ic">🧭</span> 조직 · 누가 무엇을 끝까지 책임지는가</h3>
+          <p class="desc">2026-09-02 대표 확정 직함으로 다시 그린 도식 다섯 장입니다. 가치사슬 · 조직 구조도 · 플라이휠 · 스윔레인 · 해자 레이어 순서로 이어집니다.</p>
+        </div>
+        <div class="org-bar">
+          <span class="org-note">개정 2026-09-02 · 정범 CTO(백엔드 총괄 겸직) · 지민 프론트엔드 총괄 · 승주 개발팀 겸속</span>
+          <button class="org-open" onclick="window.open('org-2026-09.html','_blank','noopener')">새 탭에서 크게 보기 ↗</button>
+        </div>
+        <iframe class="org-frame" src="org-2026-09.html" title="URP 조직 워크플로우 도식" loading="lazy"></iframe>
+      </div>
 
       <!-- 🗓 대표 일정 -->
       <style>
