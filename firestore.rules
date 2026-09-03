@@ -1,16 +1,28 @@
 rules_version = '2';
-// ⚠️⚠️ 공유 규칙 — 니가교수 앱 + 회사 워크스페이스 포털이 같은 Firebase 프로젝트(yourprofessor-94a2d)를 함께 씀.
+// ⚠️⚠️ 공유 규칙 — 니가교수 앱 + 대학생 앱(univ.provee.kr) + 회사 워크스페이스 포털 + 재무보드가
+//        같은 Firebase 프로젝트(yourprofessor-94a2d)를 함께 씀.
 // ⚠️ Firestore 규칙은 프로젝트당 "딱 1세트"뿐. 게시할 땐 반드시 아래 통합본 "전체"를 게시할 것!
 //    - users 규칙만 게시 → 워크스페이스 포털 깨짐
 //    - ws_* 규칙만 게시 → 앱 클라우드 동기화 깨짐 ("클라우드 연결 실패")  ← 2026-07-01 실제 발생
-// ⚠️ 이 파일은 YouareProfessor 레포와 urp-workspace 레포에 "동일하게" 보관됨. 한쪽 고치면 다른 쪽도 맞출 것.
-//
-// 핵심: 앱 데이터는 users/{uid}/data 하위에 저장됨 → match는 반드시 /users/{uid}/{document=**} (하위 포함).
+//    - study_cards 빠짐 → 학습 허브 죽음  ← 2026-08-31 실제 발생
+//    - codes·beta_slots·app_config 빠짐 → 대학생 앱 로그인 후 진입 불가  ← 2026-09-02 실제 발생
+// ⚠️ 게시 전에 반드시: 아래 컬렉션 블록이 전부 있는지 확인 —
+//    users / codes / app_config / beta_slots / beta_apply / usage_events /
+//    meus_rooms / aca_shared / study_cards / fin_rooms / ws_*
 service cloud.firestore {
   match /databases/{database}/documents {
 
     function signedIn() {
       return request.auth != null;
+    }
+
+    function slotDoc(slot) {
+      return get(/databases/$(database)/documents/beta_slots/$(string(slot)));
+    }
+
+    // ⚠️ 익명 로그인(#beta 신청용)은 아무나 즉시 얻는다 — "로그인했다"만으로 열어주는 규칙에서는 배제한다.
+    function realUser() {
+      return signedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
 
     function isMember() {
@@ -55,6 +67,80 @@ service cloud.firestore {
     // 니가교수 앱: 본인 데이터 (하위 컬렉션 data/ 까지 포함) — {document=**} 빠지면 동기화 거부됨
     match /users/{uid}/{document=**} {
       allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // 니가교수·대학생 앱: 이메일→학원코드 명부 (ADR-014). 본인 이메일 문서 + 관리자는 전체 읽기(대시보드 코드→이름 변환용).
+    // 관리자 외 write 규칙 없음 = 클라이언트 수정 불가(자기 등록 create/이름 backfill update만 예외).
+    // ⚠️ 2026-09-02: 이 블록이 규칙 재배포 때 빠져 univ.provee.kr 로그인 후 진입 불가가 됐었음. 지우지 말 것!
+    match /codes/{email} {
+      allow read: if signedIn() && (request.auth.token.email == email
+        || request.auth.token.email in ['soomin020114@gmail.com', 'tangbole0430@gmail.com',
+          'junseo.lim@urpedu.com']);
+      // 자기 등록. 내가 선점한 자리(beta_slots)의 코드만, 1회만 쓸 수 있다. 신청 페이지(#beta)로 온
+      // 사람과 구글 로그인만 한 사람 둘 다 자리를 하나씩 잡으므로 이 규칙 하나로 덮인다.
+      // update가 없으므로 남의 코드로 바꿔치기·기존 등록자 덮어쓰기는 불가.
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['code', 'slot', 'name', 'adult'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 40
+        && (!('adult' in request.resource.data) || request.resource.data.adult is bool)
+        && request.resource.data.slot is int
+        && slotDoc(request.resource.data.slot).data.uid == request.auth.uid
+        && slotDoc(request.resource.data.slot).data.email == email
+        && slotDoc(request.resource.data.slot).data.code == request.resource.data.code;
+      // 이름 뒤늦게 채우기 — 빈칸일 때만·name 한 필드만·본인 문서만.
+      allow update: if signedIn() && request.auth.token.email == email
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name'])
+        && (!('name' in resource.data) || resource.data.name == '')
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 40;
+    }
+
+    // 공개 가입 스위치(app_config/open_beta). 문서 존재 여부만 본다 — 지우면 앱이 자리를 자동 배정하지 않는다.
+    // 쓰기 규칙 없음 = 콘솔·Admin에서만 켜고 끈다.
+    match /app_config/{doc} {
+      allow read: if realUser();
+    }
+
+    // 베타 신청 자리 — 미리 발급한 학원코드를 한 자리씩 심어둔다(beta_slots/{1..N} = {code}).
+    // 학원코드는 워커에서 사실상 출입증이라 남은 코드 목록이 노출되면 크레딧을 그대로 도둑맞는다.
+    //  · read: 내 uid로 잠근 자리만 → 선점 전에는 코드를 볼 수 없다.
+    //  · update: uid가 비어 있을 때만 → 먼저 쓴 사람이 임자(배타적 잠금). code 변경·재선점 불가.
+    match /beta_slots/{slot} {
+      allow get: if signedIn() && resource.data.uid == request.auth.uid;
+      allow update: if signedIn()
+        && !resource.data.keys().hasAny(['uid'])
+        && request.resource.data.keys().hasOnly(['code', 'email', 'uid', 'ts'])
+        && request.resource.data.code == resource.data.code
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 60
+        && request.resource.data.ts is number;
+    }
+
+    // 베타 신청서(이름·연락처 — 개인정보). 본인 이메일 문서만 1회 생성, 수정·삭제 불가.
+    match /beta_apply/{email} {
+      allow get: if signedIn() && (request.auth.token.email == email
+        || request.auth.token.email in ['soomin020114@gmail.com', 'tangbole0430@gmail.com']);
+      allow list: if signedIn() && request.auth.token.email in ['soomin020114@gmail.com', 'tangbole0430@gmail.com'];
+      allow create: if signedIn()
+        && slotDoc(request.resource.data.slot).data.uid == request.auth.uid
+        && slotDoc(request.resource.data.slot).data.email == email
+        && request.resource.data.keys().hasOnly(['name', 'phone', 'school', 'adult', 'guardian', 'slot', 'ts'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 40
+        && request.resource.data.phone is string && request.resource.data.phone.size() <= 20
+        && request.resource.data.school is string && request.resource.data.school.size() <= 20
+        && request.resource.data.adult is bool
+        && request.resource.data.guardian is bool
+        && request.resource.data.slot is int
+        && request.resource.data.ts is number;
+    }
+
+    // AI 사용량 이벤트(문제당 원가 측정). 본인 uid로만 생성, 수정·삭제 불가(영수증 위조 방지).
+    // 읽기는 관리자만 — 비용 대시보드용.
+    match /usage_events/{id} {
+      allow create: if realUser() && request.resource.data.uid == request.auth.uid;
+      allow read: if signedIn() && request.auth.token.email in ['soomin020114@gmail.com', 'tangbole0430@gmail.com',
+        'junseo021024@gmail.com', 'junseo.lim@urpedu.com'];
     }
 
     // MEUS 무로그인 그룹방(수련회 등): meus_rooms/{방}/members/{이름} = {name, code, ts}
@@ -164,11 +250,34 @@ service cloud.firestore {
       allow create, delete: if false;
     }
 
-    // URP 재무 보드 (fin_rooms) — 비밀번호 SHA-256 해시(64자 hex)가 방 경로. 경로 비밀이 보안 경계 (meus_rooms와 동일 모델).
+    // URP 재무 보드 (fin_rooms)
+    // 보안이 2중이다: ① 비밀번호 SHA-256 해시(64자 hex)가 방 경로 ② 워크스페이스 팀원 계정
+    // ⚠️ 2026-09-02 변경: 예전에는 경로 비밀만으로 열렸다. 비밀번호가 짧고 팀에 알려져 있어
+    //    퇴사자나 링크 소지자가 회사 재무를 볼 수 있었다. 구글 로그인 + ws_members 명단을 추가 조건으로 건다.
     // ⚠️ 절대 fin_rooms/{room} 최상위 문서를 만들지 말 것(방 목록 열람 차단 유지). 데이터는 전부 한 단계 아래 컬렉션에.
     // 단일 세그먼트 와일드카드만 사용 — {document=**}를 쓰면 fin_rooms 목록 조회가 열릴 수 있음.
+    // 준서는 구글 계정이 두 개다(개인 gmail + 회사 워크스페이스 메일). 회사메일로 로그인했다가
+    // 재무보드가 "연결에 실패했어요"로 튕긴 일이 있어(2026-09-02) 두 계정 모두 넣는다.
+    function finBoss() {
+      return signedIn() && request.auth.token.email in [
+        'soomin020114@gmail.com',     // 김수민 대표
+        'junseo021024@gmail.com',     // 임준서 CFO (개인)
+        'junseo.lim@urpedu.com'       // 임준서 CFO (회사메일)
+      ];
+    }
+    // 자본·지분(캡테이블·자금유입)은 대표와 CFO만. 다른 팀원도 볼 수 없다.
+    match /fin_rooms/{room}/captable/{doc} {
+      allow read, write: if room.matches('^[a-f0-9]{64}$') && finBoss();
+    }
+    match /fin_rooms/{room}/funding/{doc} {
+      allow read, write: if room.matches('^[a-f0-9]{64}$') && finBoss();
+    }
+    // 재무 데이터 전체(지출·시나리오·손익 포함)도 대표·CFO만.
+    // 2026-09-02 대표 지시: "나랑 준서만 일단 보게 하자". 팀원 열람 허용을 철회한다.
+    // ⚠️ 규칙은 겹치면 "하나라도 통과하면 열림"이다. 좁은 규칙이 넓은 규칙을 덮어쓰지 않는다.
+    //    한때 여기에 isMember() 조건을 뒀다가 팀원이 캡테이블을 읽을 수 있었다(손정범 계정으로 확인).
     match /fin_rooms/{room}/{coll}/{doc} {
-      allow read, write: if room.matches('^[a-f0-9]{64}$');
+      allow read, write: if room.matches('^[a-f0-9]{64}$') && finBoss();
     }
 
     // 워크스페이스 컬렉션(ws_*) — 멤버만 읽기/쓰기
