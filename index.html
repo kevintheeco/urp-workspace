@@ -7112,6 +7112,13 @@ tick();
 #ceoOverlay .cb-row input,#ceoOverlay .cb-row select{border:1px solid #ddd2bd;border-radius:9px;padding:9px 11px;font-size:14px;font-family:inherit;background:#fff;color:#2b2320;}
 #ceoOverlay #cbWhat{flex:1 1 200px;min-width:150px;}
 #ceoOverlay #cbAmt{width:120px;text-align:right;}
+#ceoOverlay #cbDate{width:150px;}
+#ceoOverlay .cb-who{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:11px;}
+#ceoOverlay .cb-who-t{font-size:12px;color:#8a7a68;flex:none;}
+#ceoOverlay .cb-whochips{display:flex;flex-wrap:wrap;gap:6px;}
+#ceoOverlay .cb-wchip{background:#f3ecdd;border:1px solid #e3d9c6;border-radius:999px;padding:5px 13px;font-size:13px;cursor:pointer;color:#5c4a3a;font-family:inherit;}
+#ceoOverlay .cb-wchip:hover{background:#ece2cd;}
+#ceoOverlay .cb-wchip.on{background:#8A1C2B;border-color:#8A1C2B;color:#f6eed6;font-weight:700;}
 #ceoOverlay .cb-save{background:#8A1C2B;color:#f6eed6;border:none;border-radius:9px;padding:9px 20px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
 #ceoOverlay .cb-save:hover{background:#6d1522;}
 #ceoOverlay .cb-quick{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;}
@@ -7154,6 +7161,8 @@ tick();
 @media(max-width:560px){
   #ceoOverlay .cb-body{padding:14px 12px 70px;}
   #ceoOverlay #cbAmt{width:100px;}
+  #ceoOverlay #cbDate{width:135px;}
+  #ceoOverlay .cb-who{align-items:flex-start;}
 }
 </style>
 
@@ -7167,14 +7176,9 @@ tick();
     <div class="cb-spend">
       <h3>지출 기록</h3>
       <div class="cb-row">
+        <input type="date" id="cbDate" title="쓴 날짜">
         <input id="cbWhat" placeholder="무엇에 썼나요 (예: 정범 지민 점심)">
         <input id="cbAmt" placeholder="얼마" inputmode="numeric">
-        <select id="cbWho">
-          <option value="">대상</option>
-          <option>정범</option><option>지민</option><option>세빈</option>
-          <option>은우</option><option>승주</option><option>준서</option>
-          <option>팀 전체</option><option>회사</option>
-        </select>
         <select id="cbCat">
           <option>식대</option><option>회의비</option><option>교통</option>
           <option>도구·구독</option><option>장비</option><option>사무실</option><option>기타</option>
@@ -7183,6 +7187,10 @@ tick();
           <option>카드</option><option>계좌이체</option><option>현금</option>
         </select>
         <button class="cb-save" id="cbSave">기록</button>
+      </div>
+      <div class="cb-who">
+        <span class="cb-who-t">대상 (여러 명 고를 수 있어요)</span>
+        <div class="cb-whochips" id="cbWho"></div>
       </div>
       <div class="cb-quick" id="cbQuick"></div>
 
@@ -7208,13 +7216,15 @@ tick();
 (function(){
   "use strict";
   const DEFAULT_COLS=['법인·지분','자금·지원사업','제품','팀·사람','영업·고객','오늘 결정할 것'];
+  const PEOPLE=['정범','지민','세빈','은우','승주','준서','팀 전체','회사'];
   const QUICK=[
-    {label:'정범 식대 12,000',what:'정범 식대',amt:12000,who:'정범',cat:'식대'},
-    {label:'지민 식대 12,000',what:'지민 식대',amt:12000,who:'지민',cat:'식대'},
-    {label:'세빈 저녁 12,000',what:'세빈 저녁',amt:12000,who:'세빈',cat:'식대'},
-    {label:'토요일 회의식사',what:'토요일 대면회의 식사',amt:'',who:'팀 전체',cat:'회의비'}
+    {label:'정범 식대 12,000',what:'정범 식대',amt:12000,who:['정범'],cat:'식대'},
+    {label:'지민 식대 12,000',what:'지민 식대',amt:12000,who:['지민'],cat:'식대'},
+    {label:'정범·지민 점심 24,000',what:'정범 지민 점심',amt:24000,who:['정범','지민'],cat:'식대'},
+    {label:'세빈 저녁 12,000',what:'세빈 저녁',amt:12000,who:['세빈'],cat:'식대'},
+    {label:'토요일 회의식사',what:'토요일 대면회의 식사',amt:'',who:['팀 전체'],cat:'회의비'}
   ];
-  let cols=null, unsubBoard=null, unsubLedger=null, ledger=[];
+  let cols=null, unsubBoard=null, unsubLedger=null, ledger=[], whoSel=[];
 
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
   function won(n){ return (n||0).toLocaleString('ko-KR')+'원'; }
@@ -7225,7 +7235,9 @@ tick();
     if(!CUR||CUR.code!=='CEO'){ alert('대표 전용 화면이에요.'); return; }
     document.getElementById('ceoOverlay').classList.add('show');
     if(typeof closeAppPicker==='function') closeAppPicker();
+    document.getElementById('cbDate').value=dayKey(Date.now());
     renderQuick();
+    renderWho();
     subscribe();
   };
   window.closeCeoBoard=function(){
@@ -7331,9 +7343,23 @@ tick();
     const q=QUICK[+b.dataset.qi];
     document.getElementById('cbWhat').value=q.what;
     document.getElementById('cbAmt').value=q.amt||'';
-    document.getElementById('cbWho').value=q.who||'';
+    whoSel=(q.who||[]).slice();
+    renderWho();
     document.getElementById('cbCat').value=q.cat||'식대';
-    document.getElementById(q.amt?'cbAmt':'cbAmt').focus();
+    document.getElementById('cbAmt').focus();
+  });
+
+  /* 대상 — 여러 명 고르기 */
+  function renderWho(){
+    document.getElementById('cbWho').innerHTML=PEOPLE.map(function(p){
+      return '<button class="cb-wchip'+(whoSel.indexOf(p)>=0?' on':'')+'" data-who="'+esc(p)+'">'+esc(p)+'</button>';
+    }).join('');
+  }
+  document.getElementById('cbWho').addEventListener('click',function(e){
+    const b=e.target.closest('[data-who]'); if(!b) return;
+    const p=b.dataset.who, i=whoSel.indexOf(p);
+    if(i>=0) whoSel.splice(i,1); else whoSel.push(p);
+    renderWho();
   });
 
   async function addSpend(){
@@ -7341,18 +7367,23 @@ tick();
     const amt=parseInt(String(document.getElementById('cbAmt').value).replace(/[^0-9]/g,''),10);
     if(!what){ alert('무엇에 썼는지 적어주세요.'); return; }
     if(!amt||amt<=0){ alert('금액을 숫자로 적어주세요.'); return; }
+    const today=dayKey(Date.now());
+    let day=(document.getElementById('cbDate').value||'').trim();
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(day)) day=today;
+    // 오늘이면 지금 시각, 지난 날이면 그날 정오로 잡아 순서가 뒤엉키지 않게 한다
+    const ts=(day===today)?Date.now():new Date(day+'T12:00:00').getTime();
     const btn=document.getElementById('cbSave'); btn.disabled=true; btn.textContent='저장 중…';
     try{
       await _db.collection('ws_ledger').add({
         what:what, amount:amt,
-        who:document.getElementById('cbWho').value||'',
+        who:whoSel.join(', '), whoList:whoSel.slice(),
         cat:document.getElementById('cbCat').value||'기타',
         method:document.getElementById('cbMethod').value||'카드',
-        day:dayKey(Date.now()), ts:Date.now(), by:CUR.id
+        day:day, ts:ts, by:CUR.id
       });
       document.getElementById('cbWhat').value='';
       document.getElementById('cbAmt').value='';
-      document.getElementById('cbWho').value='';
+      whoSel=[]; renderWho();
     }catch(e){ alert('저장에 실패했어요.\n'+((e&&e.message)||e)); }
     btn.disabled=false; btn.textContent='기록';
   }
