@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Provee — 승주 14번 태블릿 풀이</title>
+<title>Provee — 승주 3번 태블릿 풀이</title>
 
 <style>
 :root{
@@ -96,17 +96,29 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 
 <header>
   <h1>Provee 필기 공간<i>.</i></h1>
-  <span class="sub">승주 14번 · 문제를 보며 평소처럼 풀기 · 지운 과정도 보존</span>
+  <span class="sub">승주 3번 · 문제를 이해하며 손으로 풀기 · 지운 과정도 보존</span>
 </header>
 <div class="cloud-entry"><button id="cloudLogin">대표님 계정으로 로그인</button><span id="cloudStatus" aria-live="polite">저장 연결을 확인하는 중입니다.</span></div>
 <p class="account-help">대표님 저장 계정: <b>soomin020114@gmail.com</b> · 위에 다른 이메일이 보이면 ‘계정 바꾸기’를 누르세요. 필기는 그대로 남습니다.</p>
 <nav class="case-nav" aria-label="승주형 세 문제"><a href="ink-film-14.html">14번 · 그래프</a><a href="ink-film-10.html">10번 · 적분·이동거리</a><a href="ink-film-3.html">3번 · 사분면</a></nav>
-<section class="problem-card" aria-label="수능 14번 문제"><h2>2024학년도 수능 수학 14번 · 문제</h2><p>자연수 a, b에 대하여 함수 f(x)가 아래와 같습니다.</p><p class="formula">x ≤ 2: f(x)=2x³−6x+1<br>x &gt; 2: f(x)=a(x−2)(x−b)+9</p><p>g(t)는 수평선 y=t와 그래프 y=f(x)가 만나는 점의 개수입니다. <b>g(k−)+g(k)+g(k+)=9</b>를 만족하는 실수 k가 정확히 하나일 때, <b>a+b의 최댓값</b>을 구합니다.</p><p class="plain">g(k−), g(k+)는 높이를 k보다 아주 조금 낮거나 높게 잡았을 때 교점 개수가 어떻게 바뀌는지 뜻합니다. 세 값을 더해 9가 되는 높이를 찾습니다. 꼭짓점에서는 1+3+5처럼 개수가 달라질 수도 있습니다.</p><p class="plain">시험지 선택지 · [4점] ① 51 &nbsp; ② 52 &nbsp; ③ 53 &nbsp; ④ 54 &nbsp; ⑤ 55</p></section>
-<details class="graph-reference" id="shapeReference"><summary>왼쪽 그래프 모양 보기 · 2/7에서 그리는 곡선</summary><img src="ink-film-14-reference.svg" alt="x가 −2 부근에서 왼쪽 아래로 시작해 (−1,5)까지 상승, (1,−3)까지 하강, (2,5)까지 상승하는 삼차곡선. (2,5)는 채운 점, 오른쪽 이차곡선은 빈 점 (2,9)에서 시작해 ∪ 모양이다."><p>2/7에서는 파란 왼쪽 삼차곡선만 그립니다. 오른쪽 붉은 ∪는 5/7에 그릴 최종 모양입니다. 도표는 (a,b)=(3,6)의 모양 예시이며, 실제 풀이에서는 먼저 a,b를 미지수로 둡니다.</p></details>
-<details class="graph-card" id="graphChecklist"><summary>그래프도 그려 주세요 · 14번에서 그릴 점과 수평선 보기</summary><p class="notation">승주형 표기: f₁(x)=2x³−6x+1, f₂(x)=a(x−2)(x−b)+9<br>f(x)는 x≤2에서 f₁, x&gt;2에서 f₂입니다.</p><ol><li><b>왼쪽 삼차 그래프:</b> f₁′(x)=6x²−6 → x=−1,1. (−1,5), (1,−3), (2,5)를 찍고 x≤2 곡선을 그립니다. (2,5)는 채운 점입니다.</li><li><b>오른쪽 이차 그래프:</b> 연장한 식 f₂(2)=9지만 실제 f(2)=5입니다. 따라서 (2,9)는 빈 점입니다. b&gt;2인 경우 꼭짓점 x=(2+b)/2를 표시하고, 실제 곡선은 a&gt;0이므로 ∪ 모양으로 그립니다.</li><li><b>원문 속 수정 장면:</b> 학생은 처음에 ∩ 모양으로 잘못 그렸다가, a가 자연수라는 조건을 보고 지우고 ∪로 고칩니다. 이 잘못 그린 획과 지운 기록도 남길 수 있습니다.</li><li><b>교점 개수:</b> 여백에 수평선 y=t를 그어 y=f(x)와 만나는 점을 세어 보세요. 교점 개수가 바뀌는 높이 −3, 5, 9와 이차함수의 꼭짓점 높이 m을 표시하면 g(t)를 이해하기 쉽습니다.</li></ol><p class="fine">f′(x)는 x&lt;2에서 f₁′(x), x&gt;2에서 f₂′(x)=a(2x−b−2)입니다. f는 x=2에서 불연속이므로 f′(2)는 없습니다. f₁, f₂는 두 식의 이름이며, f₂(2)=9는 실제 f(2)의 값이 아닙니다.</p></details><aside class="film-focus"><b>지금 쓰는 14번의 핵심:</b> 학생은 처음엔 시작하지 못하고, 오른쪽 이차함수 앞에서 다시 막힌 뒤 ∩ 모양으로 잘못 그립니다. 승주형이 강조한 장면은 “문제 맨 앞을 봐봐” 다음 학생이 a가 자연수임을 확인하고 ∪로 고치는 과정입니다. 절댓값 누락은 10번의 별도 문제입니다.</aside><details class="source-card" id="sourceText"><summary>승주형 14번 원문 전체 보기 · 붉은 표시가 실제 하이라이트</summary><p class="source-count">원문 진행 17장면 중 볼드 하이라이트는 오른쪽 그래프에서 막히는 6장면입니다. 대사는 원문 그대로이고 수식 한 줄은 읽기 쉽게 정리했습니다.</p><ol class="source-flow" id="sourceConversation"><li>(학생) 그냥 건들지도 못하는 중.</li><li>(프루비) 어렵지 않아 (독려). 일단 f(x)에서 x≤2인 구간에서의 함수는 우리가 잘 알고 있는 삼차함수야! 문제에서 ‘고정된 것’이 있다!</li><li>(학생) 맞네. 그건 좋은 소식이야. y=t 수평선과의 교점이고, 문제에도 y=f(x)의 그래프를 언급하고 있으니 일단 그거부터 그려봐야겠다. 미분해서 극값부터 파악하자. (그리기 시작)<p class="formula-note">원문 수식: f₁′(x)=6x²−6 → x=±1; f(−1)=5, f(1)=−3</p></li><li>(학생) 근데 이거 x=2에서 어떻게 끊어야 할지 모르겠네?</li><li>(프루비) f(2-)를 계산해보면 되지!</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) 맞네? 오, 극댓값 f(-1)과 값이 같다! 굉장한 정보군. 근데 이제 x&gt;2에서의 그래프는 어떻게 분석해야 할지 모르겠어.</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(프루비) 역시 ‘고정된 것’에 집중해봐. a, b가 있지만, 이건 매우 잘 알려진 어떤 함수잖아?</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) 이차함수네. y=9와 x=2, x=b에서 만나. 그럼 f(x)는 x=2에서 불연속이게 그려지긴 해. 그렇다면 중요한 건 b와 2의 대소관계겠네? 왜냐면 2보다 작으면 b가 왼쪽에 있게 되고, 그 경우엔 어떻게 그려도 g(t)의 조건을 만족하는 k를 찾을 수가 없어.</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) 그럼 b&gt;2일 수밖에 없고, 그림을 그려봐야 하는데.. (위로 볼록한 이차함수를 그린다)</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(프루비) 잠깐. 문제 맨 앞을 봐봐</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) a가 자연수였구나? 그럼 무조건 최고차항의 계수가 양수니까 무조건 아래로 볼록. 이거 덕분에 벌써 절반의 케이스는 생각할 필요도 없어졌군! 문제 조건 이거 놓치면 큰일날뻔 했네</li><li>(학생) 아래로 볼록한 이차함수들을 그려보니까, x≤2일 때 그린 삼차함수의 극댓값, 극솟값이랑 이 이차함수의 꼭짓점이 만나는 부분이 크리티컬 할 수밖에 없네. (각 경우를 그리며 확인) 아하, 결국 꼭짓점의 y좌표가 삼차함수의 극솟값인 -3일 때가 조건이 되는구만.<p class="formula-note">원문 수식을 읽기 쉽게 정리: f₂((2+b)/2)=−3 → a(b−2)²=48</p></li><li>(학생) (이 식을 전개 후 한참동안 액션이 없다) 이거 전개해보니까 뭔 식이 나오는데 뭐 어쩌라는 거지?</li><li>(프루비) 문제 맨 앞을 다시 읽어봐</li><li>(학생) 아 자연수 조건이 있었지! 그럼 몇 개 안 나오겠네. 나열해서 답 찾아야겠다~</li><li>(학생) a=48, b=3일 때, 답은 51이구만</li><li>(프루비) 굿. 이 문제에서 얻은 건, ‘고정된 거 집중하기’랑 ‘문제 조건 안 빠트리기’…</li></ol><p class="source-note">학생의 ∩ 그래프는 원문 속 실수입니다. 실제 f의 오른쪽 가지는 a&gt;0이므로 ∪ 모양이고, x=2의 오른쪽 시작점 (2,9)은 빈 점입니다. 원문의 “b&lt;2면 k가 없다”는 표현은 정확히는 b≤2일 때 그런 k가 여러 개라 “정확히 하나” 조건을 어긴다는 뜻입니다. 단계별 ‘왜 이걸 쓰나요?’는 원문과 구분한 이해 설명입니다.</p></details>
+<section class="problem-card" aria-label="수능 3번 문제"><h2>2024학년도 수능 수학 3번 · 문제</h2>
+<p class="formula">3π/2 &lt; θ &lt; 2π<br>sin(−θ)=1/3</p>
+<p>이 조건을 만족하는 θ에 대해 <b>tan θ</b>를 구하세요.</p>
+<p class="choices">[3점] ① −√2/2 &nbsp; ② −√2/4 &nbsp; ③ −1/4 &nbsp; ④ 1/4 &nbsp; ⑤ √2/4</p>
+<p class="plain">첫 줄은 θ가 제4사분면이라는 뜻입니다. 주어진 양수는 sin(−θ)의 값이고 sin θ는 음수입니다.</p></section>
+<details class="graph-reference"><summary>3번에서 그릴 그림 보기 · 제4사분면 삼각형</summary><img src="ink-film-3-reference.svg" alt="원점에서 오른쪽 아래 제4사분면으로 뻗는 길이 3의 빗변. 가로 방향은 2루트2, 세로 좌표는 마이너스 1이다."><p>2/7에서는 길이 3·1·2√2인 기준각 삼각형만 그려도 됩니다. 5/7에서 실제 θ의 사선이 오른쪽 아래로 향하게 고치고, 세로 방향을 −1로 표시하세요.</p></details>
+<details class="graph-card"><summary>왜 양수 ⑤가 아니라 음수 ②인가요?</summary><ol><li>빗변 3·높이의 길이 1 → 밑변 2√2는 맞습니다.</li><li>θ는 제4사분면이므로 실제 세로 좌표는 −1, 가로는 +2√2입니다.</li><li>tan θ=−1/(2√2)=−√2/4이므로 ②입니다.</li></ol><p class="fine">승주형 학생은 길이만 보고 ⑤를 체크하려다가 첫 줄을 다시 읽습니다. 양수 계산은 원문 속 실수입니다.</p></details>
+<aside class="film-focus"><b>승주형 3번의 핵심:</b> 길이는 맞게 구했는데 답의 부호를 놓쳤습니다. ⑤ 직전의 필기에서 문제 첫 줄로 돌아가고, 제4사분면을 확인해 ②로 바뀌는 과정을 남겨 주세요.</aside>
+<details class="source-card" id="sourceText"><summary>승주형 3번 노션 원문 보기 · 다섯 줄 전부 실제 하이라이트</summary><ol class="source-flow" id="sourceConversation">
+<li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) sin 값이 1/3인 직각삼각형을 그림. 빗변의 길이 3, 높이 1</li>
+<li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) 밑변의 길이가 2루트2 임을 피타고라스 정리로 간단히 확인함</li>
+<li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) 그러고서 바로 tan값이 1/2루트2 = 루트2/4 라고 확정해버림 (답 5 체크하려는 찰나)</li>
+<li class="highlight"><span class="mark">승주형 하이라이트</span>(프루비) 잠깐! 문제 맨 앞의 조건에서 세타가 제 4사분면의 각이야. 이거 체크했어?</li>
+<li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) 아! 제 4사분면의 각에 대해서는 탄젠트값이 음수지. (답 2)</li>
+</ol><p class="source-note">붉은 줄은 승주형의 실제 볼드입니다. 원문에서 길이 1은 삼각형의 양의 길이이며, 실제 θ의 세로 좌표는 −1입니다.</p></details>
 
 <div class="tasks" id="tasks" hidden></div>
-<section class="film-guide" id="filmGuide"><div class="guide-top"><b id="guideTitle"></b><div><button id="prevStep">이전</button><button id="nextStep">다음</button><button id="toggleGuide" aria-expanded="true">안내 접기</button><a href="ink-film-14-guide.html" target="_blank" rel="noopener">전체 안내</a></div></div><div class="guide-body"><div><strong id="guideWhere"></strong><pre id="guideText"></pre><img id="guidePreview" class="guide-preview" alt="현재 단계에서 손으로 그릴 그림 예시" hidden></div><p id="guideNote"></p></div></section>
+<section class="film-guide" id="filmGuide"><div class="guide-top"><b id="guideTitle"></b><div><button id="prevStep">이전</button><button id="nextStep">다음</button><button id="toggleGuide" aria-expanded="true">안내 접기</button><a href="ink-film-3-guide.html" target="_blank" rel="noopener">전체 안내</a></div></div><div class="guide-body"><div><strong id="guideWhere"></strong><pre id="guideText"></pre><img id="guidePreview" class="guide-preview" alt="현재 단계에서 손으로 그릴 그림 예시" hidden></div><p id="guideNote"></p></div></section>
 <p class="tablet-tip">태블릿은 가로 방향에서 쓰기 편합니다. 원문은 필요할 때 펼쳐 보고, 단계 안내를 접으면 필기 공간을 넓게 볼 수 있습니다. 평소처럼 풀고 고친 흔적도 그대로 남겨 주세요.</p>
 
 <div class="bar">
@@ -123,7 +135,7 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 </div>
 
 <div class="pad" id="pad">
-  <div class="zones" aria-hidden="true"><span class="zone z1">미분 · 극값</span><span class="zone z2">함수 형태 · 조건</span><span class="zone z3">왼쪽 그래프 → 오른쪽 시도 · 지움 · 수정</span><span class="zone z4">경우 나누기 · 높이 확정</span><span class="zone z5">자연수 후보 · 마무리</span></div><canvas id="cv"></canvas>
+  <div class="zones" aria-hidden="true"><span class="zone z1">문제 조건</span><span class="zone z2">그림·조건 재확인</span><span class="zone z3">식 계산 · 잘못 쓴 곳 수정</span><span class="zone z4">구간·부호 확인</span><span class="zone z5">정답·마무리</span></div><canvas id="cv"></canvas>
 </div>
 
 <div class="stats">
@@ -158,7 +170,7 @@ async function cloudSignIn(forceSwitch=false){
 }
 document.getElementById('cloudLogin').onclick=async()=>{try{const user=await cloudSignIn(!!cloudAuth?.currentUser);if(user.email?.toLowerCase()!=='soomin020114@gmail.com')toast('현재 '+user.email+'로 로그인됐습니다. 대표님 계정을 선택해 주세요.',true);else toast('대표님 계정으로 연결됐습니다.');}catch(e){toast('구글 로그인에 실패했습니다. 다시 눌러 주세요.',true);}};
 // ══ 과제 목록 ═══════════════════════════════════
-const TASKS = [{id:'csat2024-q14',tag:'승주 14번 · 광고 재현 필기',text:'조건을 보고 스스로 고친 뒤 끝까지 풀이',note:'새 자료'}];
+const TASKS = [{id:'csat2024-q3',tag:"승주 3번 · 사분면 부호",text:"양수 시도에서 제4사분면 확인 후 수정",note:'새 자료'}];
 let task = TASKS[0];
 
 const tasksEl = document.getElementById('tasks');
@@ -359,7 +371,7 @@ function makeCapturePayload() {
   return {
     name: task.id + '_' + captureId + '_' + (++saveSeq),
     captureKind: 'directed-reenactment',
-    sourcePage: '승주 2024학년도 수능 14번 교육 시나리오',
+    sourcePage: '승주 2024학년도 수능 3번 교육 시나리오',
     captureId, marks,
     productRecognitionVerified: false,
     task: { id: task.id, tag: task.tag, text: task.text },
@@ -376,7 +388,7 @@ function makeCapturePayload() {
     png: cv.toDataURL('image/png'),
   };
 }
-function downloadCapture(){endStroke();if(!strokes.length)return toast('아직 쓰신 게 없습니다',true);const blob=new Blob([JSON.stringify(makeCapturePayload())],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='승주14번-필기-'+captureId+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),60000);document.getElementById('backupStatus').textContent='필기 파일을 이 태블릿에 받았습니다. 브라우저에도 원본 획이 계속 남습니다.';}
+function downloadCapture(){endStroke();if(!strokes.length)return toast('아직 쓰신 게 없습니다',true);const blob=new Blob([JSON.stringify(makeCapturePayload())],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='승주3번-필기-'+captureId+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),60000);document.getElementById('backupStatus').textContent='필기 파일을 이 태블릿에 받았습니다. 브라우저에도 원본 획이 계속 남습니다.';}
 document.getElementById('downloadBackup').onclick=downloadCapture;
 async function save() {
   if (saveBusy) return;
@@ -387,7 +399,7 @@ async function save() {
   try {
     const user=await cloudSignIn();
     if(user.email?.toLowerCase()!=='soomin020114@gmail.com')throw Object.assign(new Error('다른 구글 계정으로 로그인됨'),{code:'film/wrong-account'});
-    const file='film-ink/q14/'+user.uid+'/'+task.id+'_'+captureId+'_'+saveSeq+'_'+Date.now()+'.json';
+    const file='film-ink/q3/'+user.uid+'/'+task.id+'_'+captureId+'_'+saveSeq+'_'+Date.now()+'.json';
     await cloudStorage.ref(file).put(new Blob([JSON.stringify(payload)],{type:'application/json'}),{contentType:'application/json'});
     toast('필기와 지운 과정이 저장됐습니다.');
     document.getElementById('backupStatus').textContent='저장 완료 · 이 영상 소스로 받았습니다.';
@@ -401,8 +413,8 @@ async function save() {
 document.getElementById('save').onclick = save;
 
 
-const GUIDE = [{"title":"왼쪽 식의 극값과 끝점","where":"필기장 왼쪽 위","text":"f₁(x)=2x³−6x+1  (x≤2)\nf₁′(x)=6x²−6=0 → x=−1, 1\nf(−1)=5, f(1)=−3\nf(2−)=f(2)=2·2³−6·2+1=5","note":"왜 f(2)를 넣나요? x=2는 왼쪽 식에 포함되는 마지막 점입니다. 곡선을 어디서 끝내고 점을 채울지 정하려면 그 높이 5가 필요합니다. 오른쪽 식을 x=2까지 연장하면 9라서 실제 f(2)=5와 다릅니다. 이 차이 때문에 수평선의 교점 수도 달라집니다."},{"title":"왼쪽 삼차곡선 그리기","where":"필기장 가운데 왼쪽의 넓은 자리","text":"1. 가로 x축·세로 y축을 그립니다.\n2. x=−1, 1, 2를 x축에 표시합니다. y=5, −3을 y축에 표시합니다.\n3. (−1,5) 극대, (1,−3) 극소, (2,5) 끝점을 찍습니다.\n4. 왼쪽 아래 → (−1,5)까지 상승 → (1,−3)까지 하강 → (2,5)까지 상승하는 한 줄 곡선을 그립니다.\n5. (2,5)는 채운 점. x>2 쪽은 아직 그리지 않습니다.","note":"무슨 곡선을 그리나요? y=f₁(x)=2x³−6x+1의 x≤2 부분입니다. 오른쪽 이차함수와 합쳐 그리지 마세요. 점의 상대 높이를 먼저 잡고 부드럽게 이으면 됩니다. 화면의 ‘왼쪽 그래프 모양 보기’를 열면 모양을 확인할 수 있습니다.","preview":"ink-film-14-left.svg"},{"title":"오른쪽 식과 빈 시작점","where":"필기장 오른쪽 위 → 기존 그래프의 x=2 위","text":"f₂(x)=a(x−2)(x−b)+9  (실제 구간 x>2)\n연장한 이차식: f₂(2)=9, f₂(b)=9\n실제 함수: f(2)=5\n그래프의 (2,9)는 빈 점 ○, (2,5)는 채운 점 ●","note":"왜 2를 또 넣나요? 서로 다른 두 식이 x=2에서 같은 높이로 이어지는지 확인하려는 것입니다. f₂(2)=9는 식을 연장해 넣은 값이고, 실제 f는 x=2에서 왼쪽 식을 써서 5입니다. f₂(b)=9는 b>2일 때 실제 오른쪽 가지에 찍을 수 있습니다."},{"title":"승주형 원문의 잘못된 시도","where":"기존 그래프 오른쪽, x>2 구간","text":"먼저 b>2인 모양을 생각합니다.\n승주형 학생의 시도 재현: (2,9) 빈 점에서 시작해 가운데가 위로 솟은 ∩ 곡선을 잠깐 그립니다.\n그 잘못된 곡선의 획을 남겨 둡니다.","note":"이 단계는 승주형 원문에서 학생이 곡선 방향을 놓친 장면입니다. 이미 양수 계수를 이해했다면 실제 풀이에서는 ∩을 그릴 이유가 없지만, 영상에 수정 과정을 보여주려면 이 시도를 따로 남겨 주세요. 다음 단계에서 이 곡선만 지웁니다."},{"title":"자연수 조건으로 곡선 고치기","where":"문제 첫 줄 → 같은 그래프 오른쪽","text":"문제 첫 줄: a는 자연수 → a>0\n오른쪽 식의 x² 계수는 a>0 → 이차곡선은 ∪\n지우개로 ∩ 획만 지우고, (2,9) 빈 점에서 내려갔다가 꼭짓점에서 돌아 올라가는 ∪를 그립니다.\nx=b에서 y=9를 지나갑니다.","note":"왜 ∪인가요? 이차식 a(x−2)(x−b)+9를 펼치면 x²의 계수가 a입니다. 양수이면 양끝이 위로 올라가는 ∪입니다. (2,9)는 빈 점, b>2이면 (b,9)는 실제 곡선의 점입니다. 꼭짓점 높이는 아직 m으로 두세요."},{"title":"수평선으로 교점 세기","where":"그래프에 수평선 → 필기장 아래 왼쪽","text":"수평선 y=t를 높이별로 그어 양쪽 곡선과 만나는 점을 셉니다.\nb≤2: −3<t<5에서 g(t)=3이 계속되어 k가 여러 개 → 제외\nb>2, 꼭짓점 x=(2+b)/2, 높이 m=9−a(b−2)²/4\nm<−3 또는 m>−3: g(t)=3인 높이가 여러 개\nm=−3, k=−3: 왼쪽 1 + 해당 3 + 오른쪽 5 = 9","note":"왜 수평선을 그리나요? g(t)는 높이 t의 가로선이 전체 그래프와 만나는 점의 개수입니다. ‘정확히 한 k’ 조건을 보려면 가로선을 아래→위로 움직이며 교점 수가 바뀌는 높이를 확인해야 합니다. −3은 왼쪽 곡선의 바닥이며, 오른쪽 ∪의 바닥 m도 −3일 때만 한 높이에서 1+3+5가 됩니다."},{"title":"자연수 후보와 답","where":"필기장 아래 오른쪽","text":"f₂((2+b)/2)=−3\n9−a(b−2)²/4=−3 → a(b−2)²=48\n(a,b)=(48,3), (12,4), (3,6)\na+b=51, 16, 9 → 최댓값 51 (①)","note":"왜 자연수를 다시 보나요? m=−3은 그래프 조건이고, 마지막에는 자연수 a,b라는 문제 첫 줄을 숫자 조건에 적용해야 합니다. 세 후보를 모두 비교해야 최대 합 51을 확인할 수 있습니다."}];
-const draftKey='provee-film-csat2024-q14-v1';
+const GUIDE = [{"title":"문제의 두 조건 표시","where":"필기장 왼쪽 위","text":"3π/2 < θ < 2π → θ는 제4사분면\nsin(−θ)=1/3\n구할 것: tan θ","note":"왜 −θ를 표시하나요? 주어진 양수 1/3은 sin θ가 아니라 sin(−θ)의 값입니다. sin(−θ)=−sin θ이므로 실제 θ의 세로 좌표는 음수입니다. 문제 첫 줄의 사분면 조건이 답의 부호를 정합니다."},{"title":"길이 3·1·2√2의 삼각형","where":"필기장 가운데 왼쪽","text":"기준각용 직각삼각형을 그립니다.\n빗변=3, 세로 길이=1\n밑변²=3²−1²=8 → 밑변=2√2\n길이만 표시하고 아직 θ의 부호를 정하지 않습니다.","note":"어떤 그림인가요? 승주형 학생이 처음 그린 것은 길이를 찾는 기준각 삼각형입니다. 높이 1은 양의 ‘길이’이고 실제 제4사분면의 y좌표는 −1입니다. 화면의 그림에서 오른쪽 아래 방향을 확인할 수 있습니다.","preview":"ink-film-3-reference.svg"},{"title":"승주형 학생의 양수 오답 시도","where":"필기장 가운데 위","text":"길이만 보면 1/(2√2)=√2/4\n승주형 학생 시도: tan θ=+√2/4 → ⑤에 손이 가는 장면\n아직 확정하지 않고 잠깐 멈춥니다.","note":"왜 이 줄을 남기나요? 승주형 원문에서는 학생이 삼각형 길이는 맞게 구했지만 사분면을 빼먹어 양수 ⑤를 고르려 합니다. 이는 정답이 아니라 영상에 보여줄 학생의 실수입니다. 이미 조건을 이해했다면 이 단계를 건너뛰고 바로 음수로 고쳐도 됩니다."},{"title":"문제 첫 줄로 돌아가기","where":"필기장 맨 위의 조건 → 그림","text":"문제 조건 3π/2<θ<2π에 밑줄\nθ는 오른쪽 아래, 제4사분면\nsin θ=−1/3, cos θ>0","note":"승주형 프루비가 강조한 질문은 ‘문제 맨 앞의 조건에서 θ가 제4사분면인데 체크했어?’입니다. 정답을 먼저 주기보다 학생이 빠뜨린 첫 줄을 다시 보게 합니다."},{"title":"삼각형을 실제 방향으로 고치기","where":"같은 그림 오른쪽 또는 새 그림","text":"좌표축을 그리고 원점에서 오른쪽 아래로 빗변 3을 그립니다.\n끝점의 가로 방향 +2√2, 세로 방향 −1\n제4사분면에 θ 표시. 기존 길이 3·1·2√2는 유지","note":"무슨 선을 그리나요? 원점에서 (2√2,−1) 쪽으로 내려가는 사선이 빗변입니다. 끝점에서 x축까지 세로 보조선을 그리면 아래쪽 높이의 부호가 −임을 볼 수 있습니다. 필요하면 이전 양수 표시만 지우세요.","preview":"ink-film-3-reference.svg"},{"title":"탄젠트 부호 수정","where":"필기장 오른쪽 가운데","text":"tan θ=(세로 좌표)/(가로 좌표)\n=−1/(2√2)=−√2/4\n⑤ 양수 시도 → ② 음수 답","note":"왜 음수인가요? 제4사분면에서는 x가 양수, y가 음수이므로 y/x가 음수입니다. 삼각형의 길이는 그대로 맞았고, 고친 것은 방향과 부호입니다."},{"title":"조건 확인 장면 마무리","where":"필기장 오른쪽 아래","text":"sin(−θ)=1/3 ↔ sin θ=−1/3\nθ: 제4사분면\ntan θ=−√2/4 → ②","note":"승주형 노션의 3번은 다섯 장면 모두 볼드입니다. 길이 계산, ⑤ 직전의 멈춤, 문제 첫 줄 확인, ②로 수정하는 흐름이 한 필기 기록에서 보이면 됩니다."}];
+const draftKey='provee-film-csat2024-q3-v1';
 let stepIndex=0, marks=[], captureId=Date.now().toString(36), saveSeq=0, saveBusy=false, lastSavedFile=null;
 function eraseLast(){const s=[...strokes].reverse().find(s=>s.erasedAt===null);if(s){s.erasedAt=relT();redraw();stats();persistDraft();}}
 function draftObject(){return {canvas:{w:W,h:H},strokes,elapsed:t0===null?timeOffset:relT(),nextId,stepIndex,marks,captureId,saveSeq,lastSavedFile,device:devSeen};}

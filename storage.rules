@@ -24,15 +24,17 @@ service firebase.storage {
       allow read: if room.matches('^[a-f0-9]{64}$');
       allow write: if room.matches('^[a-f0-9]{64}$') && request.resource.size < 10 * 1024 * 1024;
     }
-    // 대표님이 태블릿에서 작성한 14번 필기: 본인 계정의 본인 경로만 저장.
+    // 대표님이 태블릿에서 작성한 승주형 10·3·14번 필기: 본인 계정의 본인 경로만 저장.
     // Firestore 멤버 명단 확인에 장애가 있어도 필기 저장은 막히지 않도록 별도로 허용.
-    match /film-ink/q14/{uid}/{fileName} {
+    match /film-ink/{caseId}/{uid}/{fileName} {
       allow create, update: if request.auth != null
+        && caseId.matches('q10|q3|q14')
         && request.auth.uid == uid
         && request.auth.token.email == 'soomin020114@gmail.com'
         && request.resource.size < 50 * 1024 * 1024
         && request.resource.contentType == 'application/json';
       allow read: if request.auth != null
+        && caseId.matches('q10|q3|q14')
         && request.auth.uid == uid
         && request.auth.token.email == 'soomin020114@gmail.com';
     }

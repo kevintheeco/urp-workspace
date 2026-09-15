@@ -6,3 +6,4 @@ functions/.env
 firebase-debug.log
 .wrangler/
 dist/
+__pycache__/
