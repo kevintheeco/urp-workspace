@@ -90,6 +90,9 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 
 .case-nav{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.case-nav a{background:#fffdf9;border:1px solid var(--line);border-radius:9px;padding:9px 12px;color:var(--wine);font-size:13px;font-weight:700;text-decoration:none}.case-nav a:hover{border-color:var(--wine)}.graph-reference{background:#fffdf9;border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0;line-height:1.6}.graph-reference summary{cursor:pointer;color:var(--wine);font-weight:800}.graph-reference img{display:block;max-width:100%;width:min(760px,100%);height:auto;margin:9px auto}.graph-reference p{font-size:13px;color:#6b6259}.problem-card .choices{margin-top:9px;color:#645b52;font-size:14px}.guide-body pre{max-height:270px;overflow:auto}
 .guide-preview{display:block;max-width:100%;width:440px;height:auto;margin:9px 0;border:1px solid var(--line);border-radius:7px}.guide-preview[hidden]{display:none}
+.step-areas{position:absolute;inset:0;z-index:3;pointer-events:none}.step-area{position:absolute;border:2px dashed #8a1c2bb8;border-radius:12px;background:#fff9f112}.step-area:nth-child(2){border-color:#215c99b8}.step-area-label{position:absolute;left:8px;top:-15px;max-width:calc(100% - 16px);background:#fff;border:1px solid #d7c8b8;border-radius:6px;padding:3px 7px;color:#7a1b28;font-size:13px;font-weight:800;line-height:1.35;white-space:normal;box-shadow:0 2px 7px #00000010}.step-area:nth-child(2) .step-area-label{color:#215c99}.pad.areas-off .step-areas{display:none}
+.scroll-rail{position:absolute;z-index:4;right:0;top:0;bottom:0;width:44px;background:#f5eee5d9;border-left:1px dashed #c6b9a9;touch-action:pan-y;display:flex;justify-content:center;align-items:flex-start;padding-top:16px;pointer-events:auto}.scroll-rail span{writing-mode:vertical-rl;font-size:12px;line-height:1.5;font-weight:700;color:#776b5d}.pad.scroll-mode canvas{touch-action:pan-y;cursor:grab}.scroll-mode-hint{display:none;position:absolute;z-index:5;top:42%;left:20%;width:60%;pointer-events:none;text-align:center;background:#fffdf9ed;border:2px solid var(--wine);border-radius:12px;padding:12px;color:var(--wine);font-weight:800}.pad.scroll-mode .scroll-mode-hint{display:block}
+@media(max-width:800px){.step-area-label{font-size:10px;padding:2px 4px;top:-12px}.scroll-rail{width:34px}.scroll-rail span{font-size:10px}}
 </style>
 </head>
 <body>
@@ -125,13 +128,17 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 
 <div class="tasks" id="tasks" hidden></div>
 <section class="film-guide" id="filmGuide"><div class="guide-top"><b id="guideTitle"></b><div><button id="prevStep">이전</button><button id="nextStep">다음</button><button id="toggleGuide" aria-expanded="true">안내 접기</button><a href="ink-film-10-guide.html" target="_blank" rel="noopener">전체 안내</a></div></div><div class="guide-body"><div><strong id="guideWhere"></strong><pre id="guideText"></pre><img id="guidePreview" class="guide-preview" alt="현재 단계에서 손으로 그릴 그림 예시" hidden></div><p id="guideNote"></p></div></section>
-<p class="tablet-tip">태블릿은 가로 방향에서 쓰기 편합니다. 원문은 필요할 때 펼쳐 보고, 단계 안내를 접으면 필기 공간을 넓게 볼 수 있습니다. 평소처럼 풀고 고친 흔적도 그대로 남겨 주세요.</p>
+<p class="tablet-tip">갤탭: S펜으로 쓰고 손가락·손바닥 접촉은 필기에서 무시합니다. 캔버스 오른쪽 ‘손가락 스크롤’ 띠를 위아래로 밀거나 ‘손가락 스크롤 모드’를 누르세요. 단계별 점선 칸은 위치 안내이며 저장되지 않습니다.</p>
 
 <div class="bar">
   <button id="mPen" class="on">펜</button>
   <button id="mErase">지우개</button>
   <div class="sep"></div>
   <label>굵기 <input type="range" id="w" min="1.5" max="9" step="0.5" value="4"><span id="wv">4.0</span></label>
+  <div class="sep"></div>
+  <button id="toggleAreas" aria-pressed="true">자리 표시 끄기</button>
+  <button id="toggleScrollMode" aria-pressed="false">손가락 스크롤 모드</button>
+  <button id="toggleFingerInk" aria-pressed="false">손가락 필기: 꺼짐</button>
   <div class="sep"></div>
   <button id="undo">마지막 획 지우기</button>
   <button id="clear">새 기록</button>
@@ -141,7 +148,9 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 </div>
 
 <div class="pad" id="pad">
-  <div class="zones" aria-hidden="true"><span class="zone z1">문제 조건</span><span class="zone z2">그림·조건 재확인</span><span class="zone z3">식 계산 · 잘못 쓴 곳 수정</span><span class="zone z4">구간·부호 확인</span><span class="zone z5">정답·마무리</span></div><canvas id="cv"></canvas>
+  <div class="step-areas" id="stepAreas" aria-hidden="true"></div><canvas id="cv"></canvas>
+  <div class="scroll-rail" aria-label="손가락으로 여기서 화면을 위아래로 움직이세요"><span>손가락 스크롤</span></div>
+  <div class="scroll-mode-hint">손가락 스크롤 중 · 다시 쓰려면 위의 ‘S펜 필기 모드’를 누르세요.</div>
 </div>
 
 <div class="stats">
@@ -206,6 +215,8 @@ let timeOffset = 0;
 let mode = 'pen';
 let width = 4;
 let nextId = 1;
+let fingerInk = false;       // 갤탭: 손가락·손바닥 접촉은 기본적으로 획으로 받지 않음
+let navigationMode = false;  // 화면 이동 중에는 펜도 획으로 받지 않음
 
 function now() { return performance.now(); }
 function relT() { if (t0 === null) t0 = now(); return +(timeOffset + now() - t0).toFixed(1); }
@@ -273,6 +284,12 @@ function hit(x, y) {
 // ── 포인터 ──────────────────────────────
 let devSeen = '';
 cv.addEventListener('pointerdown', e => {
+  if (navigationMode) return;
+  if (e.pointerType === 'touch' && (!fingerInk || e.width > 35 || e.height > 35)) {
+    document.getElementById('sD').textContent = '손가락·손바닥 무시';
+    return;
+  }
+  if (cur) return;
   cv.setPointerCapture(e.pointerId);
   devSeen = e.pointerType; document.getElementById('sD').textContent =
     ({pen:'펜', touch:'터치', mouse:'마우스'})[e.pointerType] || e.pointerType;
@@ -282,32 +299,35 @@ cv.addEventListener('pointerdown', e => {
     if (s) { s.erasedAt = relT(); redraw(); stats(); persistDraft(); }
     return;
   }
-  cur = { id: nextId++, w: width, erasedAt: null, device: e.pointerType, pts: [] };
+  cur = { id: nextId++, pointerId: e.pointerId, w: width, erasedAt: null, device: e.pointerType, pts: [] };
   cur.pts.push({ x:+x.toFixed(2), y:+y.toFixed(2), t: relT(), p:+(e.pressure||0.5).toFixed(3) });
   redraw();
 });
 
 cv.addEventListener('pointermove', e => {
+  if (navigationMode || (e.pointerType === 'touch' && (!fingerInk || e.width > 35 || e.height > 35))) return;
   const {x, y} = pos(e);
   if (mode === 'erase') {
     if (e.buttons) { const s = hit(x, y); if (s) { s.erasedAt = relT(); redraw(); stats(); persistDraft(); } }
     return;
   }
   if (!cur) return;
+  if (cur.pointerId !== e.pointerId) return;
   const last = cur.pts[cur.pts.length - 1];
   if ((last.x-x)**2 + (last.y-y)**2 < 1.2) return;
   cur.pts.push({ x:+x.toFixed(2), y:+y.toFixed(2), t: relT(), p:+(e.pressure||0.5).toFixed(3) });
   redraw();
 });
 
-function endStroke() {
+function endStroke(e) {
   if (!cur) return;
+  if (e && cur.pointerId !== e.pointerId) return;
   if (cur.pts.length) strokes.push(cur);
   cur = null; redraw(); stats(); persistDraft();
 }
 cv.addEventListener('pointerup', endStroke);
 cv.addEventListener('pointercancel', endStroke);
-cv.addEventListener('pointerleave', e => { if (cur) endStroke(); });
+cv.addEventListener('pointerleave', e => { if (cur) endStroke(e); });
 
 // ── 통계 ────────────────────────────────
 function stats() {
@@ -329,8 +349,13 @@ function stats() {
 
 // ── 도구 ────────────────────────────────
 const bPen = document.getElementById('mPen'), bEr = document.getElementById('mErase');
-bPen.onclick = () => { mode='pen'; bPen.classList.add('on'); bEr.classList.remove('on'); pad.classList.remove('erase'); };
-bEr.onclick  = () => { mode='erase'; bEr.classList.add('on'); bPen.classList.remove('on'); pad.classList.add('erase'); };
+const areaButton=document.getElementById('toggleAreas'), scrollButton=document.getElementById('toggleScrollMode'), fingerButton=document.getElementById('toggleFingerInk');
+function setNavigationMode(enabled){endStroke();navigationMode=enabled;pad.classList.toggle('scroll-mode',enabled);scrollButton.classList.toggle('on',enabled);scrollButton.textContent=enabled?'S펜 필기 모드':'손가락 스크롤 모드';scrollButton.setAttribute('aria-pressed',String(enabled));}
+bPen.onclick = () => { setNavigationMode(false);mode='pen'; bPen.classList.add('on'); bEr.classList.remove('on'); pad.classList.remove('erase'); };
+bEr.onclick  = () => { setNavigationMode(false);mode='erase'; bEr.classList.add('on'); bPen.classList.remove('on'); pad.classList.add('erase'); };
+areaButton.onclick=()=>{const visible=pad.classList.toggle('areas-off')===false;areaButton.textContent=visible?'자리 표시 끄기':'자리 표시 켜기';areaButton.setAttribute('aria-pressed',String(visible));};
+scrollButton.onclick=()=>setNavigationMode(!navigationMode);
+fingerButton.onclick=()=>{fingerInk=!fingerInk;fingerButton.textContent=fingerInk?'손가락 필기: 켜짐':'손가락 필기: 꺼짐';fingerButton.setAttribute('aria-pressed',String(fingerInk));};
 document.getElementById('w').oninput = e => { width = +e.target.value; document.getElementById('wv').textContent = width.toFixed(1); };
 document.getElementById('undo').onclick = () => { eraseLast(); };
 document.getElementById('clear').onclick = () => {
@@ -419,7 +444,7 @@ async function save() {
 document.getElementById('save').onclick = save;
 
 
-const GUIDE = [{"title":"무엇을 구하는 문제인가","where":"필기장 왼쪽 위","text":"P,Q는 t=0에 원점 출발\nv₁(t)=t²−6t+5, v₂(t)=2t−7\nf(t)=P,Q 사이 거리\nf: [0,a] 증가 → [a,b] 감소 → [b,∞) 증가\n구할 것: t=a부터 t=b까지 Q가 움직인 거리","note":"왜 먼저 구할 것을 쓰나요? 두 점 사이 거리 f(t)의 증감 경계 a,b를 찾은 뒤, 마지막 질문은 Q 한 점이 그 시간 동안 실제로 움직인 총 거리입니다. Q의 끝 위치에서 시작 위치를 뺀 값과 다를 수 있습니다."},{"title":"속도를 위치로 바꾸기","where":"필기장 왼쪽 가운데","text":"x₁(t)=t³/3−3t²+5t+C₁\nx₂(t)=t²−7t+C₂\nC₁,C₂를 아직 지우거나 같은 값으로 합치지 않습니다.\n승주형의 C 질문이 들어갈 순간을 위해 잠깐 멈춥니다.","note":"왜 C를 따로 남기나요? 속도를 부정적분하면 P와 Q의 위치에 각각 C₁,C₂가 생깁니다. 두 값이 같다고 아직 증명하지 않았으므로 임의로 소거하면 안 됩니다. 다음 두 단계에서 거리 표기와 원점 출발 조건을 차례로 확인합니다."},{"title":"두 점 사이 거리 쓰기","where":"필기장 가운데 위","text":"승주형 학생의 첫 시도: f(t)=x₁(t)−x₂(t)\n‘거리’ 확인 후: f(t)=|x₁(t)−x₂(t)|\n=|t³/3−4t²+12t+C₁−C₂|\nC₁−C₂는 아직 남겨 둡니다.","note":"왜 절댓값을 쓰나요? 거리는 음수가 될 수 없기 때문입니다. 지금은 두 상수를 아직 정하지 않아 C₁−C₂를 남겨야 합니다. 노션의 −2t² 정리는 계산 오류라 따라 쓰지 마세요. 이 문제에서는 상수를 바르게 정한 뒤 t≥0에서 위치 차가 0 이상임을 확인할 수 있습니다."},{"title":"원점 출발 → C 해결 → a,b 찾기","where":"필기장 가운데 왼쪽","text":"문제의 ‘원점 출발’: x₁(0)=x₂(0)=0\n→ C₁=0, C₂=0\nf(t)=|x₁−x₂|=t(t−6)²/3  (t≥0)\nf′(t)=(t−2)(t−6)\n증가→감소→증가 경계: a=2, b=6","note":"왜 이제 C가 0인가요? 두 점이 t=0에 원점에 있었다는 문제 문장을 각 위치식에 넣었기 때문입니다. 부정적분 후 초기 조건을 적용하는 방법도 맞습니다. 그다음 f를 미분해 증감 부호가 바뀌는 2와 6을 찾습니다. 아직 Q의 총 이동거리는 계산하지 않았습니다."},{"title":"Q가 방향 바꾸는 시간","where":"필기장 오른쪽 위, 시간선 그림","text":"Q의 속도 v₂(t)=2t−7=0 → t=7/2\n2 < t < 7/2: v₂<0, 왼쪽으로 이동\n7/2 < t < 6: v₂>0, 오른쪽으로 이동\n시간선에 2 ── 7/2 ── 6을 그리고 방향 화살표를 표시","note":"왜 7/2에서 나누나요? Q는 a=2부터 b=6까지 한쪽으로만 가지 않습니다. 속도의 부호가 바뀌는 t=7/2를 지나 되돌아오므로 두 구간의 이동 길이를 각각 더해야 합니다. 화면의 시간선 그림을 참고하세요.","preview":"ink-film-10-reference.svg"},{"title":"각 구간의 이동 길이","where":"필기장 오른쪽 가운데","text":"2→7/2: ∫₂^(7/2)(7−2t)dt=9/4\n7/2→6: ∫_(7/2)^6(2t−7)dt=25/4\n총 이동거리=9/4+25/4=17/2","note":"왜 첫 구간은 7−2t인가요? 그때 v₂가 음수라 이동 길이는 |v₂|=−v₂=7−2t입니다. 두 적분은 각각 양의 길이를 나타냅니다. 시작과 끝의 위치 차 4를 답으로 쓰면 되돌아간 길이를 놓칩니다."},{"title":"답과 승주형 강조 연결","where":"필기장 오른쪽 아래","text":"a=2, b=6\nQ 이동거리=17/2 → ②\n원점 출발 조건으로 C₁=C₂=0을 정한 부분에 동그라미","note":"승주형이 볼드로 강조한 것은 절댓값 대화보다 적분상수 C를 원점 출발 조건과 연결하는 여섯 문장입니다. 영상에서는 C를 확인하는 필기와 마지막 Q 이동거리 계산을 다른 순간으로 보여주세요."}];
+const GUIDE = [{"title":"무엇을 구하는 문제인가","where":"필기장 왼쪽 위","text":"P,Q는 t=0에 원점 출발\nv₁(t)=t²−6t+5, v₂(t)=2t−7\nf(t)=P,Q 사이 거리\nf: [0,a] 증가 → [a,b] 감소 → [b,∞) 증가\n구할 것: t=a부터 t=b까지 Q가 움직인 거리","note":"왜 먼저 구할 것을 쓰나요? 두 점 사이 거리 f(t)의 증감 경계 a,b를 찾은 뒤, 마지막 질문은 Q 한 점이 그 시간 동안 실제로 움직인 총 거리입니다. Q의 끝 위치에서 시작 위치를 뺀 값과 다를 수 있습니다.","areas":[{"label":"1/7 · 속도·문제 조건","left":5,"top":7,"width":52,"height":21}]},{"title":"속도를 위치로 바꾸기","where":"필기장 왼쪽 가운데","text":"x₁(t)=t³/3−3t²+5t+C₁\nx₂(t)=t²−7t+C₂\nC₁,C₂를 아직 지우거나 같은 값으로 합치지 않습니다.\n승주형의 C 질문이 들어갈 순간을 위해 잠깐 멈춥니다.","note":"왜 C를 따로 남기나요? 속도를 부정적분하면 P와 Q의 위치에 각각 C₁,C₂가 생깁니다. 두 값이 같다고 아직 증명하지 않았으므로 임의로 소거하면 안 됩니다. 다음 두 단계에서 거리 표기와 원점 출발 조건을 차례로 확인합니다.","areas":[{"label":"2/7 · P,Q 위치식과 C₁,C₂","left":5,"top":33,"width":53,"height":25}]},{"title":"두 점 사이 거리 쓰기","where":"필기장 가운데 위","text":"승주형 학생의 첫 시도: f(t)=x₁(t)−x₂(t)\n‘거리’ 확인 후: f(t)=|x₁(t)−x₂(t)|\n=|t³/3−4t²+12t+C₁−C₂|\nC₁−C₂는 아직 남겨 둡니다.","note":"왜 절댓값을 쓰나요? 거리는 음수가 될 수 없기 때문입니다. 지금은 두 상수를 아직 정하지 않아 C₁−C₂를 남겨야 합니다. 노션의 −2t² 정리는 계산 오류라 따라 쓰지 마세요. 이 문제에서는 상수를 바르게 정한 뒤 t≥0에서 위치 차가 0 이상임을 확인할 수 있습니다.","areas":[{"label":"3/7 · 거리와 절댓값","left":5,"top":33,"width":53,"height":25}]},{"title":"원점 출발 → C 해결 → a,b 찾기","where":"필기장 가운데 왼쪽","text":"문제의 ‘원점 출발’: x₁(0)=x₂(0)=0\n→ C₁=0, C₂=0\nf(t)=|x₁−x₂|=t(t−6)²/3  (t≥0)\nf′(t)=(t−2)(t−6)\n증가→감소→증가 경계: a=2, b=6","note":"왜 이제 C가 0인가요? 두 점이 t=0에 원점에 있었다는 문제 문장을 각 위치식에 넣었기 때문입니다. 부정적분 후 초기 조건을 적용하는 방법도 맞습니다. 그다음 f를 미분해 증감 부호가 바뀌는 2와 6을 찾습니다. 아직 Q의 총 이동거리는 계산하지 않았습니다.","areas":[{"label":"4/7 · 원점 출발과 a,b","left":5,"top":33,"width":53,"height":25}]},{"title":"Q가 방향 바꾸는 시간","where":"필기장 오른쪽 위, 시간선 그림","text":"Q의 속도 v₂(t)=2t−7=0 → t=7/2\n2 < t < 7/2: v₂<0, 왼쪽으로 이동\n7/2 < t < 6: v₂>0, 오른쪽으로 이동\n시간선에 2 ── 7/2 ── 6을 그리고 방향 화살표를 표시","note":"왜 7/2에서 나누나요? Q는 a=2부터 b=6까지 한쪽으로만 가지 않습니다. 속도의 부호가 바뀌는 t=7/2를 지나 되돌아오므로 두 구간의 이동 길이를 각각 더해야 합니다. 화면의 시간선 그림을 참고하세요.","preview":"ink-film-10-reference.svg","areas":[{"label":"5/7 · 2 ─ 7/2 ─ 6 시간선","left":59,"top":7,"width":36,"height":25}]},{"title":"각 구간의 이동 길이","where":"필기장 오른쪽 가운데","text":"2→7/2: ∫₂^(7/2)(7−2t)dt=9/4\n7/2→6: ∫_(7/2)^6(2t−7)dt=25/4\n총 이동거리=9/4+25/4=17/2","note":"왜 첫 구간은 7−2t인가요? 그때 v₂가 음수라 이동 길이는 |v₂|=−v₂=7−2t입니다. 두 적분은 각각 양의 길이를 나타냅니다. 시작과 끝의 위치 차 4를 답으로 쓰면 되돌아간 길이를 놓칩니다.","areas":[{"label":"6/7 · 두 구간 이동거리 적분","left":59,"top":34,"width":36,"height":29}]},{"title":"답과 승주형 강조 연결","where":"필기장 오른쪽 아래","text":"a=2, b=6\nQ 이동거리=17/2 → ②\n원점 출발 조건으로 C₁=C₂=0을 정한 부분에 동그라미","note":"승주형이 볼드로 강조한 것은 절댓값 대화보다 적분상수 C를 원점 출발 조건과 연결하는 여섯 문장입니다. 영상에서는 C를 확인하는 필기와 마지막 Q 이동거리 계산을 다른 순간으로 보여주세요.","areas":[{"label":"7/7 · 합과 답 ②","left":62,"top":68,"width":33,"height":23}]}];
 const draftKey='provee-film-csat2024-q10-v1';
 let stepIndex=0, marks=[], captureId=Date.now().toString(36), saveSeq=0, saveBusy=false, lastSavedFile=null;
 function eraseLast(){const s=[...strokes].reverse().find(s=>s.erasedAt===null);if(s){s.erasedAt=relT();redraw();stats();persistDraft();}}
@@ -427,7 +452,8 @@ function draftObject(){return {canvas:{w:W,h:H},strokes,elapsed:t0===null?timeOf
 function persistDraft(){try{localStorage.setItem(draftKey,JSON.stringify(draftObject()));}catch(e){document.getElementById('backupStatus').textContent='브라우저 자동 보관 공간이 부족합니다. 필기 저장을 눌러 주세요.';}}
 window.addEventListener('pagehide',persistDraft);
 function archiveDraft(){if(strokes.length)localStorage.setItem(draftKey+'-archive-'+captureId,JSON.stringify(draftObject()));}
-function renderGuide(){const s=GUIDE[stepIndex];document.getElementById('guideTitle').textContent=(stepIndex+1)+' / '+GUIDE.length+' · '+s.title;document.getElementById('guideWhere').textContent=s.where;document.getElementById('guideText').textContent=s.text;document.getElementById('guideNote').textContent=s.note;const preview=document.getElementById('guidePreview');preview.hidden=!s.preview;if(s.preview)preview.src=s.preview;document.getElementById('prevStep').disabled=stepIndex===0;document.getElementById('nextStep').disabled=stepIndex===GUIDE.length-1;}
+function renderAreas(s){const box=document.getElementById('stepAreas');box.textContent='';for(const a of s.areas||[]){const region=document.createElement('div');region.className='step-area';region.style.left=a.left+'%';region.style.top=a.top+'%';region.style.width=a.width+'%';region.style.height=a.height+'%';const label=document.createElement('span');label.className='step-area-label';label.textContent=a.label;region.appendChild(label);box.appendChild(region);}}
+function renderGuide(){const s=GUIDE[stepIndex];document.getElementById('guideTitle').textContent=(stepIndex+1)+' / '+GUIDE.length+' · '+s.title;document.getElementById('guideWhere').textContent=s.where;document.getElementById('guideText').textContent=s.text;document.getElementById('guideNote').textContent=s.note;const preview=document.getElementById('guidePreview');preview.hidden=!s.preview;if(s.preview)preview.src=s.preview;renderAreas(s);document.getElementById('prevStep').disabled=stepIndex===0;document.getElementById('nextStep').disabled=stepIndex===GUIDE.length-1;}
 function goStep(delta){endStroke();stepIndex=Math.max(0,Math.min(GUIDE.length-1,stepIndex+delta));marks.push({step:stepIndex+1,at:t0===null?0:relT(),label:GUIDE[stepIndex].title});renderGuide();setGuideCollapsed(false);persistDraft();}
 function setGuideCollapsed(collapsed){const guide=document.getElementById('filmGuide'),button=document.getElementById('toggleGuide');guide.classList.toggle('collapsed',collapsed);button.textContent=collapsed?'안내 보기':'안내 접기';button.setAttribute('aria-expanded',String(!collapsed));}
 document.getElementById('prevStep').onclick=()=>goStep(-1);

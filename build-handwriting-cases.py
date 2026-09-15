@@ -25,9 +25,9 @@ GUIDES = {
         },
         {
             "title": "오른쪽 식과 빈 시작점",
-            "where": "필기장 오른쪽 위 → 기존 그래프의 x=2 위",
-            "text": "f₂(x)=a(x−2)(x−b)+9  (실제 구간 x>2)\n연장한 이차식: f₂(2)=9, f₂(b)=9\n실제 함수: f(2)=5\n그래프의 (2,9)는 빈 점 ○, (2,5)는 채운 점 ●",
-            "note": "왜 2를 또 넣나요? 서로 다른 두 식이 x=2에서 같은 높이로 이어지는지 확인하려는 것입니다. f₂(2)=9는 식을 연장해 넣은 값이고, 실제 f는 x=2에서 왼쪽 식을 써서 5입니다. f₂(b)=9는 b>2일 때 실제 오른쪽 가지에 찍을 수 있습니다.",
+            "where": "① 필기장 오른쪽 위 새 식칸 → ② 2/7에서 그린 그래프의 x=2 바로 위",
+            "text": "① 오른쪽 위 빈 칸에 새 식을 씁니다.\nf₂(x)=a(x−2)(x−b)+9  (x>2에서 쓰는 이차식)\n그 아래: f₂(2)=9, f₂(b)=9 / 실제 f(2)=5\n② 왼쪽에서 그렸던 그래프의 x=2로 돌아갑니다.\n(2,5) ●의 바로 위 높이 9에 (2,9) ○를 찍습니다.",
+            "note": "‘함수 형태·조건’이라고 적힌 예전 회색 자리 이름은 없앴습니다. 여기는 오른쪽 식 f₂와 경계의 두 높이를 비교해 쓰는 자리입니다. f₂(2)=9는 오른쪽 식을 x=2까지 연장한 값이고 실제 f(2)=5라서 점을 겹쳐 칠할 수 없습니다. 칸이 좁으면 f₂(x)=를 한 줄, a(x−2)(x−b)+9를 다음 줄에 써도 됩니다. f₂(b)=9는 b>2일 때 실제 오른쪽 가지의 점입니다.",
         },
         {
             "title": "승주형 원문의 잘못된 시도",
@@ -147,6 +147,44 @@ GUIDES[14][1]["preview"] = "ink-film-14-left.svg"
 GUIDES[10][4]["preview"] = "ink-film-10-reference.svg"
 GUIDES[3][1]["preview"] = "ink-film-3-reference.svg"
 GUIDES[3][4]["preview"] = "ink-film-3-reference.svg"
+
+def area(label: str, left: int, top: int, width: int, height: int) -> dict:
+    return {"label": label, "left": left, "top": top, "width": width, "height": height}
+
+for number, steps in {
+    14: [
+        [area("1/7 · 여기에 f₁ 미분과 f(2)", 5, 7, 49, 20)],
+        [area("2/7 · 여기에 x≤2 삼차곡선", 5, 30, 61, 34)],
+        [area("① 오른쪽 위에 f₂ 식·값 비교", 57, 7, 38, 21),
+         area("② 기존 그래프 x=2 위에 (2,9) ○", 5, 30, 61, 34)],
+        [area("4/7 · 기존 그래프 x>2 쪽에 ∩ 시도", 5, 30, 61, 34)],
+        [area("① 여기에 a>0 조건", 57, 7, 38, 21),
+         area("② 같은 그래프에서 ∩ 지우고 ∪", 5, 30, 61, 34)],
+        [area("① 그래프에 y=t 가로선", 5, 30, 61, 34),
+         area("② 여기서 g(t)·m 비교", 5, 68, 53, 23)],
+        [area("7/7 · 자연수 후보와 최대 합", 62, 68, 33, 23)],
+    ],
+    10: [
+        [area("1/7 · 속도·문제 조건", 5, 7, 52, 21)],
+        [area("2/7 · P,Q 위치식과 C₁,C₂", 5, 33, 53, 25)],
+        [area("3/7 · 거리와 절댓값", 5, 33, 53, 25)],
+        [area("4/7 · 원점 출발과 a,b", 5, 33, 53, 25)],
+        [area("5/7 · 2 ─ 7/2 ─ 6 시간선", 59, 7, 36, 25)],
+        [area("6/7 · 두 구간 이동거리 적분", 59, 34, 36, 29)],
+        [area("7/7 · 합과 답 ②", 62, 68, 33, 23)],
+    ],
+    3: [
+        [area("1/7 · 문제 첫 줄·sin(−θ)", 5, 7, 52, 20)],
+        [area("2/7 · 길이 3·1·2√2 삼각형", 5, 30, 61, 34)],
+        [area("3/7 · 양수 ⑤ 시도", 5, 7, 52, 20)],
+        [area("4/7 · 첫 줄 제4사분면 확인", 5, 7, 52, 20)],
+        [area("5/7 · 오른쪽 아래 사선으로 수정", 5, 30, 61, 34)],
+        [area("6/7 · 음수 tan θ 계산", 59, 34, 36, 29)],
+        [area("7/7 · 답 ②", 62, 68, 33, 23)],
+    ],
+}.items():
+    for step, areas in zip(GUIDES[number], steps):
+        step["areas"] = areas
 
 NAV = '<nav class="case-nav" aria-label="승주형 세 문제"><a href="ink-film-14.html">14번 · 그래프</a><a href="ink-film-10.html">10번 · 적분·이동거리</a><a href="ink-film-3.html">3번 · 사분면</a></nav>\n'
 STYLE = '\n.case-nav{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.case-nav a{background:#fffdf9;border:1px solid var(--line);border-radius:9px;padding:9px 12px;color:var(--wine);font-size:13px;font-weight:700;text-decoration:none}.case-nav a:hover{border-color:var(--wine)}.graph-reference{background:#fffdf9;border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0;line-height:1.6}.graph-reference summary{cursor:pointer;color:var(--wine);font-weight:800}.graph-reference img{display:block;max-width:100%;width:min(760px,100%);height:auto;margin:9px auto}.graph-reference p{font-size:13px;color:#6b6259}.problem-card .choices{margin-top:9px;color:#645b52;font-size:14px}.guide-body pre{max-height:270px;overflow:auto}\n'
@@ -323,12 +361,6 @@ def make_case(base: str, number: int) -> str:
     start = page.index('<section class="problem-card"')
     end = page.index('<div class="tasks"', start)
     page = page[:start] + BLOCKS[number].strip() + "\n\n" + page[end:]
-    zone = '<div class="zones" aria-hidden="true">'
-    start = page.index(zone)
-    end = page.index('</div><canvas id="cv"></canvas>', start)
-    new_zones = ('<div class="zones" aria-hidden="true"><span class="zone z1">문제 조건</span><span class="zone z2">그림·조건 재확인</span>'
-                 '<span class="zone z3">식 계산 · 잘못 쓴 곳 수정</span><span class="zone z4">구간·부호 확인</span><span class="zone z5">정답·마무리</span>')
-    page = page[:start] + new_zones + page[end:]
     old_task = "const TASKS = [{id:'csat2024-q14',tag:'승주 14번 · 광고 재현 필기',text:'조건을 보고 스스로 고친 뒤 끝까지 풀이',note:'새 자료'}];"
     new_task = ("const TASKS = [{id:'csat2024-q" + str(number) + "',tag:" + json.dumps(title, ensure_ascii=False) +
                 ",text:" + json.dumps(sub, ensure_ascii=False) + ",note:'새 자료'}];")
