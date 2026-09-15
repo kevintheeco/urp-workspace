@@ -95,6 +95,7 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 .step-areas{position:absolute;inset:0;z-index:3;pointer-events:none}.step-area{position:absolute;border:2px dashed #8a1c2bb8;border-radius:12px;background:#fff9f112}.step-area:nth-child(2){border-color:#215c99b8}.step-area-label{position:absolute;left:8px;top:-15px;max-width:calc(100% - 16px);background:#fff;border:1px solid #d7c8b8;border-radius:6px;padding:3px 7px;color:#7a1b28;font-size:13px;font-weight:800;line-height:1.35;white-space:normal;box-shadow:0 2px 7px #00000010}.step-area:nth-child(2) .step-area-label{color:#215c99}.pad.areas-off .step-areas{display:none}
 .scroll-rail{position:absolute;z-index:4;right:0;top:0;bottom:0;width:44px;background:#f5eee5d9;border-left:1px dashed #c6b9a9;touch-action:pan-y;display:flex;justify-content:center;align-items:flex-start;padding-top:16px;pointer-events:auto}.scroll-rail span{writing-mode:vertical-rl;font-size:12px;line-height:1.5;font-weight:700;color:#776b5d}.pad.scroll-mode canvas{touch-action:pan-y;cursor:grab}.scroll-mode-hint{display:none;position:absolute;z-index:5;top:42%;left:20%;width:60%;pointer-events:none;text-align:center;background:#fffdf9ed;border:2px solid var(--wine);border-radius:12px;padding:12px;color:var(--wine);font-weight:800}.pad.scroll-mode .scroll-mode-hint{display:block}
 @media(max-width:800px){.step-area-label{font-size:10px;padding:2px 4px;top:-12px}.scroll-rail{width:34px}.scroll-rail span{font-size:10px}}
+.exam-workspace{background:#fffdf9;border:1px solid var(--line);border-radius:12px;margin:11px 0;padding:12px 15px}.exam-workspace summary{cursor:pointer;color:var(--wine);font-size:16px;font-weight:800}.exam-workspace .exam-controls{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.exam-workspace .exam-controls button{font-size:13px;padding:7px 10px}.exam-sheet{position:relative;width:min(1100px,100%);margin:0 auto;border:1px solid #dad5ce;border-radius:7px;overflow:hidden;background:#fff}.exam-sheet img{display:block;width:100%;height:auto;pointer-events:none}.exam-sheet canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;touch-action:none;cursor:crosshair}.exam-sheet.erase canvas{cursor:cell}.exam-sheet.scroll-mode canvas{touch-action:pan-y;cursor:grab}.exam-sheet .scroll-rail{width:34px}.exam-sheet .scroll-rail span{font-size:10px}.exam-highlight{position:absolute;z-index:1;left:9.3%;top:4.3%;width:24%;height:5.4%;background:#ffe14c99;mix-blend-mode:multiply;pointer-events:none}.exam-highlight[hidden]{display:none}.exam-workspace .exam-note{font-size:12px;line-height:1.5;color:#6B6259;margin-top:8px}.exam-workspace .cue-message{font-size:14px;font-weight:700;color:var(--wine);margin:8px 0}.exam-workspace .cue-message[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -131,6 +132,12 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 <div class="tasks" id="tasks" hidden></div>
 <section class="film-guide" id="filmGuide"><div class="guide-top"><b id="guideTitle"></b><div><button id="prevStep">이전</button><button id="nextStep">다음</button><button id="toggleGuide" aria-expanded="true">안내 접기</button><a href="ink-film-10-guide.html" target="_blank" rel="noopener">전체 안내</a></div></div><div class="guide-body"><div><strong id="guideWhere"></strong><pre id="guideText"></pre><img id="guidePreview" class="guide-preview" alt="현재 단계에서 손으로 그릴 그림 예시" hidden></div><p id="guideNote"></p></div></section>
 <p class="tablet-tip">갤탭: S펜으로 쓰고 손가락·손바닥 접촉은 필기에서 무시합니다. 캔버스 오른쪽 ‘손가락 스크롤’ 띠를 위아래로 밀거나 ‘손가락 스크롤 모드’를 누르세요. 단계별 점선 칸은 위치 안내이며 저장되지 않습니다.</p>
+<details class="exam-workspace" id="examWorkspace" open><summary>시험지 문제 위에 표시하기 · 조건 밑줄·답 체크</summary>
+  <div class="exam-controls"><button id="examPen" class="on">문제에 펜</button><button id="examErase">문제에 지우개</button><button id="examUndo">문제 표시 한 획 지우기</button><button id="examScroll">문제 면 스크롤</button><button id="proveeCue" hidden>Provee · 첫 줄 조건 짚기</button><span class="exam-note">문제 표시 획 <b id="examCount">0</b></span></div>
+  <div class="exam-sheet" id="examSheet" data-w="1480" data-h="936"><img id="examImage" src="ink-film-10-exam.png" alt="2024학년도 수능 수학 10번 실제 문항과 다섯 선택지"><span class="exam-highlight" id="examHighlight" hidden></span><canvas id="examInk" aria-label="시험지 문제 위에 직접 표시하는 펜 면"></canvas><div class="scroll-rail" aria-label="손가락으로 시험지 화면을 스크롤하세요"><span>손가락 스크롤</span></div></div>
+  <p id="cueMessage" class="cue-message" hidden>Provee · 잠깐. 문제 맨 앞의 조건을 다시 읽어봐.</p>
+  <p class="exam-note">시험지에 밑줄·동그라미·선택지 체크를 직접 하세요. 기존 풀이장과 별도로 획과 지운 시점이 함께 보관됩니다. 접으면 풀이장으로 바로 내려갈 수 있습니다. 출처: 2024학년도 수능 수학 시험지, 한국교육과정평가원.</p>
+</details>
 
 <div class="bar">
   <button id="mPen" class="on">펜</button>
@@ -211,6 +218,11 @@ let dpr = Math.min(window.devicePixelRatio || 1, 2);
 cv.width = W * dpr; cv.height = H * dpr;
 cv.style.aspectRatio = W + '/' + H;
 ctx.scale(dpr, dpr);
+const examWorkspace=document.getElementById('examWorkspace'),examSheet=document.getElementById('examSheet');
+const examImage=document.getElementById('examImage'),examInk=document.getElementById('examInk'),examCtx=examInk.getContext('2d');
+const QW=+examSheet.dataset.w,QH=+examSheet.dataset.h;
+examInk.width=QW;examInk.height=QH;
+let questionStrokes=[],questionCur=null,questionNextId=1,cueVisible=false;
 
 let strokes = [];      // {id, pts:[{x,y,t,p}], w, erasedAt|null, device}
 let cur = null;
@@ -275,13 +287,59 @@ function drawStroke(s) {
   ctx.restore();
 }
 
+function questionPos(e){const r=examInk.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*QW,y:(e.clientY-r.top)/r.height*QH};}
+function redrawQuestion(){
+  examCtx.clearRect(0,0,QW,QH);
+  for(const s of [...questionStrokes,...(questionCur?[questionCur]:[])]){
+    if(s.erasedAt!==null||!s.pts.length)continue;
+    const p=s.pts;examCtx.save();examCtx.strokeStyle='#1A1614';examCtx.fillStyle='#1A1614';examCtx.lineWidth=s.w;
+    examCtx.lineCap='round';examCtx.lineJoin='round';
+    if(p.length===1){examCtx.beginPath();examCtx.arc(p[0].x,p[0].y,s.w/2,0,7);examCtx.fill();}
+    else{examCtx.beginPath();examCtx.moveTo(p[0].x,p[0].y);for(let i=1;i<p.length;i++)examCtx.lineTo(p[i].x,p[i].y);examCtx.stroke();}
+    examCtx.restore();
+  }
+  document.getElementById('examCount').textContent=questionStrokes.length;
+}
+function strokeNear(s,x,y){
+  const p=s.pts,r2=(s.w*3+14)**2;
+  for(let i=0;i<p.length;i++){
+    if((p[i].x-x)**2+(p[i].y-y)**2<r2)return true;
+    if(i===0)continue;
+    const a=p[i-1],b=p[i],vx=b.x-a.x,vy=b.y-a.y;
+    const u=Math.max(0,Math.min(1,((x-a.x)*vx+(y-a.y)*vy)/(vx*vx+vy*vy||1)));
+    if((a.x+u*vx-x)**2+(a.y+u*vy-y)**2<r2)return true;
+  }
+  return false;
+}
+function questionHit(x,y){for(let i=questionStrokes.length-1;i>=0;i--){const s=questionStrokes[i];if(s.erasedAt===null&&strokeNear(s,x,y))return s;}return null;}
+function questionEnd(e){if(!questionCur)return;if(e&&questionCur.pointerId!==e.pointerId)return;if(questionCur.pts.length)questionStrokes.push(questionCur);questionCur=null;redrawQuestion();stats();persistDraft();}
+examInk.addEventListener('pointerdown',e=>{
+  if(navigationMode||(e.pointerType==='touch'&&(!fingerInk||e.width>35||e.height>35)))return;
+  if(questionCur)return;
+  examInk.setPointerCapture(e.pointerId);
+  devSeen=e.pointerType;const{x,y}=questionPos(e);
+  if(mode==='erase'){const s=questionHit(x,y);if(s){s.erasedAt=relT();redrawQuestion();stats();persistDraft();}return;}
+  questionCur={id:questionNextId++,pointerId:e.pointerId,w:width,erasedAt:null,device:e.pointerType,pts:[{x:+x.toFixed(2),y:+y.toFixed(2),t:relT(),p:+(e.pressure||.5).toFixed(3)}]};
+  redrawQuestion();
+});
+examInk.addEventListener('pointermove',e=>{
+  if(navigationMode||(e.pointerType==='touch'&&(!fingerInk||e.width>35||e.height>35)))return;
+  const{x,y}=questionPos(e);
+  if(mode==='erase'){if(e.buttons){const s=questionHit(x,y);if(s){s.erasedAt=relT();redrawQuestion();stats();persistDraft();}}return;}
+  if(!questionCur||questionCur.pointerId!==e.pointerId)return;
+  const last=questionCur.pts.at(-1);if((last.x-x)**2+(last.y-y)**2<1.2)return;
+  questionCur.pts.push({x:+x.toFixed(2),y:+y.toFixed(2),t:relT(),p:+(e.pressure||.5).toFixed(3)});redrawQuestion();
+});
+examInk.addEventListener('pointerup',questionEnd);
+examInk.addEventListener('pointercancel',questionEnd);
+examInk.addEventListener('pointerleave',e=>{if(questionCur)questionEnd(e);});
+function questionEraseLast(){const s=[...questionStrokes].reverse().find(s=>s.erasedAt===null);if(s){s.erasedAt=relT();redrawQuestion();stats();persistDraft();}}
+
 // ── 히트 테스트 (지우개) ─────────────────
 function hit(x, y) {
   for (let i = strokes.length - 1; i >= 0; i--) {
     const s = strokes[i]; if (s.erasedAt !== null) continue;
-    for (const q of s.pts) {
-      if ((q.x-x)**2 + (q.y-y)**2 < (s.w*3 + 14)**2) return s;
-    }
+    if(strokeNear(s,x,y))return s;
   }
   return null;
 }
@@ -336,18 +394,18 @@ cv.addEventListener('pointerleave', e => { if (cur) endStroke(e); });
 
 // ── 통계 ────────────────────────────────
 function stats() {
-  const live = strokes.filter(s => s.erasedAt === null);
-  document.getElementById('sN').textContent = strokes.length;
-  document.getElementById('sE').textContent = strokes.filter(s => s.erasedAt !== null).length;
+  const ordered=[...strokes,...questionStrokes].filter(s=>s.pts.length).sort((a,b)=>a.pts[0].t-b.pts[0].t);
+  document.getElementById('sN').textContent = ordered.length;
+  document.getElementById('sE').textContent = ordered.filter(s => s.erasedAt !== null).length;
   document.getElementById('sR').textContent=marks.filter(m=>m.type==='problem-review-start').length+(problemReviewActive?' · 확인 중':'');
-  if (!strokes.length) { document.getElementById('sT').textContent = '0.0초';
+  if (!ordered.length) { document.getElementById('sT').textContent = '0.0초';
     document.getElementById('sP').textContent = '—'; return; }
-  const end = strokes[strokes.length-1].pts.slice(-1)[0].t;
+  const end = Math.max(...ordered.map(s=>s.pts.at(-1).t));
   document.getElementById('sT').textContent = (end/1000).toFixed(1) + '초';
   let gap = 0, gapAt = 0;
-  for (let i = 1; i < strokes.length; i++) {
-    const g = strokes[i].pts[0].t - strokes[i-1].pts.slice(-1)[0].t;
-    if (g > gap) { gap = g; gapAt = strokes[i-1].pts.slice(-1)[0].t; }
+  for (let i = 1; i < ordered.length; i++) {
+    const g = ordered[i].pts[0].t - ordered[i-1].pts.at(-1).t;
+    if (g > gap) { gap = g; gapAt = ordered[i-1].pts.at(-1).t; }
   }
   document.getElementById('sP').textContent = gap > 400
     ? (gap/1000).toFixed(1) + '초 (' + (gapAt/1000).toFixed(0) + '초 지점)' : '—';
@@ -356,17 +414,21 @@ function stats() {
 // ── 도구 ────────────────────────────────
 const bPen = document.getElementById('mPen'), bEr = document.getElementById('mErase');
 const areaButton=document.getElementById('toggleAreas'), scrollButton=document.getElementById('toggleScrollMode'), fingerButton=document.getElementById('toggleFingerInk');
-function setNavigationMode(enabled){endStroke();navigationMode=enabled;pad.classList.toggle('scroll-mode',enabled);scrollButton.classList.toggle('on',enabled);scrollButton.textContent=enabled?'S펜 필기 모드':'손가락 스크롤 모드';scrollButton.setAttribute('aria-pressed',String(enabled));}
-bPen.onclick = () => { setNavigationMode(false);mode='pen'; bPen.classList.add('on'); bEr.classList.remove('on'); pad.classList.remove('erase'); };
-bEr.onclick  = () => { setNavigationMode(false);mode='erase'; bEr.classList.add('on'); bPen.classList.remove('on'); pad.classList.add('erase'); };
+const examPen=document.getElementById('examPen'),examErase=document.getElementById('examErase'),examScroll=document.getElementById('examScroll'),proveeCue=document.getElementById('proveeCue');
+function syncQuestionTools(){examPen.classList.toggle('on',mode==='pen');examErase.classList.toggle('on',mode==='erase');examSheet.classList.toggle('erase',mode==='erase');}
+function setNavigationMode(enabled){endStroke();questionEnd();navigationMode=enabled;pad.classList.toggle('scroll-mode',enabled);examSheet.classList.toggle('scroll-mode',enabled);scrollButton.classList.toggle('on',enabled);scrollButton.textContent=enabled?'S펜 필기 모드':'손가락 스크롤 모드';scrollButton.setAttribute('aria-pressed',String(enabled));examScroll.classList.toggle('on',enabled);examScroll.textContent=enabled?'문제 면에 쓰기':'문제 면 스크롤';}
+bPen.onclick = () => { setNavigationMode(false);mode='pen'; bPen.classList.add('on'); bEr.classList.remove('on'); pad.classList.remove('erase');syncQuestionTools(); };
+bEr.onclick  = () => { setNavigationMode(false);mode='erase'; bEr.classList.add('on'); bPen.classList.remove('on'); pad.classList.add('erase');syncQuestionTools(); };
+examPen.onclick=()=>bPen.click();examErase.onclick=()=>bEr.click();examScroll.onclick=()=>setNavigationMode(!navigationMode);
+document.getElementById('examUndo').onclick=questionEraseLast;
 areaButton.onclick=()=>{const visible=pad.classList.toggle('areas-off')===false;areaButton.textContent=visible?'자리 표시 끄기':'자리 표시 켜기';areaButton.setAttribute('aria-pressed',String(visible));};
 scrollButton.onclick=()=>setNavigationMode(!navigationMode);
 fingerButton.onclick=()=>{fingerInk=!fingerInk;fingerButton.textContent=fingerInk?'손가락 필기: 켜짐':'손가락 필기: 꺼짐';fingerButton.setAttribute('aria-pressed',String(fingerInk));};
 document.getElementById('w').oninput = e => { width = +e.target.value; document.getElementById('wv').textContent = width.toFixed(1); };
 document.getElementById('undo').onclick = () => { eraseLast(); };
 document.getElementById('clear').onclick = () => {
-  if (strokes.length && !confirm('현재 기록은 브라우저에 보관하고 빈 필기를 시작할까요? 오래 보관하려면 먼저 필기 저장을 눌러 주세요.')) return;
-  archiveDraft(); strokes = []; t0 = null; timeOffset = 0; nextId = 1; marks = []; problemReviewActive=false; padVisited=false; stepIndex = 0; captureId = Date.now().toString(36); saveSeq = 0; renderGuide(); redraw(); stats(); persistDraft();
+  if ((strokes.length||questionStrokes.length) && !confirm('현재 기록은 브라우저에 보관하고 빈 필기를 시작할까요? 오래 보관하려면 먼저 필기 저장을 눌러 주세요.')) return;
+  archiveDraft(); strokes = []; questionStrokes=[];questionCur=null;questionNextId=1;cueVisible=false;renderCue();redrawQuestion(); t0 = null; timeOffset = 0; nextId = 1; marks = []; problemReviewActive=false; padVisited=false; stepIndex = 0; captureId = Date.now().toString(36); saveSeq = 0; renderGuide(); redraw(); stats(); persistDraft();
 };
 window.addEventListener('keydown', e => {
   if ((e.metaKey||e.ctrlKey) && e.key === 'z') { e.preventDefault(); eraseLast(); }
@@ -404,12 +466,30 @@ function toast(msg, bad) {
   t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3200);
 }
 
+function toQuestionSVG(){
+  const elements=questionStrokes.map(s=>{
+    if(!s.pts.length)return'';
+    const d='M'+s.pts.map(p=>p.x+' '+p.y).join(' L');
+    return '<path d="'+d+'" fill="none" stroke="#1A1614" stroke-width="'+s.w+'" stroke-linecap="round" stroke-linejoin="round" data-id="'+s.id+'" data-t0="'+s.pts[0].t+'" data-t1="'+s.pts.at(-1).t+'"'+(s.erasedAt!==null?' data-erased="'+s.erasedAt+'" opacity="0"':'')+'/>';
+  }).join('');
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+QW+' '+QH+'">'+elements+'</svg>';
+}
+function questionCompositePNG(){
+  const composite=document.createElement('canvas');composite.width=QW;composite.height=QH;
+  const c=composite.getContext('2d');
+  if(examImage.complete&&examImage.naturalWidth)c.drawImage(examImage,0,0,QW,QH);
+  if(cueVisible&&task.id==='csat2024-q14'){c.fillStyle='#ffe14c99';c.fillRect(QW*.093,QH*.043,QW*.24,QH*.054);}
+  c.drawImage(examInk,0,0,QW,QH);
+  return composite.toDataURL('image/png');
+}
+
 function makeCapturePayload() {
   return {
     name: task.id + '_' + captureId + '_' + (++saveSeq),
     captureKind: 'directed-reenactment',
     sourcePage: '승주 2024학년도 수능 10번 교육 시나리오',
     captureId, marks,
+    printedProblem: {imageUrl:new URL(examImage.getAttribute('src'),location.href).href,canvas:{w:QW,h:QH},strokes:questionStrokes,cueVisible,svg:toQuestionSVG(),png:questionCompositePNG()},
     timingContext: {
       longInkGapsMayIncludeProblemReading: true,
       problemReviewVisits: marks.filter(m=>m.type==='problem-review-start').length,
@@ -422,7 +502,9 @@ function makeCapturePayload() {
     savedAt: new Date().toISOString(),
     summary: {
       strokes: strokes.length,
+      questionStrokes: questionStrokes.length,
       erased: strokes.filter(s => s.erasedAt !== null).length,
+      questionErased: questionStrokes.filter(s=>s.erasedAt!==null).length,
       totalMs: Math.max(relT(), ...strokes.map(s => s.erasedAt || 0)),
     },
     strokes,
@@ -430,12 +512,13 @@ function makeCapturePayload() {
     png: cv.toDataURL('image/png'),
   };
 }
-function downloadCapture(){endStroke();if(!strokes.length)return toast('아직 쓰신 게 없습니다',true);const blob=new Blob([JSON.stringify(makeCapturePayload())],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='승주10번-필기-'+captureId+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),60000);document.getElementById('backupStatus').textContent='필기 파일을 이 태블릿에 받았습니다. 브라우저에도 원본 획이 계속 남습니다.';}
+function downloadCapture(){endStroke();questionEnd();if(!strokes.length&&!questionStrokes.length)return toast('아직 쓰신 게 없습니다',true);const blob=new Blob([JSON.stringify(makeCapturePayload())],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='승주10번-필기-'+captureId+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),60000);document.getElementById('backupStatus').textContent='필기 파일을 이 태블릿에 받았습니다. 브라우저에도 원본 획이 계속 남습니다.';}
 document.getElementById('downloadBackup').onclick=downloadCapture;
 async function save() {
   if (saveBusy) return;
   endStroke();
-  if (!strokes.length) return toast('아직 쓰신 게 없습니다', true);
+  questionEnd();
+  if (!strokes.length&&!questionStrokes.length) return toast('아직 쓰신 게 없습니다', true);
   const payload=makeCapturePayload();
   saveBusy=true; document.getElementById('save').disabled=true;
   try {
@@ -459,21 +542,37 @@ const GUIDE = [{"title":"무엇을 구하는 문제인가","where":"필기장 �
 const draftKey='provee-film-csat2024-q10-v1';
 let stepIndex=0, marks=[], captureId=Date.now().toString(36), saveSeq=0, saveBusy=false, lastSavedFile=null;
 function eraseLast(){const s=[...strokes].reverse().find(s=>s.erasedAt===null);if(s){s.erasedAt=relT();redraw();stats();persistDraft();}}
-function draftObject(){return {canvas:{w:W,h:H},strokes,elapsed:t0===null?timeOffset:relT(),nextId,stepIndex,marks,captureId,saveSeq,lastSavedFile,device:devSeen};}
+function draftObject(){return {canvas:{w:W,h:H},strokes,question:{canvas:{w:QW,h:QH},strokes:questionStrokes,nextId:questionNextId,cueVisible,open:examWorkspace.open},elapsed:t0===null?timeOffset:relT(),nextId,stepIndex,marks,captureId,saveSeq,lastSavedFile,device:devSeen};}
 function persistDraft(){try{localStorage.setItem(draftKey,JSON.stringify(draftObject()));}catch(e){document.getElementById('backupStatus').textContent='브라우저 자동 보관 공간이 부족합니다. 필기 저장을 눌러 주세요.';}}
 window.addEventListener('pagehide',persistDraft);
-function archiveDraft(){if(strokes.length)localStorage.setItem(draftKey+'-archive-'+captureId,JSON.stringify(draftObject()));}
+function archiveDraft(){if(strokes.length||questionStrokes.length)localStorage.setItem(draftKey+'-archive-'+captureId,JSON.stringify(draftObject()));}
 function renderAreas(s){const box=document.getElementById('stepAreas');box.textContent='';for(const a of s.areas||[]){const region=document.createElement('div');region.className='step-area';region.style.left=a.left+'%';region.style.top=a.top+'%';region.style.width=a.width+'%';region.style.height=a.height+'%';const label=document.createElement('span');label.className='step-area-label';label.textContent=a.label;region.appendChild(label);box.appendChild(region);}}
 function renderGuide(){const s=GUIDE[stepIndex];document.getElementById('guideTitle').textContent=(stepIndex+1)+' / '+GUIDE.length+' · '+s.title;document.getElementById('guideWhere').textContent=s.where;document.getElementById('guideText').textContent=s.text;document.getElementById('guideNote').textContent=s.note;const preview=document.getElementById('guidePreview');preview.hidden=!s.preview;if(s.preview)preview.src=s.preview;renderAreas(s);document.getElementById('prevStep').disabled=stepIndex===0;document.getElementById('nextStep').disabled=stepIndex===GUIDE.length-1;}
+function renderCue(){document.getElementById('examHighlight').hidden=!cueVisible;document.getElementById('cueMessage').hidden=!cueVisible;proveeCue.classList.toggle('on',cueVisible);proveeCue.textContent=cueVisible?'Provee · 조건 짚기 끄기':'Provee · 첫 줄 조건 짚기';}
+proveeCue.hidden=task.id!=='csat2024-q14';
+proveeCue.onclick=()=>{questionEnd();cueVisible=!cueVisible;marks.push({type:'manual-provee-condition-cue',at:relT(),step:stepIndex+1,label:'문제 첫 줄 두 자연수 a,b',visible:cueVisible});renderCue();persistDraft();};
+examWorkspace.addEventListener('toggle',()=>persistDraft());
 function goStep(delta){endStroke();stepIndex=Math.max(0,Math.min(GUIDE.length-1,stepIndex+delta));marks.push({step:stepIndex+1,at:t0===null?0:relT(),label:GUIDE[stepIndex].title});renderGuide();setGuideCollapsed(false);persistDraft();}
 function setGuideCollapsed(collapsed){const guide=document.getElementById('filmGuide'),button=document.getElementById('toggleGuide');guide.classList.toggle('collapsed',collapsed);button.textContent=collapsed?'안내 보기':'안내 접기';button.setAttribute('aria-expanded',String(!collapsed));}
 document.getElementById('prevStep').onclick=()=>goStep(-1);
 document.getElementById('nextStep').onclick=()=>goStep(1);
 document.getElementById('toggleGuide').onclick=()=>setGuideCollapsed(!document.getElementById('filmGuide').classList.contains('collapsed'));
-try{const d=JSON.parse(localStorage.getItem(draftKey)||'null');if(d&&Array.isArray(d.strokes)&&d.canvas.w===W&&d.canvas.h===H){strokes=d.strokes;nextId=d.nextId;stepIndex=d.stepIndex||0;marks=d.marks||[];captureId=d.captureId;saveSeq=d.saveSeq||0;lastSavedFile=d.lastSavedFile||null;timeOffset=d.elapsed||0;t0=null;devSeen=d.device||'';document.getElementById('backupStatus').textContent=strokes.length?'이 브라우저에 보관한 필기를 복원했습니다.':'';}}catch(e){document.getElementById('backupStatus').textContent='이전 자동 보관 기록은 복원하지 못했습니다.';}
+try{
+  const d=JSON.parse(localStorage.getItem(draftKey)||'null');
+  if(d&&Array.isArray(d.strokes)&&d.canvas.w===W&&d.canvas.h===H){
+    strokes=d.strokes;nextId=d.nextId;stepIndex=d.stepIndex||0;marks=d.marks||[];
+    captureId=d.captureId;saveSeq=d.saveSeq||0;lastSavedFile=d.lastSavedFile||null;
+    timeOffset=d.elapsed||0;t0=null;devSeen=d.device||'';
+    if(d.question?.canvas?.w===QW&&d.question?.canvas?.h===QH&&Array.isArray(d.question.strokes)){
+      questionStrokes=d.question.strokes;questionNextId=d.question.nextId||1;
+      cueVisible=!!d.question.cueVisible;examWorkspace.open=d.question.open!==false;
+    }else if(strokes.length&&stepIndex>0)examWorkspace.open=false;
+    document.getElementById('backupStatus').textContent=(strokes.length||questionStrokes.length)?'이 브라우저에 보관한 필기를 복원했습니다.':'';
+  }
+}catch(e){document.getElementById('backupStatus').textContent='이전 자동 보관 기록은 복원하지 못했습니다.';}
 renderGuide();
 
-redraw(); stats();
+renderCue();redraw();redrawQuestion();stats();
 function markProblemReview(type,label){marks.push({type,at:relT(),step:stepIndex+1,label});stats();persistDraft();}
 function closeProblemReview(label){if(!problemReviewActive)return;problemReviewActive=false;markProblemReview('problem-review-end',label);}
 const referenceObserver=new IntersectionObserver(entries=>{

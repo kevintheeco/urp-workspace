@@ -95,6 +95,7 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 .step-areas{position:absolute;inset:0;z-index:3;pointer-events:none}.step-area{position:absolute;border:2px dashed #8a1c2bb8;border-radius:12px;background:#fff9f112}.step-area:nth-child(2){border-color:#215c99b8}.step-area-label{position:absolute;left:8px;top:-15px;max-width:calc(100% - 16px);background:#fff;border:1px solid #d7c8b8;border-radius:6px;padding:3px 7px;color:#7a1b28;font-size:13px;font-weight:800;line-height:1.35;white-space:normal;box-shadow:0 2px 7px #00000010}.step-area:nth-child(2) .step-area-label{color:#215c99}.pad.areas-off .step-areas{display:none}
 .scroll-rail{position:absolute;z-index:4;right:0;top:0;bottom:0;width:44px;background:#f5eee5d9;border-left:1px dashed #c6b9a9;touch-action:pan-y;display:flex;justify-content:center;align-items:flex-start;padding-top:16px;pointer-events:auto}.scroll-rail span{writing-mode:vertical-rl;font-size:12px;line-height:1.5;font-weight:700;color:#776b5d}.pad.scroll-mode canvas{touch-action:pan-y;cursor:grab}.scroll-mode-hint{display:none;position:absolute;z-index:5;top:42%;left:20%;width:60%;pointer-events:none;text-align:center;background:#fffdf9ed;border:2px solid var(--wine);border-radius:12px;padding:12px;color:var(--wine);font-weight:800}.pad.scroll-mode .scroll-mode-hint{display:block}
 @media(max-width:800px){.step-area-label{font-size:10px;padding:2px 4px;top:-12px}.scroll-rail{width:34px}.scroll-rail span{font-size:10px}}
+.exam-workspace{background:#fffdf9;border:1px solid var(--line);border-radius:12px;margin:11px 0;padding:12px 15px}.exam-workspace summary{cursor:pointer;color:var(--wine);font-size:16px;font-weight:800}.exam-workspace .exam-controls{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.exam-workspace .exam-controls button{font-size:13px;padding:7px 10px}.exam-sheet{position:relative;width:min(1100px,100%);margin:0 auto;border:1px solid #dad5ce;border-radius:7px;overflow:hidden;background:#fff}.exam-sheet img{display:block;width:100%;height:auto;pointer-events:none}.exam-sheet canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;touch-action:none;cursor:crosshair}.exam-sheet.erase canvas{cursor:cell}.exam-sheet.scroll-mode canvas{touch-action:pan-y;cursor:grab}.exam-sheet .scroll-rail{width:34px}.exam-sheet .scroll-rail span{font-size:10px}.exam-highlight{position:absolute;z-index:1;left:9.3%;top:4.3%;width:24%;height:5.4%;background:#ffe14c99;mix-blend-mode:multiply;pointer-events:none}.exam-highlight[hidden]{display:none}.exam-workspace .exam-note{font-size:12px;line-height:1.5;color:#6B6259;margin-top:8px}.exam-workspace .cue-message{font-size:14px;font-weight:700;color:var(--wine);margin:8px 0}.exam-workspace .cue-message[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -113,6 +114,12 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 <div class="tasks" id="tasks" hidden></div>
 <section class="film-guide" id="filmGuide"><div class="guide-top"><b id="guideTitle"></b><div><button id="prevStep">이전</button><button id="nextStep">다음</button><button id="toggleGuide" aria-expanded="true">안내 접기</button><a href="ink-film-14-guide.html" target="_blank" rel="noopener">전체 안내</a></div></div><div class="guide-body"><div><strong id="guideWhere"></strong><pre id="guideText"></pre><img id="guidePreview" class="guide-preview" alt="현재 단계에서 손으로 그릴 그림 예시" hidden></div><p id="guideNote"></p></div></section>
 <p class="tablet-tip">갤탭: S펜으로 쓰고 손가락·손바닥 접촉은 필기에서 무시합니다. 캔버스 오른쪽 ‘손가락 스크롤’ 띠를 위아래로 밀거나 ‘손가락 스크롤 모드’를 누르세요. 단계별 점선 칸은 위치 안내이며 저장되지 않습니다.</p>
+<details class="exam-workspace" id="examWorkspace" open><summary>시험지 문제 위에 표시하기 · 조건 밑줄·답 체크</summary>
+  <div class="exam-controls"><button id="examPen" class="on">문제에 펜</button><button id="examErase">문제에 지우개</button><button id="examUndo">문제 표시 한 획 지우기</button><button id="examScroll">문제 면 스크롤</button><button id="proveeCue" hidden>Provee · 첫 줄 조건 짚기</button><span class="exam-note">문제 표시 획 <b id="examCount">0</b></span></div>
+  <div class="exam-sheet" id="examSheet" data-w="1480" data-h="1088"><img id="examImage" src="ink-film-14-exam.png" alt="2024학년도 수능 수학 14번 실제 문항과 다섯 선택지"><span class="exam-highlight" id="examHighlight" hidden></span><canvas id="examInk" aria-label="시험지 문제 위에 직접 표시하는 펜 면"></canvas><div class="scroll-rail" aria-label="손가락으로 시험지 화면을 스크롤하세요"><span>손가락 스크롤</span></div></div>
+  <p id="cueMessage" class="cue-message" hidden>Provee · 잠깐. 문제 맨 앞의 조건을 다시 읽어봐.</p>
+  <p class="exam-note">시험지에 밑줄·동그라미·선택지 체크를 직접 하세요. 기존 풀이장과 별도로 획과 지운 시점이 함께 보관됩니다. 접으면 풀이장으로 바로 내려갈 수 있습니다. 출처: 2024학년도 수능 수학 시험지, 한국교육과정평가원.</p>
+</details>
 
 <div class="bar">
   <button id="mPen" class="on">펜</button>
@@ -193,6 +200,11 @@ let dpr = Math.min(window.devicePixelRatio || 1, 2);
 cv.width = W * dpr; cv.height = H * dpr;
 cv.style.aspectRatio = W + '/' + H;
 ctx.scale(dpr, dpr);
+const examWorkspace=document.getElementById('examWorkspace'),examSheet=document.getElementById('examSheet');
+const examImage=document.getElementById('examImage'),examInk=document.getElementById('examInk'),examCtx=examInk.getContext('2d');
+const QW=+examSheet.dataset.w,QH=+examSheet.dataset.h;
+examInk.width=QW;examInk.height=QH;
+let questionStrokes=[],questionCur=null,questionNextId=1,cueVisible=false;
 
 let strokes = [];      // {id, pts:[{x,y,t,p}], w, erasedAt|null, device}
 let cur = null;
@@ -257,13 +269,59 @@ function drawStroke(s) {
   ctx.restore();
 }
 
+function questionPos(e){const r=examInk.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*QW,y:(e.clientY-r.top)/r.height*QH};}
+function redrawQuestion(){
+  examCtx.clearRect(0,0,QW,QH);
+  for(const s of [...questionStrokes,...(questionCur?[questionCur]:[])]){
+    if(s.erasedAt!==null||!s.pts.length)continue;
+    const p=s.pts;examCtx.save();examCtx.strokeStyle='#1A1614';examCtx.fillStyle='#1A1614';examCtx.lineWidth=s.w;
+    examCtx.lineCap='round';examCtx.lineJoin='round';
+    if(p.length===1){examCtx.beginPath();examCtx.arc(p[0].x,p[0].y,s.w/2,0,7);examCtx.fill();}
+    else{examCtx.beginPath();examCtx.moveTo(p[0].x,p[0].y);for(let i=1;i<p.length;i++)examCtx.lineTo(p[i].x,p[i].y);examCtx.stroke();}
+    examCtx.restore();
+  }
+  document.getElementById('examCount').textContent=questionStrokes.length;
+}
+function strokeNear(s,x,y){
+  const p=s.pts,r2=(s.w*3+14)**2;
+  for(let i=0;i<p.length;i++){
+    if((p[i].x-x)**2+(p[i].y-y)**2<r2)return true;
+    if(i===0)continue;
+    const a=p[i-1],b=p[i],vx=b.x-a.x,vy=b.y-a.y;
+    const u=Math.max(0,Math.min(1,((x-a.x)*vx+(y-a.y)*vy)/(vx*vx+vy*vy||1)));
+    if((a.x+u*vx-x)**2+(a.y+u*vy-y)**2<r2)return true;
+  }
+  return false;
+}
+function questionHit(x,y){for(let i=questionStrokes.length-1;i>=0;i--){const s=questionStrokes[i];if(s.erasedAt===null&&strokeNear(s,x,y))return s;}return null;}
+function questionEnd(e){if(!questionCur)return;if(e&&questionCur.pointerId!==e.pointerId)return;if(questionCur.pts.length)questionStrokes.push(questionCur);questionCur=null;redrawQuestion();stats();persistDraft();}
+examInk.addEventListener('pointerdown',e=>{
+  if(navigationMode||(e.pointerType==='touch'&&(!fingerInk||e.width>35||e.height>35)))return;
+  if(questionCur)return;
+  examInk.setPointerCapture(e.pointerId);
+  devSeen=e.pointerType;const{x,y}=questionPos(e);
+  if(mode==='erase'){const s=questionHit(x,y);if(s){s.erasedAt=relT();redrawQuestion();stats();persistDraft();}return;}
+  questionCur={id:questionNextId++,pointerId:e.pointerId,w:width,erasedAt:null,device:e.pointerType,pts:[{x:+x.toFixed(2),y:+y.toFixed(2),t:relT(),p:+(e.pressure||.5).toFixed(3)}]};
+  redrawQuestion();
+});
+examInk.addEventListener('pointermove',e=>{
+  if(navigationMode||(e.pointerType==='touch'&&(!fingerInk||e.width>35||e.height>35)))return;
+  const{x,y}=questionPos(e);
+  if(mode==='erase'){if(e.buttons){const s=questionHit(x,y);if(s){s.erasedAt=relT();redrawQuestion();stats();persistDraft();}}return;}
+  if(!questionCur||questionCur.pointerId!==e.pointerId)return;
+  const last=questionCur.pts.at(-1);if((last.x-x)**2+(last.y-y)**2<1.2)return;
+  questionCur.pts.push({x:+x.toFixed(2),y:+y.toFixed(2),t:relT(),p:+(e.pressure||.5).toFixed(3)});redrawQuestion();
+});
+examInk.addEventListener('pointerup',questionEnd);
+examInk.addEventListener('pointercancel',questionEnd);
+examInk.addEventListener('pointerleave',e=>{if(questionCur)questionEnd(e);});
+function questionEraseLast(){const s=[...questionStrokes].reverse().find(s=>s.erasedAt===null);if(s){s.erasedAt=relT();redrawQuestion();stats();persistDraft();}}
+
 // ── 히트 테스트 (지우개) ─────────────────
 function hit(x, y) {
   for (let i = strokes.length - 1; i >= 0; i--) {
     const s = strokes[i]; if (s.erasedAt !== null) continue;
-    for (const q of s.pts) {
-      if ((q.x-x)**2 + (q.y-y)**2 < (s.w*3 + 14)**2) return s;
-    }
+    if(strokeNear(s,x,y))return s;
   }
   return null;
 }
@@ -318,18 +376,18 @@ cv.addEventListener('pointerleave', e => { if (cur) endStroke(e); });
 
 // ── 통계 ────────────────────────────────
 function stats() {
-  const live = strokes.filter(s => s.erasedAt === null);
-  document.getElementById('sN').textContent = strokes.length;
-  document.getElementById('sE').textContent = strokes.filter(s => s.erasedAt !== null).length;
+  const ordered=[...strokes,...questionStrokes].filter(s=>s.pts.length).sort((a,b)=>a.pts[0].t-b.pts[0].t);
+  document.getElementById('sN').textContent = ordered.length;
+  document.getElementById('sE').textContent = ordered.filter(s => s.erasedAt !== null).length;
   document.getElementById('sR').textContent=marks.filter(m=>m.type==='problem-review-start').length+(problemReviewActive?' · 확인 중':'');
-  if (!strokes.length) { document.getElementById('sT').textContent = '0.0초';
+  if (!ordered.length) { document.getElementById('sT').textContent = '0.0초';
     document.getElementById('sP').textContent = '—'; return; }
-  const end = strokes[strokes.length-1].pts.slice(-1)[0].t;
+  const end = Math.max(...ordered.map(s=>s.pts.at(-1).t));
   document.getElementById('sT').textContent = (end/1000).toFixed(1) + '초';
   let gap = 0, gapAt = 0;
-  for (let i = 1; i < strokes.length; i++) {
-    const g = strokes[i].pts[0].t - strokes[i-1].pts.slice(-1)[0].t;
-    if (g > gap) { gap = g; gapAt = strokes[i-1].pts.slice(-1)[0].t; }
+  for (let i = 1; i < ordered.length; i++) {
+    const g = ordered[i].pts[0].t - ordered[i-1].pts.at(-1).t;
+    if (g > gap) { gap = g; gapAt = ordered[i-1].pts.at(-1).t; }
   }
   document.getElementById('sP').textContent = gap > 400
     ? (gap/1000).toFixed(1) + '초 (' + (gapAt/1000).toFixed(0) + '초 지점)' : '—';
@@ -338,17 +396,21 @@ function stats() {
 // ── 도구 ────────────────────────────────
 const bPen = document.getElementById('mPen'), bEr = document.getElementById('mErase');
 const areaButton=document.getElementById('toggleAreas'), scrollButton=document.getElementById('toggleScrollMode'), fingerButton=document.getElementById('toggleFingerInk');
-function setNavigationMode(enabled){endStroke();navigationMode=enabled;pad.classList.toggle('scroll-mode',enabled);scrollButton.classList.toggle('on',enabled);scrollButton.textContent=enabled?'S펜 필기 모드':'손가락 스크롤 모드';scrollButton.setAttribute('aria-pressed',String(enabled));}
-bPen.onclick = () => { setNavigationMode(false);mode='pen'; bPen.classList.add('on'); bEr.classList.remove('on'); pad.classList.remove('erase'); };
-bEr.onclick  = () => { setNavigationMode(false);mode='erase'; bEr.classList.add('on'); bPen.classList.remove('on'); pad.classList.add('erase'); };
+const examPen=document.getElementById('examPen'),examErase=document.getElementById('examErase'),examScroll=document.getElementById('examScroll'),proveeCue=document.getElementById('proveeCue');
+function syncQuestionTools(){examPen.classList.toggle('on',mode==='pen');examErase.classList.toggle('on',mode==='erase');examSheet.classList.toggle('erase',mode==='erase');}
+function setNavigationMode(enabled){endStroke();questionEnd();navigationMode=enabled;pad.classList.toggle('scroll-mode',enabled);examSheet.classList.toggle('scroll-mode',enabled);scrollButton.classList.toggle('on',enabled);scrollButton.textContent=enabled?'S펜 필기 모드':'손가락 스크롤 모드';scrollButton.setAttribute('aria-pressed',String(enabled));examScroll.classList.toggle('on',enabled);examScroll.textContent=enabled?'문제 면에 쓰기':'문제 면 스크롤';}
+bPen.onclick = () => { setNavigationMode(false);mode='pen'; bPen.classList.add('on'); bEr.classList.remove('on'); pad.classList.remove('erase');syncQuestionTools(); };
+bEr.onclick  = () => { setNavigationMode(false);mode='erase'; bEr.classList.add('on'); bPen.classList.remove('on'); pad.classList.add('erase');syncQuestionTools(); };
+examPen.onclick=()=>bPen.click();examErase.onclick=()=>bEr.click();examScroll.onclick=()=>setNavigationMode(!navigationMode);
+document.getElementById('examUndo').onclick=questionEraseLast;
 areaButton.onclick=()=>{const visible=pad.classList.toggle('areas-off')===false;areaButton.textContent=visible?'자리 표시 끄기':'자리 표시 켜기';areaButton.setAttribute('aria-pressed',String(visible));};
 scrollButton.onclick=()=>setNavigationMode(!navigationMode);
 fingerButton.onclick=()=>{fingerInk=!fingerInk;fingerButton.textContent=fingerInk?'손가락 필기: 켜짐':'손가락 필기: 꺼짐';fingerButton.setAttribute('aria-pressed',String(fingerInk));};
 document.getElementById('w').oninput = e => { width = +e.target.value; document.getElementById('wv').textContent = width.toFixed(1); };
 document.getElementById('undo').onclick = () => { eraseLast(); };
 document.getElementById('clear').onclick = () => {
-  if (strokes.length && !confirm('현재 기록은 브라우저에 보관하고 빈 필기를 시작할까요? 오래 보관하려면 먼저 필기 저장을 눌러 주세요.')) return;
-  archiveDraft(); strokes = []; t0 = null; timeOffset = 0; nextId = 1; marks = []; problemReviewActive=false; padVisited=false; stepIndex = 0; captureId = Date.now().toString(36); saveSeq = 0; renderGuide(); redraw(); stats(); persistDraft();
+  if ((strokes.length||questionStrokes.length) && !confirm('현재 기록은 브라우저에 보관하고 빈 필기를 시작할까요? 오래 보관하려면 먼저 필기 저장을 눌러 주세요.')) return;
+  archiveDraft(); strokes = []; questionStrokes=[];questionCur=null;questionNextId=1;cueVisible=false;renderCue();redrawQuestion(); t0 = null; timeOffset = 0; nextId = 1; marks = []; problemReviewActive=false; padVisited=false; stepIndex = 0; captureId = Date.now().toString(36); saveSeq = 0; renderGuide(); redraw(); stats(); persistDraft();
 };
 window.addEventListener('keydown', e => {
   if ((e.metaKey||e.ctrlKey) && e.key === 'z') { e.preventDefault(); eraseLast(); }
@@ -386,12 +448,30 @@ function toast(msg, bad) {
   t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3200);
 }
 
+function toQuestionSVG(){
+  const elements=questionStrokes.map(s=>{
+    if(!s.pts.length)return'';
+    const d='M'+s.pts.map(p=>p.x+' '+p.y).join(' L');
+    return '<path d="'+d+'" fill="none" stroke="#1A1614" stroke-width="'+s.w+'" stroke-linecap="round" stroke-linejoin="round" data-id="'+s.id+'" data-t0="'+s.pts[0].t+'" data-t1="'+s.pts.at(-1).t+'"'+(s.erasedAt!==null?' data-erased="'+s.erasedAt+'" opacity="0"':'')+'/>';
+  }).join('');
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+QW+' '+QH+'">'+elements+'</svg>';
+}
+function questionCompositePNG(){
+  const composite=document.createElement('canvas');composite.width=QW;composite.height=QH;
+  const c=composite.getContext('2d');
+  if(examImage.complete&&examImage.naturalWidth)c.drawImage(examImage,0,0,QW,QH);
+  if(cueVisible&&task.id==='csat2024-q14'){c.fillStyle='#ffe14c99';c.fillRect(QW*.093,QH*.043,QW*.24,QH*.054);}
+  c.drawImage(examInk,0,0,QW,QH);
+  return composite.toDataURL('image/png');
+}
+
 function makeCapturePayload() {
   return {
     name: task.id + '_' + captureId + '_' + (++saveSeq),
     captureKind: 'directed-reenactment',
     sourcePage: '승주 2024학년도 수능 14번 교육 시나리오',
     captureId, marks,
+    printedProblem: {imageUrl:new URL(examImage.getAttribute('src'),location.href).href,canvas:{w:QW,h:QH},strokes:questionStrokes,cueVisible,svg:toQuestionSVG(),png:questionCompositePNG()},
     timingContext: {
       longInkGapsMayIncludeProblemReading: true,
       problemReviewVisits: marks.filter(m=>m.type==='problem-review-start').length,
@@ -404,7 +484,9 @@ function makeCapturePayload() {
     savedAt: new Date().toISOString(),
     summary: {
       strokes: strokes.length,
+      questionStrokes: questionStrokes.length,
       erased: strokes.filter(s => s.erasedAt !== null).length,
+      questionErased: questionStrokes.filter(s=>s.erasedAt!==null).length,
       totalMs: Math.max(relT(), ...strokes.map(s => s.erasedAt || 0)),
     },
     strokes,
@@ -412,12 +494,13 @@ function makeCapturePayload() {
     png: cv.toDataURL('image/png'),
   };
 }
-function downloadCapture(){endStroke();if(!strokes.length)return toast('아직 쓰신 게 없습니다',true);const blob=new Blob([JSON.stringify(makeCapturePayload())],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='승주14번-필기-'+captureId+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),60000);document.getElementById('backupStatus').textContent='필기 파일을 이 태블릿에 받았습니다. 브라우저에도 원본 획이 계속 남습니다.';}
+function downloadCapture(){endStroke();questionEnd();if(!strokes.length&&!questionStrokes.length)return toast('아직 쓰신 게 없습니다',true);const blob=new Blob([JSON.stringify(makeCapturePayload())],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='승주14번-필기-'+captureId+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),60000);document.getElementById('backupStatus').textContent='필기 파일을 이 태블릿에 받았습니다. 브라우저에도 원본 획이 계속 남습니다.';}
 document.getElementById('downloadBackup').onclick=downloadCapture;
 async function save() {
   if (saveBusy) return;
   endStroke();
-  if (!strokes.length) return toast('아직 쓰신 게 없습니다', true);
+  questionEnd();
+  if (!strokes.length&&!questionStrokes.length) return toast('아직 쓰신 게 없습니다', true);
   const payload=makeCapturePayload();
   saveBusy=true; document.getElementById('save').disabled=true;
   try {
@@ -437,25 +520,41 @@ async function save() {
 document.getElementById('save').onclick = save;
 
 
-const GUIDE = [{"title":"왼쪽 식의 극값과 끝점","where":"필기장 왼쪽 위","text":"f₁(x)=2x³−6x+1  (x≤2)\nf₁′(x)=6x²−6=0 → x=−1, 1\nf(−1)=5, f(1)=−3\nf(2−)=f(2)=2·2³−6·2+1=5","note":"왜 f(2)를 넣나요? x=2는 왼쪽 식에 포함되는 마지막 점입니다. 곡선을 어디서 끝내고 점을 채울지 정하려면 그 높이 5가 필요합니다. 오른쪽 식을 x=2까지 연장하면 9라서 실제 f(2)=5와 다릅니다. 이 차이 때문에 수평선의 교점 수도 달라집니다.","areas":[{"label":"1/7 · 여기에 f₁ 미분과 f(2)","left":5,"top":7,"width":49,"height":20}]},{"title":"왼쪽 삼차곡선 그리기","where":"필기장 가운데 왼쪽의 넓은 자리","text":"1. 가로 x축·세로 y축을 그립니다.\n2. x=−1, 1, 2를 x축에 표시합니다. y=5, −3을 y축에 표시합니다.\n3. (−1,5) 극대, (1,−3) 극소, (2,5) 끝점을 찍습니다.\n4. 왼쪽 아래 → (−1,5)까지 상승 → (1,−3)까지 하강 → (2,5)까지 상승하는 한 줄 곡선을 그립니다.\n5. (2,5)는 채운 점. x>2 쪽은 아직 그리지 않습니다.","note":"무슨 곡선을 그리나요? y=f₁(x)=2x³−6x+1의 x≤2 부분입니다. 오른쪽 이차함수와 합쳐 그리지 마세요. 점의 상대 높이를 먼저 잡고 부드럽게 이으면 됩니다. 화면의 ‘왼쪽 그래프 모양 보기’를 열면 모양을 확인할 수 있습니다.","preview":"ink-film-14-left.svg","areas":[{"label":"2/7 · 여기에 x≤2 삼차곡선","left":5,"top":30,"width":61,"height":34}]},{"title":"오른쪽 식과 빈 시작점","where":"① 필기장 오른쪽 위 새 식칸 → ② 2/7에서 그린 그래프의 x=2 바로 위","text":"① 오른쪽 위 빈 칸에 새 식을 씁니다.\nf₂(x)=a(x−2)(x−b)+9  (x>2에서 쓰는 이차식)\n그 아래: f₂(2)=9, f₂(b)=9 / 실제 f(2)=5\n② 왼쪽에서 그렸던 그래프의 x=2로 돌아갑니다.\n(2,5) ●의 바로 위 높이 9에 (2,9) ○를 찍습니다.","note":"① 붉은 점선 칸은 오른쪽 식 f₂와 경계의 두 높이를 비교해 적는 자리입니다. ② 파란 점선 칸은 앞서 그린 그래프를 찾아 빈 점을 찍는 자리입니다. f₂(2)=9는 오른쪽 식을 x=2까지 연장한 값이고 실제 f(2)=5라서 점을 겹쳐 칠할 수 없습니다. 칸이 좁으면 f₂(x)=를 한 줄, a(x−2)(x−b)+9를 다음 줄에 써도 됩니다. f₂(b)=9는 b>2일 때 실제 오른쪽 가지의 점입니다.","areas":[{"label":"① 오른쪽 위에 f₂ 식·값 비교","left":57,"top":7,"width":38,"height":21},{"label":"② 기존 그래프 x=2 위에 (2,9) ○","left":5,"top":30,"width":61,"height":34}]},{"title":"승주형 원문의 잘못된 시도","where":"2/7의 그래프에서 (2,9) 빈 점 ○의 오른쪽 · 주황 점선 자리","text":"① 기존 그래프의 (2,9) 빈 점 ○에서 시작합니다.\n② 그 점 오른쪽으로 곡선을 위로 올려, x=2와 x=b 사이에서 꼭대기를 만듭니다.\n③ 다시 내려와 x=b에서 높이 9를 지나게 이어 ∩ 모양을 만듭니다.\n④ 승주형 학생의 잘못된 시도이므로 지우기 전 잠깐 남깁니다.","note":"단계 안의 주황 벡터 그림을 보고 선의 경로만 따라 그리세요. 수치 b=6은 위치를 보여주는 예시이며 실제 답의 a,b를 확정한 것이 아닙니다. 이 ∩은 a가 자연수라는 조건과 맞지 않는 학생의 실수입니다. 영상 재현용으로 그렸다면 5/7에서 이 곡선 획만 지우고 올바른 ∪로 바꿉니다.","preview":"ink-film-14-wrong.svg","areas":[{"label":"4/7 · (2,9) ○에서 오른쪽 ∩","left":42,"top":30,"width":24,"height":34}]},{"title":"자연수 조건으로 곡선 고치기","where":"① 오른쪽 위에 a>0 → ② 같은 그래프의 (2,9) ○ 오른쪽","text":"문제 첫 줄: a는 자연수 → a>0\n오른쪽 식의 x² 계수 a>0 → 곡선은 ∪\n4/7의 ∩ 곡선 획만 지웁니다.\n(2,9) ○에서 오른쪽 아래로 내려가 중간 꼭짓점을 지나, 다시 올라와 x=b의 높이 9를 지나게 ∪로 고쳐 그립니다.","note":"왜 ∪인가요? 이차식의 x² 계수가 양수 a이기 때문입니다. 단계 안의 붉은 벡터 그림은 (a,b)=(3,6)일 때의 모양 예시입니다. 이 단계에서는 실제 a,b나 꼭짓점 높이를 확정하지 말고 높이를 m으로 남겨 두세요. (2,9)는 빈 점이고 b>2일 때 (b,9)는 실제 곡선의 점입니다.","preview":"ink-film-14-reference.svg","areas":[{"label":"① 여기에 a>0 조건","left":57,"top":7,"width":38,"height":21},{"label":"② 같은 그래프에서 ∩ 지우고 ∪","left":42,"top":30,"width":24,"height":34}]},{"title":"b의 뜻 확인·수평선으로 교점 세기","where":"① 기존 그래프 오른쪽 x축에 b? 표시 → ② 그래프를 지나는 y=t 가로선 → ③ 필기장 아래 왼쪽에 교점 개수","text":"먼저 b의 뜻: f₂(x)=a(x−2)(x−b)+9에서 아직 모르는 자연수입니다.\nx=b를 넣으면 (x−b)=0 → f₂(b)=9. 따라서 b는 y=9를 다시 만나는 x좌표입니다.\n① 기존 x축의 2 오른쪽에 ‘b?’를 쓰세요. 지금 b=6 같은 숫자를 확정하지 않습니다.\n② b≤2면 오른쪽 가지(x>2)에 두 번째 y=9 점이 없고, −3<t<5에서 g(t)=3인 높이가 여러 개라 제외합니다.\n③ b>2면 (2,9) ○와 (b,9) ● 사이의 ∪ 꼭짓점: x=(2+b)/2, 높이 m=9−a(b−2)²/4.\n④ y=t 가로선을 아래→위로 옮기며 양쪽 곡선의 교점을 셉니다. m≠−3이면 g(t)=3인 높이가 여러 개, m=−3이면 k=−3 한 곳에서 g(k−),g(k),g(k+)=1,3,5 → 합 9입니다.","note":"b는 답으로 찾기 전까지 미지수입니다. 화면의 벡터 그림에서 x=b는 오른쪽 ∪가 y=9를 다시 지나는 위치일 뿐, 특정 숫자를 뜻하지 않습니다. g(t)는 높이 t의 가로선이 전체 그래프와 만나는 점의 개수이고 m은 ∪의 가장 낮은 높이입니다. 문제를 위에서 다시 읽고 돌아온 시간은 필기 공백에 섞일 수 있으므로 그 공백을 곧바로 망설임으로 해석하지 않습니다.","preview":"ink-film-14-b.svg","areas":[{"label":"① x축 오른쪽에 b? · 그래프에 y=t","left":5,"top":30,"width":61,"height":34},{"label":"② 아래에 g(t)·m 비교","left":5,"top":68,"width":53,"height":23}]},{"title":"자연수 후보와 답","where":"필기장 아래 오른쪽","text":"f₂((2+b)/2)=−3\n9−a(b−2)²/4=−3 → a(b−2)²=48\n(a,b)=(48,3), (12,4), (3,6)\na+b=51, 16, 9 → 최댓값 51 (①)","note":"왜 자연수를 다시 보나요? m=−3은 그래프 조건이고, 마지막에는 자연수 a,b라는 문제 첫 줄을 숫자 조건에 적용해야 합니다. 세 후보를 모두 비교해야 최대 합 51을 확인할 수 있습니다.","areas":[{"label":"7/7 · 자연수 후보와 최대 합","left":62,"top":68,"width":33,"height":23}]}];
+const GUIDE = [{"title":"왼쪽 식의 극값과 끝점","where":"필기장 왼쪽 위","text":"f₁(x)=2x³−6x+1  (x≤2)\nf₁′(x)=6x²−6=0 → x=−1, 1\nf(−1)=5, f(1)=−3\nf(2−)=f(2)=2·2³−6·2+1=5","note":"왜 f(2)를 넣나요? x=2는 왼쪽 식에 포함되는 마지막 점입니다. 곡선을 어디서 끝내고 점을 채울지 정하려면 그 높이 5가 필요합니다. 오른쪽 식을 x=2까지 연장하면 9라서 실제 f(2)=5와 다릅니다. 이 차이 때문에 수평선의 교점 수도 달라집니다.","areas":[{"label":"1/7 · 여기에 f₁ 미분과 f(2)","left":5,"top":7,"width":49,"height":20}]},{"title":"왼쪽 삼차곡선 그리기","where":"필기장 가운데 왼쪽의 넓은 자리","text":"1. 가로 x축·세로 y축을 그립니다.\n2. x=−1, 1, 2를 x축에 표시합니다. y=5, −3을 y축에 표시합니다.\n3. (−1,5) 극대, (1,−3) 극소, (2,5) 끝점을 찍습니다.\n4. 왼쪽 아래 → (−1,5)까지 상승 → (1,−3)까지 하강 → (2,5)까지 상승하는 한 줄 곡선을 그립니다.\n5. (2,5)는 채운 점. x>2 쪽은 아직 그리지 않습니다.","note":"무슨 곡선을 그리나요? y=f₁(x)=2x³−6x+1의 x≤2 부분입니다. 오른쪽 이차함수와 합쳐 그리지 마세요. 점의 상대 높이를 먼저 잡고 부드럽게 이으면 됩니다. 화면의 ‘왼쪽 그래프 모양 보기’를 열면 모양을 확인할 수 있습니다.","preview":"ink-film-14-left.svg","areas":[{"label":"2/7 · 여기에 x≤2 삼차곡선","left":5,"top":30,"width":61,"height":34}]},{"title":"오른쪽 식과 빈 시작점","where":"① 필기장 오른쪽 위 새 식칸 → ② 2/7에서 그린 그래프의 x=2 바로 위","text":"① 오른쪽 위 빈 칸에 새 식을 씁니다.\nf₂(x)=a(x−2)(x−b)+9  (x>2에서 쓰는 이차식)\n그 아래: f₂(2)=9, f₂(b)=9 / 실제 f(2)=5\n② 왼쪽에서 그렸던 그래프의 x=2로 돌아갑니다.\n(2,5) ●의 바로 위 높이 9에 (2,9) ○를 찍습니다.","note":"① 붉은 점선 칸은 오른쪽 식 f₂와 경계의 두 높이를 비교해 적는 자리입니다. ② 파란 점선 칸은 앞서 그린 그래프를 찾아 빈 점을 찍는 자리입니다. f₂(2)=9는 오른쪽 식을 x=2까지 연장한 값이고 실제 f(2)=5라서 점을 겹쳐 칠할 수 없습니다. 칸이 좁으면 f₂(x)=를 한 줄, a(x−2)(x−b)+9를 다음 줄에 써도 됩니다. f₂(b)=9는 b>2일 때 실제 오른쪽 가지의 점입니다.","areas":[{"label":"① 오른쪽 위에 f₂ 식·값 비교","left":57,"top":7,"width":38,"height":21},{"label":"② 기존 그래프 x=2 위에 (2,9) ○","left":5,"top":30,"width":61,"height":34}]},{"title":"승주형 원문의 잘못된 시도","where":"2/7의 그래프에서 (2,9) 빈 점 ○의 오른쪽 · 주황 점선 자리","text":"① 기존 그래프의 (2,9) 빈 점 ○에서 시작합니다.\n② 그 점 오른쪽으로 곡선을 위로 올려, x=2와 x=b 사이에서 꼭대기를 만듭니다.\n③ 다시 내려와 x=b에서 높이 9를 지나게 이어 ∩ 모양을 만듭니다.\n④ 승주형 학생의 잘못된 시도이므로 지우기 전 잠깐 남깁니다.","note":"단계 안의 주황 벡터 그림을 보고 선의 경로만 따라 그리세요. 수치 b=6은 위치를 보여주는 예시이며 실제 답의 a,b를 확정한 것이 아닙니다. 이 ∩은 a가 자연수라는 조건과 맞지 않는 학생의 실수입니다. 영상 재현용으로 그렸다면 5/7에서 이 곡선 획만 지우고 올바른 ∪로 바꿉니다.","preview":"ink-film-14-wrong.svg","areas":[{"label":"4/7 · (2,9) ○에서 오른쪽 ∩","left":42,"top":30,"width":24,"height":34}]},{"title":"자연수 조건으로 곡선 고치기","where":"① 오른쪽 위에 a>0 → ② 같은 그래프의 (2,9) ○ 오른쪽","text":"문제 첫 줄: a는 자연수 → a>0\n오른쪽 식의 x² 계수 a>0 → 곡선은 ∪\n4/7의 ∩ 곡선 획만 지웁니다.\n(2,9) ○에서 오른쪽 아래로 내려가 중간 꼭짓점을 지나, 다시 올라와 x=b의 높이 9를 지나게 ∪로 고쳐 그립니다.","note":"왜 ∪인가요? 이차식의 x² 계수가 양수 a이기 때문입니다. 단계 안의 붉은 벡터 그림은 (a,b)=(3,6)일 때의 모양 예시입니다. 이 단계에서는 실제 a,b나 꼭짓점 높이를 확정하지 말고 높이를 m으로 남겨 두세요. (2,9)는 빈 점이고 b>2일 때 (b,9)는 실제 곡선의 점입니다.","preview":"ink-film-14-reference.svg","areas":[{"label":"① 여기에 a>0 조건","left":57,"top":7,"width":38,"height":21},{"label":"② 같은 그래프에서 ∩ 지우고 ∪","left":42,"top":30,"width":24,"height":34}]},{"title":"b의 뜻 확인·수평선으로 교점 세기","where":"① 기존 그래프 오른쪽 x축에 b? 표시 → ② 그래프를 지나는 y=t 가로선 → ③ 필기장 아래 왼쪽에 교점 개수","text":"먼저 b의 뜻: f₂(x)=a(x−2)(x−b)+9에서 아직 모르는 자연수입니다.\nx=b를 넣으면 (x−b)=0 → f₂(b)=9. 따라서 b는 y=9를 다시 만나는 x좌표입니다.\n① 기존 x축의 2 오른쪽에 ‘b?’를 쓰세요. 지금 b=6 같은 숫자를 확정하지 않습니다.\n② b≤2면 오른쪽 가지(x>2)에 두 번째 y=9 점이 없고, −3<t<5에서 g(t)=3인 높이가 여러 개라 제외합니다.\n③ b>2면 (2,9) ○와 (b,9) ● 사이의 ∪ 꼭짓점: x=(2+b)/2, 높이 m=9−a(b−2)²/4.\n④ y=t 가로선을 아래→위로 옮기며 양쪽 곡선의 교점을 셉니다. m≠−3이면 g(t)=3인 높이가 여러 개, m=−3이면 k=−3 한 곳에서 g(k−),g(k),g(k+)=1,3,5 → 합 9입니다.","note":"b는 답으로 찾기 전까지 미지수입니다. 화면의 벡터 그림에서 x=b는 오른쪽 ∪가 y=9를 다시 지나는 위치일 뿐, 특정 숫자를 뜻하지 않습니다. g(t)는 높이 t의 가로선이 전체 그래프와 만나는 점의 개수이고 m은 ∪의 가장 낮은 높이입니다. 문제를 위에서 다시 읽고 돌아온 시간은 필기 공백에 섞일 수 있으므로 그 공백을 곧바로 망설임으로 해석하지 않습니다.","preview":"ink-film-14-b.svg","areas":[{"label":"① x축 오른쪽에 b? · 그래프에 y=t","left":5,"top":30,"width":61,"height":34},{"label":"② 아래에 g(t)·m 비교","left":5,"top":68,"width":53,"height":23}]},{"title":"자연수 후보와 답","where":"① 필기장 아래 오른쪽에 후보 계산 → ② 위의 ‘시험지 문제 위에 표시하기’에서 선택지 ①","text":"① 필기장 아래 오른쪽에 계산합니다.\nf₂((2+b)/2)=−3\n9−a(b−2)²/4=−3 → a(b−2)²=48\n(a,b)=(48,3), (12,4), (3,6)\na+b=51, 16, 9 → 최댓값 51\n② 시험지 문제 면으로 올라가 선택지 ① 51을 펜으로 체크합니다.","note":"왜 자연수를 다시 보나요? m=−3은 그래프 조건이고, 마지막에는 자연수 a,b라는 문제 첫 줄을 숫자 조건에 적용해야 합니다. 세 후보를 모두 비교한 뒤 실제 시험지의 ①을 체크하는 손동작을 남겨 주세요. 문제 면과 풀이장 획은 한 저장 파일에 함께 들어갑니다.","areas":[{"label":"7/7 · 자연수 후보와 최대 합","left":62,"top":68,"width":33,"height":23}]}];
 const draftKey='provee-film-csat2024-q14-v1';
 let stepIndex=0, marks=[], captureId=Date.now().toString(36), saveSeq=0, saveBusy=false, lastSavedFile=null;
 function eraseLast(){const s=[...strokes].reverse().find(s=>s.erasedAt===null);if(s){s.erasedAt=relT();redraw();stats();persistDraft();}}
-function draftObject(){return {canvas:{w:W,h:H},strokes,elapsed:t0===null?timeOffset:relT(),nextId,stepIndex,marks,captureId,saveSeq,lastSavedFile,device:devSeen};}
+function draftObject(){return {canvas:{w:W,h:H},strokes,question:{canvas:{w:QW,h:QH},strokes:questionStrokes,nextId:questionNextId,cueVisible,open:examWorkspace.open},elapsed:t0===null?timeOffset:relT(),nextId,stepIndex,marks,captureId,saveSeq,lastSavedFile,device:devSeen};}
 function persistDraft(){try{localStorage.setItem(draftKey,JSON.stringify(draftObject()));}catch(e){document.getElementById('backupStatus').textContent='브라우저 자동 보관 공간이 부족합니다. 필기 저장을 눌러 주세요.';}}
 window.addEventListener('pagehide',persistDraft);
-function archiveDraft(){if(strokes.length)localStorage.setItem(draftKey+'-archive-'+captureId,JSON.stringify(draftObject()));}
+function archiveDraft(){if(strokes.length||questionStrokes.length)localStorage.setItem(draftKey+'-archive-'+captureId,JSON.stringify(draftObject()));}
 function renderAreas(s){const box=document.getElementById('stepAreas');box.textContent='';for(const a of s.areas||[]){const region=document.createElement('div');region.className='step-area';region.style.left=a.left+'%';region.style.top=a.top+'%';region.style.width=a.width+'%';region.style.height=a.height+'%';const label=document.createElement('span');label.className='step-area-label';label.textContent=a.label;region.appendChild(label);box.appendChild(region);}}
 function renderGuide(){const s=GUIDE[stepIndex];document.getElementById('guideTitle').textContent=(stepIndex+1)+' / '+GUIDE.length+' · '+s.title;document.getElementById('guideWhere').textContent=s.where;document.getElementById('guideText').textContent=s.text;document.getElementById('guideNote').textContent=s.note;const preview=document.getElementById('guidePreview');preview.hidden=!s.preview;if(s.preview)preview.src=s.preview;renderAreas(s);document.getElementById('prevStep').disabled=stepIndex===0;document.getElementById('nextStep').disabled=stepIndex===GUIDE.length-1;}
+function renderCue(){document.getElementById('examHighlight').hidden=!cueVisible;document.getElementById('cueMessage').hidden=!cueVisible;proveeCue.classList.toggle('on',cueVisible);proveeCue.textContent=cueVisible?'Provee · 조건 짚기 끄기':'Provee · 첫 줄 조건 짚기';}
+proveeCue.hidden=task.id!=='csat2024-q14';
+proveeCue.onclick=()=>{questionEnd();cueVisible=!cueVisible;marks.push({type:'manual-provee-condition-cue',at:relT(),step:stepIndex+1,label:'문제 첫 줄 두 자연수 a,b',visible:cueVisible});renderCue();persistDraft();};
+examWorkspace.addEventListener('toggle',()=>persistDraft());
 function goStep(delta){endStroke();stepIndex=Math.max(0,Math.min(GUIDE.length-1,stepIndex+delta));marks.push({step:stepIndex+1,at:t0===null?0:relT(),label:GUIDE[stepIndex].title});renderGuide();setGuideCollapsed(false);persistDraft();}
 function setGuideCollapsed(collapsed){const guide=document.getElementById('filmGuide'),button=document.getElementById('toggleGuide');guide.classList.toggle('collapsed',collapsed);button.textContent=collapsed?'안내 보기':'안내 접기';button.setAttribute('aria-expanded',String(!collapsed));}
 document.getElementById('prevStep').onclick=()=>goStep(-1);
 document.getElementById('nextStep').onclick=()=>goStep(1);
 document.getElementById('toggleGuide').onclick=()=>setGuideCollapsed(!document.getElementById('filmGuide').classList.contains('collapsed'));
-try{const d=JSON.parse(localStorage.getItem(draftKey)||'null');if(d&&Array.isArray(d.strokes)&&d.canvas.w===W&&d.canvas.h===H){strokes=d.strokes;nextId=d.nextId;stepIndex=d.stepIndex||0;marks=d.marks||[];captureId=d.captureId;saveSeq=d.saveSeq||0;lastSavedFile=d.lastSavedFile||null;timeOffset=d.elapsed||0;t0=null;devSeen=d.device||'';document.getElementById('backupStatus').textContent=strokes.length?'이 브라우저에 보관한 필기를 복원했습니다.':'';}}catch(e){document.getElementById('backupStatus').textContent='이전 자동 보관 기록은 복원하지 못했습니다.';}
+try{
+  const d=JSON.parse(localStorage.getItem(draftKey)||'null');
+  if(d&&Array.isArray(d.strokes)&&d.canvas.w===W&&d.canvas.h===H){
+    strokes=d.strokes;nextId=d.nextId;stepIndex=d.stepIndex||0;marks=d.marks||[];
+    captureId=d.captureId;saveSeq=d.saveSeq||0;lastSavedFile=d.lastSavedFile||null;
+    timeOffset=d.elapsed||0;t0=null;devSeen=d.device||'';
+    if(d.question?.canvas?.w===QW&&d.question?.canvas?.h===QH&&Array.isArray(d.question.strokes)){
+      questionStrokes=d.question.strokes;questionNextId=d.question.nextId||1;
+      cueVisible=!!d.question.cueVisible;examWorkspace.open=d.question.open!==false;
+    }else if(strokes.length&&stepIndex>0)examWorkspace.open=false;
+    document.getElementById('backupStatus').textContent=(strokes.length||questionStrokes.length)?'이 브라우저에 보관한 필기를 복원했습니다.':'';
+  }
+}catch(e){document.getElementById('backupStatus').textContent='이전 자동 보관 기록은 복원하지 못했습니다.';}
 renderGuide();
 
-redraw(); stats();
+renderCue();redraw();redrawQuestion();stats();
 function markProblemReview(type,label){marks.push({type,at:relT(),step:stepIndex+1,label});stats();persistDraft();}
 function closeProblemReview(label){if(!problemReviewActive)return;problemReviewActive=false;markProblemReview('problem-review-end',label);}
 const referenceObserver=new IntersectionObserver(entries=>{
