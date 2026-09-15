@@ -28,5 +28,5 @@
 <path d="M 426.5 119.2 l 11 -9 -4 13" fill="none" stroke="#bb6427" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M 582.5 119.2 l 7 12 -13 -5" fill="none" stroke="#bb6427" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
 <rect x="28" y="424" width="694" height="30" rx="6" fill="#fff0df"/>
-<text x="41" y="444" fill="#a64c1c">주황 점선은 학생의 틀린 획 · 5/7에서 이 선만 지우고 ∪로 다시 그림</text>
+<text x="41" y="444" fill="#a64c1c">틀린 ∩을 남겨 혼자 검토하다 막힘 → Provee 질문 뒤 5/7에서 ∪로 고침</text>
 </svg>
