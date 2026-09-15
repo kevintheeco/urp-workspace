@@ -102,15 +102,34 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 .notebook-sheet .exam-workspace{display:block;background:#fff;border:0;border-radius:0;margin:0;padding:0}
 .notebook-sheet .exam-workspace summary{display:none}
 .notebook-sheet .exam-sheet{width:100%;border:0;border-radius:0;margin:0;overflow:hidden}
+.notebook-top:not(.problem-expanded) .exam-sheet{cursor:zoom-in}
+.notebook-top:not(.problem-expanded) .exam-sheet canvas{pointer-events:none}
 .notebook-sheet .pad{background:#fff;border:0;border-radius:0;box-shadow:none;margin:0;overflow:hidden}
 .notebook-sheet .pad:before{display:none}
 .notebook-sheet .cue-message{font-size:14px;line-height:1.5;color:var(--wine);font-weight:700;padding:10px 22px;margin:0}
+.step-area.attention{border-width:4px;background:#ffe4a933}
+.notebook-top{display:grid;grid-template-columns:1fr 3fr;gap:0;border-bottom:1px solid #eee6dc}
+.notebook-top.problem-expanded{display:block}
+.problem-thumb{min-width:0;border-right:1px solid #eee6dc}
+.notebook-top.problem-expanded .problem-thumb{border-right:0;border-bottom:1px solid #eee6dc}
+.problem-zoom{display:block;width:calc(100% - 20px);margin:10px;border:1px solid #8a1c2b;color:var(--wine);background:#fff;font-weight:800;font-size:13px;padding:9px 6px}
+.notebook-sheet .exam-sheet{width:100%;border:0;border-radius:0;margin:0;overflow:hidden}
+.write-now{padding:13px 18px;background:#fffdf9}
+.write-now h2{font-size:19px;line-height:1.35;color:var(--wine);margin:0 0 4px}
+.write-now p{font-size:13px;line-height:1.5;color:#6b6259;margin:0 0 9px}
+.write-now ol{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.write-now li{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid #d9cbbd;border-radius:8px;padding:10px 12px}
+.write-now li strong{display:block;color:#302922;font-size:14px;margin-bottom:3px}
+.write-now li span{display:block;color:#302922;font-size:15px;line-height:1.5;font-weight:700}
+.write-now li button{border:1px solid var(--wine);color:var(--wine);background:#fff;white-space:nowrap;font-size:12px;font-weight:800;padding:8px 10px}
+.write-now li button:hover,.write-now li button:focus-visible{background:#f9e9e8}
+.write-now .action-step{font-size:13px;font-weight:800;color:var(--wine)}
 .bar{width:min(1100px,100%);margin:12px auto;position:relative;z-index:1}
 .film-guide{position:relative;top:auto}
 .reading-help{width:min(1100px,100%);margin:18px auto;background:#fffdf9;border:1px solid var(--line);border-radius:10px;padding:12px 16px}
 .reading-help>summary{cursor:pointer;font-size:15px;font-weight:700;color:var(--wine)}
 .reading-help .problem-card,.reading-help .source-card{margin-top:12px}
-@media(max-width:800px){.notebook-sheet{margin-top:8px}.notebook-sheet .cue-message{padding:8px 12px;font-size:12px}.reading-help{padding:10px 12px}}
+@media(max-width:800px){.notebook-sheet{margin-top:8px}.notebook-sheet .cue-message{padding:8px 12px;font-size:12px}.reading-help{padding:10px 12px}.write-now{padding:10px}.write-now h2{font-size:17px}.write-now li{grid-template-columns:1fr;gap:5px;padding:8px}.write-now li strong{font-size:12px}.write-now li span{font-size:13px}.write-now li button{justify-self:start}.problem-zoom{font-size:11px;margin:6px;width:calc(100% - 12px);padding:7px 3px}}
 </style>
 </head>
 <body>
@@ -124,7 +143,7 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 <nav class="case-nav" aria-label="승주형 세 문제"><a href="ink-film-14.html">14번 · 그래프</a><a href="ink-film-10.html">10번 · 적분·이동거리</a><a href="ink-film-3.html">3번 · 사분면</a></nav>
 <div class="tasks" id="tasks" hidden></div>
 <section class="film-guide" id="filmGuide"><div class="guide-top"><b id="guideTitle"></b><div><button id="prevStep">이전</button><button id="nextStep">다음</button><button id="toggleGuide" aria-expanded="true">안내 접기</button><a href="ink-film-10-guide.html" target="_blank" rel="noopener">전체 안내</a></div></div><div class="guide-body"><div><strong id="guideWhere"></strong><pre id="guideText"></pre><img id="guidePreview" class="guide-preview" alt="현재 단계에서 손으로 그릴 그림 예시" hidden></div><p id="guideNote"></p></div></section>
-<p class="tablet-tip">갤탭: 같은 노트 맨 위 문제에도, 아래 풀이 여백에도 S펜으로 바로 쓰세요. 손가락·손바닥은 필기에 반영되지 않습니다. 오른쪽 스크롤 띠나 ‘손가락 스크롤 모드’로 한 장의 노트를 위아래로 움직일 수 있습니다.</p>
+<p class="tablet-tip">갤탭: 문제는 작은 미리보기입니다. 글을 읽거나 문제 위에 체크하려면 ‘문제 확대 · 위에 필기’를 누르세요. ‘지금 여기에 적으세요’의 버튼으로 필기 자리를 찾을 수 있습니다. S펜으로 쓰고 오른쪽 띠에서 손가락으로 스크롤하세요.</p>
 <div class="bar">
   <button id="mPen" class="on">펜</button>
   <button id="mErase">지우개</button>
@@ -144,10 +163,15 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 </div>
 
 <section class="notebook-sheet" id="notebookSheet" aria-label="인쇄된 문제와 손풀이가 이어진 한 장의 노트">
+<div class="notebook-top" id="notebookTop">
+<div class="problem-thumb"><button class="problem-zoom" id="problemZoom" aria-pressed="false">문제 확대 · 위에 필기</button>
 <details class="exam-workspace" id="examWorkspace" open><summary hidden>같은 노트 맨 위의 인쇄된 시험지</summary>
   <div class="exam-sheet" id="examSheet" data-w="1480" data-h="936"><img id="examImage" src="ink-film-10-exam.png" alt="2024학년도 수능 수학 10번 실제 문항과 다섯 선택지"><span class="exam-highlight" id="examHighlight" hidden></span><canvas id="examInk" aria-label="시험지 문제 위에 직접 표시하는 펜 면"></canvas><div class="scroll-rail" aria-label="손가락으로 시험지 화면을 스크롤하세요"><span>손가락 스크롤</span></div></div>
   <p id="cueMessage" class="cue-message" hidden>Provee · 잠깐. 문제 맨 앞의 조건을 다시 읽어봐.</p>
 </details>
+</div>
+<aside class="write-now" id="writeNow" aria-live="polite"><div class="action-step" id="actionStep"></div><h2 id="actionTitle">지금 여기에 적으세요</h2><p>‘자리로 이동’을 누르면 이번 단계의 필기 칸을 보여줍니다.</p><ol id="actionList"></ol></aside>
+</div>
 <div class="pad" id="pad">
   <div class="step-areas" id="stepAreas" aria-hidden="true"></div><canvas id="cv"></canvas>
   <div class="scroll-rail" aria-label="손가락으로 여기서 화면을 위아래로 움직이세요"><span>손가락 스크롤</span></div>
@@ -567,7 +591,7 @@ async function save() {
 document.getElementById('save').onclick = save;
 
 
-const GUIDE = [{"title":"무엇을 구하는 문제인가","where":"필기장 왼쪽 위","text":"P,Q는 t=0에 원점 출발\nv₁(t)=t²−6t+5, v₂(t)=2t−7\nf(t)=P,Q 사이 거리\nf: [0,a] 증가 → [a,b] 감소 → [b,∞) 증가\n구할 것: t=a부터 t=b까지 Q가 움직인 거리","note":"왜 먼저 구할 것을 쓰나요? 두 점 사이 거리 f(t)의 증감 경계 a,b를 찾은 뒤, 마지막 질문은 Q 한 점이 그 시간 동안 실제로 움직인 총 거리입니다. Q의 끝 위치에서 시작 위치를 뺀 값과 다를 수 있습니다.","areas":[{"label":"1/7 · 속도·문제 조건","left":5,"top":7,"width":52,"height":21}]},{"title":"속도를 위치로 바꾸기","where":"필기장 왼쪽 가운데","text":"x₁(t)=t³/3−3t²+5t+C₁\nx₂(t)=t²−7t+C₂\nC₁,C₂를 아직 지우거나 같은 값으로 합치지 않습니다.\n승주형의 C 질문이 들어갈 순간을 위해 잠깐 멈춥니다.","note":"왜 C를 따로 남기나요? 속도를 부정적분하면 P와 Q의 위치에 각각 C₁,C₂가 생깁니다. 두 값이 같다고 아직 증명하지 않았으므로 임의로 소거하면 안 됩니다. 다음 두 단계에서 거리 표기와 원점 출발 조건을 차례로 확인합니다.","areas":[{"label":"2/7 · P,Q 위치식과 C₁,C₂","left":5,"top":33,"width":53,"height":25}]},{"title":"두 점 사이 거리 쓰기","where":"필기장 가운데 위","text":"승주형 학생의 첫 시도: f(t)=x₁(t)−x₂(t)\n‘거리’ 확인 후: f(t)=|x₁(t)−x₂(t)|\n=|t³/3−4t²+12t+C₁−C₂|\nC₁−C₂는 아직 남겨 둡니다.","note":"왜 절댓값을 쓰나요? 거리는 음수가 될 수 없기 때문입니다. 지금은 두 상수를 아직 정하지 않아 C₁−C₂를 남겨야 합니다. 노션의 −2t² 정리는 계산 오류라 따라 쓰지 마세요. 이 문제에서는 상수를 바르게 정한 뒤 t≥0에서 위치 차가 0 이상임을 확인할 수 있습니다.","areas":[{"label":"3/7 · 거리와 절댓값","left":5,"top":33,"width":53,"height":25}]},{"title":"원점 출발 → C 해결 → a,b 찾기","where":"필기장 가운데 왼쪽","text":"문제의 ‘원점 출발’: x₁(0)=x₂(0)=0\n→ C₁=0, C₂=0\nf(t)=|x₁−x₂|=t(t−6)²/3  (t≥0)\nf′(t)=(t−2)(t−6)\n증가→감소→증가 경계: a=2, b=6","note":"왜 이제 C가 0인가요? 두 점이 t=0에 원점에 있었다는 문제 문장을 각 위치식에 넣었기 때문입니다. 부정적분 후 초기 조건을 적용하는 방법도 맞습니다. 그다음 f를 미분해 증감 부호가 바뀌는 2와 6을 찾습니다. 아직 Q의 총 이동거리는 계산하지 않았습니다.","areas":[{"label":"4/7 · 원점 출발과 a,b","left":5,"top":33,"width":53,"height":25}]},{"title":"Q가 방향 바꾸는 시간","where":"필기장 오른쪽 위, 시간선 그림","text":"Q의 속도 v₂(t)=2t−7=0 → t=7/2\n2 < t < 7/2: v₂<0, 왼쪽으로 이동\n7/2 < t < 6: v₂>0, 오른쪽으로 이동\n시간선에 2 ── 7/2 ── 6을 그리고 방향 화살표를 표시","note":"왜 7/2에서 나누나요? Q는 a=2부터 b=6까지 한쪽으로만 가지 않습니다. 속도의 부호가 바뀌는 t=7/2를 지나 되돌아오므로 두 구간의 이동 길이를 각각 더해야 합니다. 화면의 시간선 그림을 참고하세요.","preview":"ink-film-10-reference.svg","areas":[{"label":"5/7 · 2 ─ 7/2 ─ 6 시간선","left":59,"top":7,"width":36,"height":25}]},{"title":"각 구간의 이동 길이","where":"필기장 오른쪽 가운데","text":"2→7/2: ∫₂^(7/2)(7−2t)dt=9/4\n7/2→6: ∫_(7/2)^6(2t−7)dt=25/4\n총 이동거리=9/4+25/4=17/2","note":"왜 첫 구간은 7−2t인가요? 그때 v₂가 음수라 이동 길이는 |v₂|=−v₂=7−2t입니다. 두 적분은 각각 양의 길이를 나타냅니다. 시작과 끝의 위치 차 4를 답으로 쓰면 되돌아간 길이를 놓칩니다.","areas":[{"label":"6/7 · 두 구간 이동거리 적분","left":59,"top":34,"width":36,"height":29}]},{"title":"답과 승주형 강조 연결","where":"필기장 오른쪽 아래","text":"a=2, b=6\nQ 이동거리=17/2 → ②\n원점 출발 조건으로 C₁=C₂=0을 정한 부분에 동그라미","note":"승주형이 볼드로 강조한 것은 절댓값 대화보다 적분상수 C를 원점 출발 조건과 연결하는 여섯 문장입니다. 영상에서는 C를 확인하는 필기와 마지막 Q 이동거리 계산을 다른 순간으로 보여주세요.","areas":[{"label":"7/7 · 합과 답 ②","left":62,"top":68,"width":33,"height":23}]}];
+const GUIDE = [{"title":"무엇을 구하는 문제인가","where":"필기장 왼쪽 위","text":"P,Q는 t=0에 원점 출발\nv₁(t)=t²−6t+5, v₂(t)=2t−7\nf(t)=P,Q 사이 거리\nf: [0,a] 증가 → [a,b] 감소 → [b,∞) 증가\n구할 것: t=a부터 t=b까지 Q가 움직인 거리","note":"왜 먼저 구할 것을 쓰나요? 두 점 사이 거리 f(t)의 증감 경계 a,b를 찾은 뒤, 마지막 질문은 Q 한 점이 그 시간 동안 실제로 움직인 총 거리입니다. Q의 끝 위치에서 시작 위치를 뺀 값과 다를 수 있습니다.","actions":[{"target":0,"place":"풀이 여백 왼쪽 위","write":"v₁(t), v₂(t), f(t)=두 점 사이 거리와 구할 구간 [a,b]를 적으세요."}],"areas":[{"label":"1/7 · 속도·문제 조건","left":5,"top":7,"width":52,"height":21}]},{"title":"속도를 위치로 바꾸기","where":"필기장 왼쪽 가운데","text":"x₁(t)=t³/3−3t²+5t+C₁\nx₂(t)=t²−7t+C₂\nC₁,C₂를 아직 지우거나 같은 값으로 합치지 않습니다.\n승주형의 C 질문이 들어갈 순간을 위해 잠깐 멈춥니다.","note":"왜 C를 따로 남기나요? 속도를 부정적분하면 P와 Q의 위치에 각각 C₁,C₂가 생깁니다. 두 값이 같다고 아직 증명하지 않았으므로 임의로 소거하면 안 됩니다. 다음 두 단계에서 거리 표기와 원점 출발 조건을 차례로 확인합니다.","actions":[{"target":0,"place":"풀이 여백 왼쪽 가운데","write":"x₁(t), x₂(t)를 적분해 쓰고 C₁, C₂를 그대로 남기세요."}],"areas":[{"label":"2/7 · P,Q 위치식과 C₁,C₂","left":5,"top":33,"width":53,"height":25}]},{"title":"두 점 사이 거리 쓰기","where":"필기장 가운데 위","text":"승주형 학생의 첫 시도: f(t)=x₁(t)−x₂(t)\n‘거리’ 확인 후: f(t)=|x₁(t)−x₂(t)|\n=|t³/3−4t²+12t+C₁−C₂|\nC₁−C₂는 아직 남겨 둡니다.","note":"왜 절댓값을 쓰나요? 거리는 음수가 될 수 없기 때문입니다. 지금은 두 상수를 아직 정하지 않아 C₁−C₂를 남겨야 합니다. 노션의 −2t² 정리는 계산 오류라 따라 쓰지 마세요. 이 문제에서는 상수를 바르게 정한 뒤 t≥0에서 위치 차가 0 이상임을 확인할 수 있습니다.","actions":[{"target":0,"place":"풀이 여백 가운데 위","write":"먼저 f(t)=x₁−x₂를 쓰고, ‘거리’를 확인한 뒤 절댓값 |x₁−x₂|를 씌우세요."}],"areas":[{"label":"3/7 · 거리와 절댓값","left":5,"top":33,"width":53,"height":25}]},{"title":"원점 출발 → C 해결 → a,b 찾기","where":"필기장 가운데 왼쪽","text":"문제의 ‘원점 출발’: x₁(0)=x₂(0)=0\n→ C₁=0, C₂=0\nf(t)=|x₁−x₂|=t(t−6)²/3  (t≥0)\nf′(t)=(t−2)(t−6)\n증가→감소→증가 경계: a=2, b=6","note":"왜 이제 C가 0인가요? 두 점이 t=0에 원점에 있었다는 문제 문장을 각 위치식에 넣었기 때문입니다. 부정적분 후 초기 조건을 적용하는 방법도 맞습니다. 그다음 f를 미분해 증감 부호가 바뀌는 2와 6을 찾습니다. 아직 Q의 총 이동거리는 계산하지 않았습니다.","actions":[{"target":0,"place":"풀이 여백 가운데 왼쪽","write":"x₁(0)=x₂(0)=0 → C₁=C₂=0, f′(t)=(t−2)(t−6) → a=2,b=6을 적으세요."}],"areas":[{"label":"4/7 · 원점 출발과 a,b","left":5,"top":33,"width":53,"height":25}]},{"title":"Q가 방향 바꾸는 시간","where":"필기장 오른쪽 위, 시간선 그림","text":"Q의 속도 v₂(t)=2t−7=0 → t=7/2\n2 < t < 7/2: v₂<0, 왼쪽으로 이동\n7/2 < t < 6: v₂>0, 오른쪽으로 이동\n시간선에 2 ── 7/2 ── 6을 그리고 방향 화살표를 표시","note":"왜 7/2에서 나누나요? Q는 a=2부터 b=6까지 한쪽으로만 가지 않습니다. 속도의 부호가 바뀌는 t=7/2를 지나 되돌아오므로 두 구간의 이동 길이를 각각 더해야 합니다. 화면의 시간선 그림을 참고하세요.","preview":"ink-film-10-reference.svg","actions":[{"target":0,"place":"풀이 여백 오른쪽 위","write":"2 ─ 7/2 ─ 6 시간선을 그리고 Q의 이동 방향을 ←, →로 표시하세요."}],"areas":[{"label":"5/7 · 2 ─ 7/2 ─ 6 시간선","left":59,"top":7,"width":36,"height":25}]},{"title":"각 구간의 이동 길이","where":"필기장 오른쪽 가운데","text":"2→7/2: ∫₂^(7/2)(7−2t)dt=9/4\n7/2→6: ∫_(7/2)^6(2t−7)dt=25/4\n총 이동거리=9/4+25/4=17/2","note":"왜 첫 구간은 7−2t인가요? 그때 v₂가 음수라 이동 길이는 |v₂|=−v₂=7−2t입니다. 두 적분은 각각 양의 길이를 나타냅니다. 시작과 끝의 위치 차 4를 답으로 쓰면 되돌아간 길이를 놓칩니다.","actions":[{"target":0,"place":"풀이 여백 오른쪽 가운데","write":"두 구간의 이동거리 9/4, 25/4를 각각 적분해 구하고 합 17/2를 적으세요."}],"areas":[{"label":"6/7 · 두 구간 이동거리 적분","left":59,"top":34,"width":36,"height":29}]},{"title":"답과 승주형 강조 연결","where":"필기장 오른쪽 아래","text":"a=2, b=6\nQ 이동거리=17/2 → ②\n원점 출발 조건으로 C₁=C₂=0을 정한 부분에 동그라미","note":"승주형이 볼드로 강조한 것은 절댓값 대화보다 적분상수 C를 원점 출발 조건과 연결하는 여섯 문장입니다. 영상에서는 C를 확인하는 필기와 마지막 Q 이동거리 계산을 다른 순간으로 보여주세요.","actions":[{"target":0,"place":"풀이 여백 오른쪽 아래","write":"a=2, b=6, Q 이동거리=17/2를 적고 C₁=C₂=0 부분에 동그라미 치세요."},{"target":"question","place":"같은 노트 맨 위의 문제","write":"선택지 ②에 직접 체크하세요."}],"areas":[{"label":"7/7 · 합과 답 ②","left":62,"top":68,"width":33,"height":23}]}];
 const draftKey='provee-film-csat2024-q10-v1';
 let stepIndex=0, marks=[], captureId=Date.now().toString(36), saveSeq=0, saveBusy=false, lastSavedFile=null;
 function eraseLast(){const s=[...strokes].reverse().find(s=>s.erasedAt===null);if(s){s.erasedAt=relT();redraw();stats();persistDraft();}}
@@ -577,10 +601,25 @@ function persistDraft(){try{localStorage.setItem(draftKey,JSON.stringify(draftOb
 window.addEventListener('pagehide',persistDraft);
 function archiveDraft(){if(strokes.length||questionStrokes.length)localStorage.setItem(draftKey+'-archive-'+captureId,JSON.stringify(draftObject()));}
 function renderAreas(s){const box=document.getElementById('stepAreas');box.textContent='';for(const a of s.areas||[]){const region=document.createElement('div');region.className='step-area';region.style.left=a.left+'%';region.style.top=a.top+'%';region.style.width=a.width+'%';region.style.height=a.height+'%';const label=document.createElement('span');label.className='step-area-label';label.textContent=a.label;region.appendChild(label);box.appendChild(region);}}
-function renderGuide(){const s=GUIDE[stepIndex];document.getElementById('guideTitle').textContent=(stepIndex+1)+' / '+GUIDE.length+' · '+s.title;document.getElementById('guideWhere').textContent=s.where;document.getElementById('guideText').textContent=s.text;document.getElementById('guideNote').textContent=s.note;const preview=document.getElementById('guidePreview');preview.hidden=!s.preview;if(s.preview)preview.src=s.preview;renderAreas(s);document.getElementById('prevStep').disabled=stepIndex===0;document.getElementById('nextStep').disabled=stepIndex===GUIDE.length-1;}
+const notebookTop=document.getElementById('notebookTop'),problemZoom=document.getElementById('problemZoom');
+function setProblemExpanded(expanded,scrollToProblem=false){questionEnd();notebookTop.classList.toggle('problem-expanded',expanded);problemZoom.textContent=expanded?'문제 다시 작게 · 1/4 크기':'문제 확대 · 위에 필기';problemZoom.setAttribute('aria-pressed',String(expanded));if(scrollToProblem)requestAnimationFrame(()=>examSheet.scrollIntoView({behavior:'smooth',block:'start'}));}
+problemZoom.onclick=()=>setProblemExpanded(!notebookTop.classList.contains('problem-expanded'),true);
+examSheet.onclick=e=>{if(!notebookTop.classList.contains('problem-expanded')&&!e.target.closest('.scroll-rail'))setProblemExpanded(true,true);};
+function showActionTarget(target){
+  if(target==='cue'){if(!cueVisible)proveeCue.click();else setProblemExpanded(true,true);return;}
+  if(target==='question'){setProblemExpanded(true,true);return;}
+  setProblemExpanded(false,false);
+  requestAnimationFrame(()=>{const region=document.querySelectorAll('#stepAreas .step-area')[target];if(!region)return;region.scrollIntoView({behavior:'smooth',block:'center'});region.classList.add('attention');setTimeout(()=>region.classList.remove('attention'),2400);});
+}
+function renderActions(s){
+  document.getElementById('actionStep').textContent=(stepIndex+1)+' / '+GUIDE.length+' · '+s.title;
+  const list=document.getElementById('actionList');list.replaceChildren();
+  (s.actions||[]).forEach((a,i)=>{const row=document.createElement('li'),body=document.createElement('div'),place=document.createElement('strong'),write=document.createElement('span'),button=document.createElement('button');place.textContent=(i+1)+' · 어디에: '+a.place;write.textContent=(a.target==='cue'?'할 행동: ':'적을 것: ')+a.write;button.type='button';button.textContent=a.target==='cue'?'Provee 조건 보기':a.target==='question'?'문제 확대·표시':'자리로 이동';button.onclick=()=>showActionTarget(a.target);body.append(place,write);row.append(body,button);list.append(row);});
+}
+function renderGuide(){const s=GUIDE[stepIndex];document.getElementById('guideTitle').textContent=(stepIndex+1)+' / '+GUIDE.length+' · '+s.title;document.getElementById('guideWhere').textContent=s.where;document.getElementById('guideText').textContent=s.text;document.getElementById('guideNote').textContent=s.note;const preview=document.getElementById('guidePreview');preview.hidden=!s.preview;if(s.preview)preview.src=s.preview;renderAreas(s);renderActions(s);document.getElementById('prevStep').disabled=stepIndex===0;document.getElementById('nextStep').disabled=stepIndex===GUIDE.length-1;}
 function renderCue(){document.getElementById('examHighlight').hidden=!cueVisible;document.getElementById('cueMessage').hidden=!cueVisible;proveeCue.classList.toggle('on',cueVisible);proveeCue.textContent=cueVisible?'Provee · 조건 짚기 끄기':'Provee · 첫 줄 조건 짚기';}
 proveeCue.hidden=task.id!=='csat2024-q14';
-proveeCue.onclick=()=>{questionEnd();cueVisible=!cueVisible;marks.push({type:'manual-provee-condition-cue',at:relT(),step:stepIndex+1,label:'문제 첫 줄 두 자연수 a,b',visible:cueVisible});renderCue();persistDraft();};
+proveeCue.onclick=()=>{questionEnd();cueVisible=!cueVisible;marks.push({type:'manual-provee-condition-cue',at:relT(),step:stepIndex+1,label:'문제 첫 줄 두 자연수 a,b',visible:cueVisible});renderCue();if(cueVisible)setProblemExpanded(true,true);persistDraft();};
 examWorkspace.addEventListener('toggle',()=>persistDraft());
 function goStep(delta){endStroke();stepIndex=Math.max(0,Math.min(GUIDE.length-1,stepIndex+delta));marks.push({step:stepIndex+1,at:t0===null?0:relT(),label:GUIDE[stepIndex].title});renderGuide();setGuideCollapsed(false);persistDraft();}
 function setGuideCollapsed(collapsed){const guide=document.getElementById('filmGuide'),button=document.getElementById('toggleGuide');guide.classList.toggle('collapsed',collapsed);button.textContent=collapsed?'안내 보기':'안내 접기';button.setAttribute('aria-expanded',String(!collapsed));}
@@ -603,7 +642,7 @@ try{
 }catch(e){document.getElementById('backupStatus').textContent='이전 자동 보관 기록은 복원하지 못했습니다.';}
 renderGuide();
 
-renderCue();redraw();redrawQuestion();stats();
+renderCue();if(cueVisible)setProblemExpanded(true,false);redraw();redrawQuestion();stats();
 function markProblemReview(type,label){marks.push({type,at:relT(),step:stepIndex+1,label});stats();persistDraft();}
 function closeProblemReview(label){if(!problemReviewActive)return;problemReviewActive=false;markProblemReview('problem-review-end',label);}
 const referenceObserver=new IntersectionObserver(entries=>{

@@ -102,15 +102,34 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 .notebook-sheet .exam-workspace{display:block;background:#fff;border:0;border-radius:0;margin:0;padding:0}
 .notebook-sheet .exam-workspace summary{display:none}
 .notebook-sheet .exam-sheet{width:100%;border:0;border-radius:0;margin:0;overflow:hidden}
+.notebook-top:not(.problem-expanded) .exam-sheet{cursor:zoom-in}
+.notebook-top:not(.problem-expanded) .exam-sheet canvas{pointer-events:none}
 .notebook-sheet .pad{background:#fff;border:0;border-radius:0;box-shadow:none;margin:0;overflow:hidden}
 .notebook-sheet .pad:before{display:none}
 .notebook-sheet .cue-message{font-size:14px;line-height:1.5;color:var(--wine);font-weight:700;padding:10px 22px;margin:0}
+.step-area.attention{border-width:4px;background:#ffe4a933}
+.notebook-top{display:grid;grid-template-columns:1fr 3fr;gap:0;border-bottom:1px solid #eee6dc}
+.notebook-top.problem-expanded{display:block}
+.problem-thumb{min-width:0;border-right:1px solid #eee6dc}
+.notebook-top.problem-expanded .problem-thumb{border-right:0;border-bottom:1px solid #eee6dc}
+.problem-zoom{display:block;width:calc(100% - 20px);margin:10px;border:1px solid #8a1c2b;color:var(--wine);background:#fff;font-weight:800;font-size:13px;padding:9px 6px}
+.notebook-sheet .exam-sheet{width:100%;border:0;border-radius:0;margin:0;overflow:hidden}
+.write-now{padding:13px 18px;background:#fffdf9}
+.write-now h2{font-size:19px;line-height:1.35;color:var(--wine);margin:0 0 4px}
+.write-now p{font-size:13px;line-height:1.5;color:#6b6259;margin:0 0 9px}
+.write-now ol{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.write-now li{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid #d9cbbd;border-radius:8px;padding:10px 12px}
+.write-now li strong{display:block;color:#302922;font-size:14px;margin-bottom:3px}
+.write-now li span{display:block;color:#302922;font-size:15px;line-height:1.5;font-weight:700}
+.write-now li button{border:1px solid var(--wine);color:var(--wine);background:#fff;white-space:nowrap;font-size:12px;font-weight:800;padding:8px 10px}
+.write-now li button:hover,.write-now li button:focus-visible{background:#f9e9e8}
+.write-now .action-step{font-size:13px;font-weight:800;color:var(--wine)}
 .bar{width:min(1100px,100%);margin:12px auto;position:relative;z-index:1}
 .film-guide{position:relative;top:auto}
 .reading-help{width:min(1100px,100%);margin:18px auto;background:#fffdf9;border:1px solid var(--line);border-radius:10px;padding:12px 16px}
 .reading-help>summary{cursor:pointer;font-size:15px;font-weight:700;color:var(--wine)}
 .reading-help .problem-card,.reading-help .source-card{margin-top:12px}
-@media(max-width:800px){.notebook-sheet{margin-top:8px}.notebook-sheet .cue-message{padding:8px 12px;font-size:12px}.reading-help{padding:10px 12px}}
+@media(max-width:800px){.notebook-sheet{margin-top:8px}.notebook-sheet .cue-message{padding:8px 12px;font-size:12px}.reading-help{padding:10px 12px}.write-now{padding:10px}.write-now h2{font-size:17px}.write-now li{grid-template-columns:1fr;gap:5px;padding:8px}.write-now li strong{font-size:12px}.write-now li span{font-size:13px}.write-now li button{justify-self:start}.problem-zoom{font-size:11px;margin:6px;width:calc(100% - 12px);padding:7px 3px}}
 </style>
 </head>
 <body>
@@ -124,7 +143,7 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 <nav class="case-nav" aria-label="승주형 세 문제"><a href="ink-film-14.html">14번 · 그래프</a><a href="ink-film-10.html">10번 · 적분·이동거리</a><a href="ink-film-3.html">3번 · 사분면</a></nav>
 <div class="tasks" id="tasks" hidden></div>
 <section class="film-guide" id="filmGuide"><div class="guide-top"><b id="guideTitle"></b><div><button id="prevStep">이전</button><button id="nextStep">다음</button><button id="toggleGuide" aria-expanded="true">안내 접기</button><a href="ink-film-3-guide.html" target="_blank" rel="noopener">전체 안내</a></div></div><div class="guide-body"><div><strong id="guideWhere"></strong><pre id="guideText"></pre><img id="guidePreview" class="guide-preview" alt="현재 단계에서 손으로 그릴 그림 예시" hidden></div><p id="guideNote"></p></div></section>
-<p class="tablet-tip">갤탭: 같은 노트 맨 위 문제에도, 아래 풀이 여백에도 S펜으로 바로 쓰세요. 손가락·손바닥은 필기에 반영되지 않습니다. 오른쪽 스크롤 띠나 ‘손가락 스크롤 모드’로 한 장의 노트를 위아래로 움직일 수 있습니다.</p>
+<p class="tablet-tip">갤탭: 문제는 작은 미리보기입니다. 글을 읽거나 문제 위에 체크하려면 ‘문제 확대 · 위에 필기’를 누르세요. ‘지금 여기에 적으세요’의 버튼으로 필기 자리를 찾을 수 있습니다. S펜으로 쓰고 오른쪽 띠에서 손가락으로 스크롤하세요.</p>
 <div class="bar">
   <button id="mPen" class="on">펜</button>
   <button id="mErase">지우개</button>
@@ -144,10 +163,15 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 </div>
 
 <section class="notebook-sheet" id="notebookSheet" aria-label="인쇄된 문제와 손풀이가 이어진 한 장의 노트">
+<div class="notebook-top" id="notebookTop">
+<div class="problem-thumb"><button class="problem-zoom" id="problemZoom" aria-pressed="false">문제 확대 · 위에 필기</button>
 <details class="exam-workspace" id="examWorkspace" open><summary hidden>같은 노트 맨 위의 인쇄된 시험지</summary>
   <div class="exam-sheet" id="examSheet" data-w="1460" data-h="452"><img id="examImage" src="ink-film-3-exam.png" alt="2024학년도 수능 수학 3번 실제 문항과 다섯 선택지"><span class="exam-highlight" id="examHighlight" hidden></span><canvas id="examInk" aria-label="시험지 문제 위에 직접 표시하는 펜 면"></canvas><div class="scroll-rail" aria-label="손가락으로 시험지 화면을 스크롤하세요"><span>손가락 스크롤</span></div></div>
   <p id="cueMessage" class="cue-message" hidden>Provee · 잠깐. 문제 맨 앞의 조건을 다시 읽어봐.</p>
 </details>
+</div>
+<aside class="write-now" id="writeNow" aria-live="polite"><div class="action-step" id="actionStep"></div><h2 id="actionTitle">지금 여기에 적으세요</h2><p>‘자리로 이동’을 누르면 이번 단계의 필기 칸을 보여줍니다.</p><ol id="actionList"></ol></aside>
+</div>
 <div class="pad" id="pad">
   <div class="step-areas" id="stepAreas" aria-hidden="true"></div><canvas id="cv"></canvas>
   <div class="scroll-rail" aria-label="손가락으로 여기서 화면을 위아래로 움직이세요"><span>손가락 스크롤</span></div>
@@ -561,7 +585,7 @@ async function save() {
 document.getElementById('save').onclick = save;
 
 
-const GUIDE = [{"title":"문제의 두 조건 표시","where":"필기장 왼쪽 위","text":"3π/2 < θ < 2π → θ는 제4사분면\nsin(−θ)=1/3\n구할 것: tan θ","note":"왜 −θ를 표시하나요? 주어진 양수 1/3은 sin θ가 아니라 sin(−θ)의 값입니다. sin(−θ)=−sin θ이므로 실제 θ의 세로 좌표는 음수입니다. 문제 첫 줄의 사분면 조건이 답의 부호를 정합니다.","areas":[{"label":"1/7 · 문제 첫 줄·sin(−θ)","left":5,"top":7,"width":52,"height":20}]},{"title":"길이 3·1·2√2의 삼각형","where":"필기장 가운데 왼쪽","text":"기준각용 직각삼각형을 그립니다.\n빗변=3, 세로 길이=1\n밑변²=3²−1²=8 → 밑변=2√2\n길이만 표시하고 아직 θ의 부호를 정하지 않습니다.","note":"어떤 그림인가요? 승주형 학생이 처음 그린 것은 길이를 찾는 기준각 삼각형입니다. 높이 1은 양의 ‘길이’이고 실제 제4사분면의 y좌표는 −1입니다. 화면의 그림에서 오른쪽 아래 방향을 확인할 수 있습니다.","preview":"ink-film-3-reference.svg","areas":[{"label":"2/7 · 길이 3·1·2√2 삼각형","left":5,"top":30,"width":61,"height":34}]},{"title":"승주형 학생의 양수 오답 시도","where":"① 필기장 가운데 위에 양수 계산 → ② 같은 노트 맨 위 인쇄된 문제에서 선택지 ⑤","text":"① 길이만 보고 1/(2√2)=√2/4를 씁니다.\n② 조건 첫 줄을 아직 확인하지 않은 학생의 장면: 같은 노트 맨 위 인쇄된 문제로 올라가 ⑤ √2/4를 그대로 펜으로 체크합니다.\n이 ⑤는 의도적 오답 시도이므로 바로 수정하지 말고 잠깐 남깁니다.","note":"왜 ⑤를 실제로 체크하나요? 승주형 원문에서는 학생이 삼각형 길이는 맞게 구했지만 사분면을 빼먹어 양수 ⑤를 고르려 합니다. 대표님이 말한 ‘별생각 없이 ⑤ 체크’ 동작을 시험지 위에 직접 남길 수 있습니다. 영상에서 학생의 실수로 보여주는 획이며 정답은 아닙니다.","areas":[{"label":"3/7 · 양수 ⑤ 시도","left":5,"top":7,"width":52,"height":20}]},{"title":"문제 첫 줄로 돌아가기","where":"필기장 맨 위의 조건 → 그림","text":"문제 조건 3π/2<θ<2π에 밑줄\nθ는 오른쪽 아래, 제4사분면\nsin θ=−1/3, cos θ>0","note":"승주형 프루비가 강조한 질문은 ‘문제 맨 앞의 조건에서 θ가 제4사분면인데 체크했어?’입니다. 정답을 먼저 주기보다 학생이 빠뜨린 첫 줄을 다시 보게 합니다.","areas":[{"label":"4/7 · 첫 줄 제4사분면 확인","left":5,"top":7,"width":52,"height":20}]},{"title":"삼각형을 실제 방향으로 고치기","where":"같은 그림 오른쪽 또는 새 그림","text":"좌표축을 그리고 원점에서 오른쪽 아래로 빗변 3을 그립니다.\n끝점의 가로 방향 +2√2, 세로 방향 −1\n제4사분면에 θ 표시. 기존 길이 3·1·2√2는 유지","note":"무슨 선을 그리나요? 원점에서 (2√2,−1) 쪽으로 내려가는 사선이 빗변입니다. 끝점에서 x축까지 세로 보조선을 그리면 아래쪽 높이의 부호가 −임을 볼 수 있습니다. 필요하면 이전 양수 표시만 지우세요.","preview":"ink-film-3-reference.svg","areas":[{"label":"5/7 · 오른쪽 아래 사선으로 수정","left":5,"top":30,"width":61,"height":34}]},{"title":"탄젠트 부호 수정","where":"필기장 오른쪽 가운데","text":"tan θ=(세로 좌표)/(가로 좌표)\n=−1/(2√2)=−√2/4\n⑤ 양수 시도 → ② 음수 답","note":"왜 음수인가요? 제4사분면에서는 x가 양수, y가 음수이므로 y/x가 음수입니다. 삼각형의 길이는 그대로 맞았고, 고친 것은 방향과 부호입니다.","areas":[{"label":"6/7 · 음수 tan θ 계산","left":59,"top":34,"width":36,"height":29}]},{"title":"조건 확인 장면 마무리","where":"① 필기장 오른쪽 아래에 수정 답 → ② 같은 노트 맨 위 인쇄된 문제의 기존 ⑤와 선택지 ②","text":"sin(−θ)=1/3 ↔ sin θ=−1/3\nθ: 제4사분면\ntan θ=−√2/4 → ②\n같은 노트 맨 위 인쇄된 문제에서 앞서 체크한 ⑤ 획을 지우고, 선택지 ②를 새로 체크합니다.","note":"승주형 노션의 3번은 다섯 장면 모두 볼드입니다. 별생각 없이 ⑤를 체크한 획, 첫 줄을 확인한 흔적, 그 획을 지운 시점과 ②를 새로 체크한 획이 한 기록에 남으면 학생이 스스로 고친 과정이 보입니다.","areas":[{"label":"7/7 · 답 ②","left":62,"top":68,"width":33,"height":23}]}];
+const GUIDE = [{"title":"문제의 두 조건 표시","where":"필기장 왼쪽 위","text":"3π/2 < θ < 2π → θ는 제4사분면\nsin(−θ)=1/3\n구할 것: tan θ","note":"왜 −θ를 표시하나요? 주어진 양수 1/3은 sin θ가 아니라 sin(−θ)의 값입니다. sin(−θ)=−sin θ이므로 실제 θ의 세로 좌표는 음수입니다. 문제 첫 줄의 사분면 조건이 답의 부호를 정합니다.","actions":[{"target":0,"place":"풀이 여백 왼쪽 위","write":"3π/2<θ<2π → 제4사분면, sin(−θ)=1/3, 구할 것 tan θ를 적으세요."}],"areas":[{"label":"1/7 · 문제 첫 줄·sin(−θ)","left":5,"top":7,"width":52,"height":20}]},{"title":"길이 3·1·2√2의 삼각형","where":"필기장 가운데 왼쪽","text":"기준각용 직각삼각형을 그립니다.\n빗변=3, 세로 길이=1\n밑변²=3²−1²=8 → 밑변=2√2\n길이만 표시하고 아직 θ의 부호를 정하지 않습니다.","note":"어떤 그림인가요? 승주형 학생이 처음 그린 것은 길이를 찾는 기준각 삼각형입니다. 높이 1은 양의 ‘길이’이고 실제 제4사분면의 y좌표는 −1입니다. 화면의 그림에서 오른쪽 아래 방향을 확인할 수 있습니다.","preview":"ink-film-3-reference.svg","actions":[{"target":0,"place":"풀이 여백 가운데 왼쪽","write":"기준각 삼각형을 그리고 빗변 3, 세로 길이 1, 밑변 2√2를 표시하세요."}],"areas":[{"label":"2/7 · 길이 3·1·2√2 삼각형","left":5,"top":30,"width":61,"height":34}]},{"title":"승주형 학생의 양수 오답 시도","where":"① 필기장 가운데 위에 양수 계산 → ② 같은 노트 맨 위 인쇄된 문제에서 선택지 ⑤","text":"① 길이만 보고 1/(2√2)=√2/4를 씁니다.\n② 조건 첫 줄을 아직 확인하지 않은 학생의 장면: 같은 노트 맨 위 인쇄된 문제로 올라가 ⑤ √2/4를 그대로 펜으로 체크합니다.\n이 ⑤는 의도적 오답 시도이므로 바로 수정하지 말고 잠깐 남깁니다.","note":"왜 ⑤를 실제로 체크하나요? 승주형 원문에서는 학생이 삼각형 길이는 맞게 구했지만 사분면을 빼먹어 양수 ⑤를 고르려 합니다. 대표님이 말한 ‘별생각 없이 ⑤ 체크’ 동작을 시험지 위에 직접 남길 수 있습니다. 영상에서 학생의 실수로 보여주는 획이며 정답은 아닙니다.","actions":[{"target":0,"place":"풀이 여백 가운데 위","write":"길이만 보고 tan θ=√2/4라는 양수 시도를 적으세요."},{"target":"question","place":"같은 노트 맨 위의 문제","write":"오답 시도 선택지 ⑤에 직접 체크하고 잠깐 남기세요."}],"areas":[{"label":"3/7 · 양수 ⑤ 시도","left":5,"top":7,"width":52,"height":20}]},{"title":"문제 첫 줄로 돌아가기","where":"필기장 맨 위의 조건 → 그림","text":"문제 조건 3π/2<θ<2π에 밑줄\nθ는 오른쪽 아래, 제4사분면\nsin θ=−1/3, cos θ>0","note":"승주형 프루비가 강조한 질문은 ‘문제 맨 앞의 조건에서 θ가 제4사분면인데 체크했어?’입니다. 정답을 먼저 주기보다 학생이 빠뜨린 첫 줄을 다시 보게 합니다.","actions":[{"target":"question","place":"같은 노트 맨 위의 문제 첫 줄","write":"3π/2<θ<2π 조건에 밑줄을 그으세요."},{"target":0,"place":"풀이 여백의 기존 그림","write":"θ가 제4사분면이고 sin θ=−1/3, cos θ>0임을 표시하세요."}],"areas":[{"label":"4/7 · 첫 줄 제4사분면 확인","left":5,"top":7,"width":52,"height":20}]},{"title":"삼각형을 실제 방향으로 고치기","where":"같은 그림 오른쪽 또는 새 그림","text":"좌표축을 그리고 원점에서 오른쪽 아래로 빗변 3을 그립니다.\n끝점의 가로 방향 +2√2, 세로 방향 −1\n제4사분면에 θ 표시. 기존 길이 3·1·2√2는 유지","note":"무슨 선을 그리나요? 원점에서 (2√2,−1) 쪽으로 내려가는 사선이 빗변입니다. 끝점에서 x축까지 세로 보조선을 그리면 아래쪽 높이의 부호가 −임을 볼 수 있습니다. 필요하면 이전 양수 표시만 지우세요.","preview":"ink-film-3-reference.svg","actions":[{"target":0,"place":"같은 그림 오른쪽 또는 새 그림","write":"좌표축에 오른쪽 아래 방향 빗변을 그리고 (+2√2,−1), θ를 표시하세요."}],"areas":[{"label":"5/7 · 오른쪽 아래 사선으로 수정","left":5,"top":30,"width":61,"height":34}]},{"title":"탄젠트 부호 수정","where":"필기장 오른쪽 가운데","text":"tan θ=(세로 좌표)/(가로 좌표)\n=−1/(2√2)=−√2/4\n⑤ 양수 시도 → ② 음수 답","note":"왜 음수인가요? 제4사분면에서는 x가 양수, y가 음수이므로 y/x가 음수입니다. 삼각형의 길이는 그대로 맞았고, 고친 것은 방향과 부호입니다.","actions":[{"target":0,"place":"풀이 여백 오른쪽 가운데","write":"tan θ=−1/(2√2)=−√2/4, 양수 시도 ⑤ → 음수 답 ②를 적으세요."}],"areas":[{"label":"6/7 · 음수 tan θ 계산","left":59,"top":34,"width":36,"height":29}]},{"title":"조건 확인 장면 마무리","where":"① 필기장 오른쪽 아래에 수정 답 → ② 같은 노트 맨 위 인쇄된 문제의 기존 ⑤와 선택지 ②","text":"sin(−θ)=1/3 ↔ sin θ=−1/3\nθ: 제4사분면\ntan θ=−√2/4 → ②\n같은 노트 맨 위 인쇄된 문제에서 앞서 체크한 ⑤ 획을 지우고, 선택지 ②를 새로 체크합니다.","note":"승주형 노션의 3번은 다섯 장면 모두 볼드입니다. 별생각 없이 ⑤를 체크한 획, 첫 줄을 확인한 흔적, 그 획을 지운 시점과 ②를 새로 체크한 획이 한 기록에 남으면 학생이 스스로 고친 과정이 보입니다.","actions":[{"target":0,"place":"풀이 여백 오른쪽 아래","write":"sin θ=−1/3, 제4사분면, tan θ=−√2/4 → ②를 적으세요."},{"target":"question","place":"같은 노트 맨 위의 문제","write":"기존 ⑤ 체크 획을 지우고 선택지 ②에 새로 체크하세요."}],"areas":[{"label":"7/7 · 답 ②","left":62,"top":68,"width":33,"height":23}]}];
 const draftKey='provee-film-csat2024-q3-v1';
 let stepIndex=0, marks=[], captureId=Date.now().toString(36), saveSeq=0, saveBusy=false, lastSavedFile=null;
 function eraseLast(){const s=[...strokes].reverse().find(s=>s.erasedAt===null);if(s){s.erasedAt=relT();redraw();stats();persistDraft();}}
@@ -571,10 +595,25 @@ function persistDraft(){try{localStorage.setItem(draftKey,JSON.stringify(draftOb
 window.addEventListener('pagehide',persistDraft);
 function archiveDraft(){if(strokes.length||questionStrokes.length)localStorage.setItem(draftKey+'-archive-'+captureId,JSON.stringify(draftObject()));}
 function renderAreas(s){const box=document.getElementById('stepAreas');box.textContent='';for(const a of s.areas||[]){const region=document.createElement('div');region.className='step-area';region.style.left=a.left+'%';region.style.top=a.top+'%';region.style.width=a.width+'%';region.style.height=a.height+'%';const label=document.createElement('span');label.className='step-area-label';label.textContent=a.label;region.appendChild(label);box.appendChild(region);}}
-function renderGuide(){const s=GUIDE[stepIndex];document.getElementById('guideTitle').textContent=(stepIndex+1)+' / '+GUIDE.length+' · '+s.title;document.getElementById('guideWhere').textContent=s.where;document.getElementById('guideText').textContent=s.text;document.getElementById('guideNote').textContent=s.note;const preview=document.getElementById('guidePreview');preview.hidden=!s.preview;if(s.preview)preview.src=s.preview;renderAreas(s);document.getElementById('prevStep').disabled=stepIndex===0;document.getElementById('nextStep').disabled=stepIndex===GUIDE.length-1;}
+const notebookTop=document.getElementById('notebookTop'),problemZoom=document.getElementById('problemZoom');
+function setProblemExpanded(expanded,scrollToProblem=false){questionEnd();notebookTop.classList.toggle('problem-expanded',expanded);problemZoom.textContent=expanded?'문제 다시 작게 · 1/4 크기':'문제 확대 · 위에 필기';problemZoom.setAttribute('aria-pressed',String(expanded));if(scrollToProblem)requestAnimationFrame(()=>examSheet.scrollIntoView({behavior:'smooth',block:'start'}));}
+problemZoom.onclick=()=>setProblemExpanded(!notebookTop.classList.contains('problem-expanded'),true);
+examSheet.onclick=e=>{if(!notebookTop.classList.contains('problem-expanded')&&!e.target.closest('.scroll-rail'))setProblemExpanded(true,true);};
+function showActionTarget(target){
+  if(target==='cue'){if(!cueVisible)proveeCue.click();else setProblemExpanded(true,true);return;}
+  if(target==='question'){setProblemExpanded(true,true);return;}
+  setProblemExpanded(false,false);
+  requestAnimationFrame(()=>{const region=document.querySelectorAll('#stepAreas .step-area')[target];if(!region)return;region.scrollIntoView({behavior:'smooth',block:'center'});region.classList.add('attention');setTimeout(()=>region.classList.remove('attention'),2400);});
+}
+function renderActions(s){
+  document.getElementById('actionStep').textContent=(stepIndex+1)+' / '+GUIDE.length+' · '+s.title;
+  const list=document.getElementById('actionList');list.replaceChildren();
+  (s.actions||[]).forEach((a,i)=>{const row=document.createElement('li'),body=document.createElement('div'),place=document.createElement('strong'),write=document.createElement('span'),button=document.createElement('button');place.textContent=(i+1)+' · 어디에: '+a.place;write.textContent=(a.target==='cue'?'할 행동: ':'적을 것: ')+a.write;button.type='button';button.textContent=a.target==='cue'?'Provee 조건 보기':a.target==='question'?'문제 확대·표시':'자리로 이동';button.onclick=()=>showActionTarget(a.target);body.append(place,write);row.append(body,button);list.append(row);});
+}
+function renderGuide(){const s=GUIDE[stepIndex];document.getElementById('guideTitle').textContent=(stepIndex+1)+' / '+GUIDE.length+' · '+s.title;document.getElementById('guideWhere').textContent=s.where;document.getElementById('guideText').textContent=s.text;document.getElementById('guideNote').textContent=s.note;const preview=document.getElementById('guidePreview');preview.hidden=!s.preview;if(s.preview)preview.src=s.preview;renderAreas(s);renderActions(s);document.getElementById('prevStep').disabled=stepIndex===0;document.getElementById('nextStep').disabled=stepIndex===GUIDE.length-1;}
 function renderCue(){document.getElementById('examHighlight').hidden=!cueVisible;document.getElementById('cueMessage').hidden=!cueVisible;proveeCue.classList.toggle('on',cueVisible);proveeCue.textContent=cueVisible?'Provee · 조건 짚기 끄기':'Provee · 첫 줄 조건 짚기';}
 proveeCue.hidden=task.id!=='csat2024-q14';
-proveeCue.onclick=()=>{questionEnd();cueVisible=!cueVisible;marks.push({type:'manual-provee-condition-cue',at:relT(),step:stepIndex+1,label:'문제 첫 줄 두 자연수 a,b',visible:cueVisible});renderCue();persistDraft();};
+proveeCue.onclick=()=>{questionEnd();cueVisible=!cueVisible;marks.push({type:'manual-provee-condition-cue',at:relT(),step:stepIndex+1,label:'문제 첫 줄 두 자연수 a,b',visible:cueVisible});renderCue();if(cueVisible)setProblemExpanded(true,true);persistDraft();};
 examWorkspace.addEventListener('toggle',()=>persistDraft());
 function goStep(delta){endStroke();stepIndex=Math.max(0,Math.min(GUIDE.length-1,stepIndex+delta));marks.push({step:stepIndex+1,at:t0===null?0:relT(),label:GUIDE[stepIndex].title});renderGuide();setGuideCollapsed(false);persistDraft();}
 function setGuideCollapsed(collapsed){const guide=document.getElementById('filmGuide'),button=document.getElementById('toggleGuide');guide.classList.toggle('collapsed',collapsed);button.textContent=collapsed?'안내 보기':'안내 접기';button.setAttribute('aria-expanded',String(!collapsed));}
@@ -597,7 +636,7 @@ try{
 }catch(e){document.getElementById('backupStatus').textContent='이전 자동 보관 기록은 복원하지 못했습니다.';}
 renderGuide();
 
-renderCue();redraw();redrawQuestion();stats();
+renderCue();if(cueVisible)setProblemExpanded(true,false);redraw();redrawQuestion();stats();
 function markProblemReview(type,label){marks.push({type,at:relT(),step:stepIndex+1,label});stats();persistDraft();}
 function closeProblemReview(label){if(!problemReviewActive)return;problemReviewActive=false;markProblemReview('problem-review-end',label);}
 const referenceObserver=new IntersectionObserver(entries=>{

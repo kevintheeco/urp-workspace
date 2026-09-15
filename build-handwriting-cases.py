@@ -151,6 +151,48 @@ GUIDES[10][4]["preview"] = "ink-film-10-reference.svg"
 GUIDES[3][1]["preview"] = "ink-film-3-reference.svg"
 GUIDES[3][4]["preview"] = "ink-film-3-reference.svg"
 
+ACTION_ROWS = {
+    14: [
+        [(0, "풀이 여백 왼쪽 위", "f₁(x)=2x³−6x+1, f₁′(x)=6x²−6, x=−1·1, f(−1)=5, f(1)=−3, f(2)=5를 적으세요.")],
+        [(0, "풀이 여백 가운데 왼쪽", "x·y축을 그리고 (−1,5), (1,−3), (2,5)를 찍어 x≤2 삼차곡선을 이으세요.")],
+        [(0, "풀이 여백 오른쪽 위", "f₂(x)=a(x−2)(x−b)+9, f₂(2)=9, f₂(b)=9, 실제 f(2)=5를 적으세요."),
+         (1, "앞서 그린 그래프의 x=2 위", "(2,5) ● 위 높이 9에 (2,9) ○를 찍으세요.")],
+        [(0, "기존 그래프의 (2,9) ○ 오른쪽", "오른쪽 곡선을 ∩ 모양으로 한 번 그리세요. 펜을 떼고 스스로 살펴보다 멈추세요.")],
+        [("cue", "같은 노트 맨 위 문제 첫 줄", "학생이 멈춘 뒤 Provee가 ‘두 자연수 a,b’를 짚는 장면을 켜고 그 조건을 다시 읽으세요."),
+         (0, "풀이 여백 오른쪽 위", "a는 자연수 → a>0 → 오른쪽 곡선은 ∪를 적으세요."),
+         (1, "기존 그래프의 오른쪽 곡선", "방금 그린 ∩ 획만 지우고, (2,9) ○에서 내려갔다 올라오는 ∪를 그리세요.")],
+        [(0, "기존 그래프의 x축과 곡선", "x=2 오른쪽에 b?를 쓰고, b>2일 때 (b,9) ●와 y=t 가로선을 표시하세요."),
+         (1, "풀이 여백 아래 왼쪽", "f₂(b)=9, m=9−a(b−2)²/4를 적으세요. m=−3일 때 g(−3−)=1, g(−3)=3, g(−3+)=5도 적으세요.")],
+        [(0, "풀이 여백 아래 오른쪽", "a(b−2)²=48, (a,b)=(48,3),(12,4),(3,6), 최댓값 51을 적으세요."),
+         ("question", "같은 노트 맨 위의 문제", "선택지 ① 51에 직접 체크하세요.")],
+    ],
+    10: [
+        [(0, "풀이 여백 왼쪽 위", "v₁(t), v₂(t), f(t)=두 점 사이 거리와 구할 구간 [a,b]를 적으세요.")],
+        [(0, "풀이 여백 왼쪽 가운데", "x₁(t), x₂(t)를 적분해 쓰고 C₁, C₂를 그대로 남기세요.")],
+        [(0, "풀이 여백 가운데 위", "먼저 f(t)=x₁−x₂를 쓰고, ‘거리’를 확인한 뒤 절댓값 |x₁−x₂|를 씌우세요.")],
+        [(0, "풀이 여백 가운데 왼쪽", "x₁(0)=x₂(0)=0 → C₁=C₂=0, f′(t)=(t−2)(t−6) → a=2,b=6을 적으세요.")],
+        [(0, "풀이 여백 오른쪽 위", "2 ─ 7/2 ─ 6 시간선을 그리고 Q의 이동 방향을 ←, →로 표시하세요.")],
+        [(0, "풀이 여백 오른쪽 가운데", "두 구간의 이동거리 9/4, 25/4를 각각 적분해 구하고 합 17/2를 적으세요.")],
+        [(0, "풀이 여백 오른쪽 아래", "a=2, b=6, Q 이동거리=17/2를 적고 C₁=C₂=0 부분에 동그라미 치세요."),
+         ("question", "같은 노트 맨 위의 문제", "선택지 ②에 직접 체크하세요.")],
+    ],
+    3: [
+        [(0, "풀이 여백 왼쪽 위", "3π/2<θ<2π → 제4사분면, sin(−θ)=1/3, 구할 것 tan θ를 적으세요.")],
+        [(0, "풀이 여백 가운데 왼쪽", "기준각 삼각형을 그리고 빗변 3, 세로 길이 1, 밑변 2√2를 표시하세요.")],
+        [(0, "풀이 여백 가운데 위", "길이만 보고 tan θ=√2/4라는 양수 시도를 적으세요."),
+         ("question", "같은 노트 맨 위의 문제", "오답 시도 선택지 ⑤에 직접 체크하고 잠깐 남기세요.")],
+        [("question", "같은 노트 맨 위의 문제 첫 줄", "3π/2<θ<2π 조건에 밑줄을 그으세요."),
+         (0, "풀이 여백의 기존 그림", "θ가 제4사분면이고 sin θ=−1/3, cos θ>0임을 표시하세요.")],
+        [(0, "같은 그림 오른쪽 또는 새 그림", "좌표축에 오른쪽 아래 방향 빗변을 그리고 (+2√2,−1), θ를 표시하세요.")],
+        [(0, "풀이 여백 오른쪽 가운데", "tan θ=−1/(2√2)=−√2/4, 양수 시도 ⑤ → 음수 답 ②를 적으세요.")],
+        [(0, "풀이 여백 오른쪽 아래", "sin θ=−1/3, 제4사분면, tan θ=−√2/4 → ②를 적으세요."),
+         ("question", "같은 노트 맨 위의 문제", "기존 ⑤ 체크 획을 지우고 선택지 ②에 새로 체크하세요.")],
+    ],
+}
+for case_number, rows in ACTION_ROWS.items():
+    for guide, row in zip(GUIDES[case_number], rows, strict=True):
+        guide["actions"] = [{"target": target, "place": place, "write": write} for target, place, write in row]
+
 # The printed question now sits at the top of the same notebook sheet as the pad.
 for case_guides in GUIDES.values():
     for guide in case_guides:
@@ -270,8 +312,12 @@ def set_guide(source: str, number: int) -> str:
 def guide_page(number: int) -> str:
     rows = []
     for i, step in enumerate(GUIDES[number], 1):
+        actions = "<ol>" + "".join(
+            "<li><b>" + html.escape(action["place"]) + "</b>: " + html.escape(action["write"]) + "</li>"
+            for action in step["actions"]
+        ) + "</ol>"
         rows.append("<tr><td>" + str(i) + "/7</td><td>" + html.escape(step["title"]) +
-                    "</td><td>" + html.escape(step["where"]) + "</td><td><pre>" +
+                    "</td><td>" + html.escape(step["where"]) + "</td><td>" + actions + "<pre>" +
                     html.escape(step["text"]) + "</pre><p>" + html.escape(step["note"]) + "</p></td></tr>")
     return ('<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>승주 {number}번 손풀이 전체 안내</title><style>body{{margin:0;background:#faf8f6;color:#302a29;font:16px/1.7 "Malgun Gothic",sans-serif}}main{{max-width:1050px;margin:auto;padding:24px}}'
