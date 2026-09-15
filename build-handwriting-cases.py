@@ -42,10 +42,10 @@ GUIDES = {
             "note": "왜 ∪인가요? 이차식의 x² 계수가 양수 a이기 때문입니다. 단계 안의 붉은 벡터 그림은 (a,b)=(3,6)일 때의 모양 예시입니다. 이 단계에서는 실제 a,b나 꼭짓점 높이를 확정하지 말고 높이를 m으로 남겨 두세요. (2,9)는 빈 점이고 b>2일 때 (b,9)는 실제 곡선의 점입니다.",
         },
         {
-            "title": "수평선으로 교점 세기",
-            "where": "그래프에 수평선 → 필기장 아래 왼쪽",
-            "text": "수평선 y=t를 높이별로 그어 양쪽 곡선과 만나는 점을 셉니다.\nb≤2: −3<t<5에서 g(t)=3이 계속되어 k가 여러 개 → 제외\nb>2, 꼭짓점 x=(2+b)/2, 높이 m=9−a(b−2)²/4\nm<−3 또는 m>−3: g(t)=3인 높이가 여러 개\nm=−3, k=−3: 왼쪽 1 + 해당 3 + 오른쪽 5 = 9",
-            "note": "왜 수평선을 그리나요? g(t)는 높이 t의 가로선이 전체 그래프와 만나는 점의 개수입니다. ‘정확히 한 k’ 조건을 보려면 가로선을 아래→위로 움직이며 교점 수가 바뀌는 높이를 확인해야 합니다. −3은 왼쪽 곡선의 바닥이며, 오른쪽 ∪의 바닥 m도 −3일 때만 한 높이에서 1+3+5가 됩니다.",
+            "title": "b의 뜻 확인·수평선으로 교점 세기",
+            "where": "① 기존 그래프 오른쪽 x축에 b? 표시 → ② 그래프를 지나는 y=t 가로선 → ③ 필기장 아래 왼쪽에 교점 개수",
+            "text": "먼저 b의 뜻: f₂(x)=a(x−2)(x−b)+9에서 아직 모르는 자연수입니다.\nx=b를 넣으면 (x−b)=0 → f₂(b)=9. 따라서 b는 y=9를 다시 만나는 x좌표입니다.\n① 기존 x축의 2 오른쪽에 ‘b?’를 쓰세요. 지금 b=6 같은 숫자를 확정하지 않습니다.\n② b≤2면 오른쪽 가지(x>2)에 두 번째 y=9 점이 없고, −3<t<5에서 g(t)=3인 높이가 여러 개라 제외합니다.\n③ b>2면 (2,9) ○와 (b,9) ● 사이의 ∪ 꼭짓점: x=(2+b)/2, 높이 m=9−a(b−2)²/4.\n④ y=t 가로선을 아래→위로 옮기며 양쪽 곡선의 교점을 셉니다. m≠−3이면 g(t)=3인 높이가 여러 개, m=−3이면 k=−3 한 곳에서 g(k−),g(k),g(k+)=1,3,5 → 합 9입니다.",
+            "note": "b는 답으로 찾기 전까지 미지수입니다. 화면의 벡터 그림에서 x=b는 오른쪽 ∪가 y=9를 다시 지나는 위치일 뿐, 특정 숫자를 뜻하지 않습니다. g(t)는 높이 t의 가로선이 전체 그래프와 만나는 점의 개수이고 m은 ∪의 가장 낮은 높이입니다. 문제를 위에서 다시 읽고 돌아온 시간은 필기 공백에 섞일 수 있으므로 그 공백을 곧바로 망설임으로 해석하지 않습니다.",
         },
         {
             "title": "자연수 후보와 답",
@@ -146,6 +146,7 @@ GUIDES = {
 GUIDES[14][1]["preview"] = "ink-film-14-left.svg"
 GUIDES[14][3]["preview"] = "ink-film-14-wrong.svg"
 GUIDES[14][4]["preview"] = "ink-film-14-reference.svg"
+GUIDES[14][5]["preview"] = "ink-film-14-b.svg"
 GUIDES[10][4]["preview"] = "ink-film-10-reference.svg"
 GUIDES[3][1]["preview"] = "ink-film-3-reference.svg"
 GUIDES[3][4]["preview"] = "ink-film-3-reference.svg"
@@ -162,8 +163,8 @@ for number, steps in {
         [area("4/7 · (2,9) ○에서 오른쪽 ∩", 42, 30, 24, 34)],
         [area("① 여기에 a>0 조건", 57, 7, 38, 21),
          area("② 같은 그래프에서 ∩ 지우고 ∪", 42, 30, 24, 34)],
-        [area("① 그래프에 y=t 가로선", 5, 30, 61, 34),
-         area("② 여기서 g(t)·m 비교", 5, 68, 53, 23)],
+        [area("① x축 오른쪽에 b? · 그래프에 y=t", 5, 30, 61, 34),
+         area("② 아래에 g(t)·m 비교", 5, 68, 53, 23)],
         [area("7/7 · 자연수 후보와 최대 합", 62, 68, 33, 23)],
     ],
     10: [
@@ -370,6 +371,35 @@ def svg_plot_14_wrong() -> str:
 <text x="41" y="444" fill="#a64c1c">주황 점선은 학생의 틀린 획 · 5/7에서 이 선만 지우고 ∪로 다시 그림</text>
 </svg>\n'''
 
+SVG14_B = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 390" role="img" aria-labelledby="title desc">
+<title id="title">6/7 · 미지수 b가 그래프에서 가리키는 위치</title>
+<desc id="desc">x가 2보다 큰 경우의 오른쪽 이차곡선만 나타낸 개념도이다. x=2의 y=9에는 빈 점이 있고, x=b의 y=9에는 채운 점이 있다. 두 점 가운데의 꼭짓점 x=(2+b)/2는 높이 m이다. b의 숫자는 아직 모른다.</desc>
+<style>text{font:15px 'Malgun Gothic','Noto Sans CJK KR',Arial,sans-serif;fill:#393734}.strong{font-weight:700;fill:#8a1c2b}</style>
+<rect width="750" height="390" rx="12" fill="#fffdf9"/>
+<text x="29" y="31" font-size="18" font-weight="700">6/7 · b는 숫자를 아직 모르는 x좌표</text>
+<text x="30" y="60">f₂(x)=a(x−2)(x−b)+9 → x=b를 넣으면 f₂(b)=9</text>
+<line x1="75" y1="309" x2="690" y2="309" stroke="#9f9b95" stroke-width="1.8"/>
+<line x1="76" y1="88" x2="76" y2="329" stroke="#9f9b95" stroke-width="1.8"/>
+<text x="698" y="313">x</text><text x="85" y="98">y</text>
+<line x1="76" y1="128" x2="668" y2="128" stroke="#c8b5a6" stroke-dasharray="6 5"/>
+<text x="52" y="133">9</text>
+<path d="M190 128 Q390 374 590 128" fill="none" stroke="#a53d4a" stroke-width="4.3" stroke-linecap="round"/>
+<circle cx="190" cy="128" r="6" fill="#fffdf9" stroke="#a53d4a" stroke-width="2.5"/>
+<circle cx="590" cy="128" r="6" fill="#a53d4a"/>
+<circle cx="390" cy="251" r="5" fill="#a53d4a"/>
+<line x1="190" y1="138" x2="190" y2="309" stroke="#d1c0b1" stroke-dasharray="4 5"/>
+<line x1="390" y1="258" x2="390" y2="309" stroke="#d1c0b1" stroke-dasharray="4 5"/>
+<line x1="590" y1="138" x2="590" y2="309" stroke="#d1c0b1" stroke-dasharray="4 5"/>
+<text x="157" y="116" class="strong">(2,9) ○</text>
+<text x="602" y="120" class="strong">(b,9) ●</text>
+<text x="402" y="278" class="strong">꼭짓점 높이 m</text>
+<text x="190" y="335" text-anchor="middle">2</text>
+<text x="390" y="335" text-anchor="middle">(2+b)/2</text>
+<text x="590" y="335" text-anchor="middle" class="strong">b?</text>
+<rect x="27" y="348" width="696" height="29" rx="7" fill="#fff0df"/>
+<text x="39" y="368">b&gt;2인 모양만 보여주는 개념도 · b의 실제 값은 7/7에서 후보를 찾습니다.</text>
+</svg>\n'''
+
 SVG10 = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 280"><style>text{font:18px Arial,sans-serif;fill:#3d3935}</style><rect width="760" height="280" fill="#fffdf9"/><text x="35" y="39">Q의 속도 v₂(t)=2t−7</text><line x1="90" y1="145" x2="690" y2="145" stroke="#9c9388" stroke-width="3"/><g stroke="#3d3935" stroke-width="2"><line x1="135" y1="133" x2="135" y2="157"/><line x1="380" y1="133" x2="380" y2="157"/><line x1="625" y1="133" x2="625" y2="157"/></g><text x="125" y="187">2=a</text><text x="353" y="187">7/2</text><text x="610" y="187">6=b</text><path d="M350 106 H175 l22 -13 M175 106 l22 13" fill="none" stroke="#a53d4a" stroke-width="4"/><path d="M410 106 H590 l-22 -13 M590 106 l-22 13" fill="none" stroke="#215c99" stroke-width="4"/><text x="156" y="87">v₂&lt;0 · 왼쪽으로 9/4</text><text x="438" y="87">v₂&gt;0 · 오른쪽으로 25/4</text><text x="238" y="244">움직인 거리 = 9/4 + 25/4 = 17/2</text></svg>\n'''
 SVG3 = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380"><style>text{font:17px Arial,sans-serif;fill:#3d3935}</style><rect width="760" height="380" fill="#fffdf9"/><line x1="85" y1="155" x2="690" y2="155" stroke="#9c9388" stroke-width="2"/><line x1="330" y1="35" x2="330" y2="330" stroke="#9c9388" stroke-width="2"/><text x="698" y="160">x</text><text x="335" y="31">y</text><path d="M330 155 L565 265 L565 155 Z" fill="#fbeded" stroke="#a53d4a" stroke-width="3"/><circle cx="330" cy="155" r="5" fill="#3d3935"/><text x="388" y="199">빗변 길이 3</text><text x="445" y="145">가로 +2√2</text><text x="572" y="216">세로 −1</text><text x="487" y="292">θ: 제4사분면</text><text x="46" y="315">길이 1은 양수지만, 세로 좌표는 −1</text><text x="46" y="346">tan θ = −1/(2√2) = −√2/4</text></svg>\n'''
 
@@ -435,6 +465,7 @@ def main() -> None:
     (ROOT / "ink-film-14-reference.svg").write_text(svg_plot_14(), encoding="utf-8")
     (ROOT / "ink-film-14-left.svg").write_text(svg_plot_14(False), encoding="utf-8")
     (ROOT / "ink-film-14-wrong.svg").write_text(svg_plot_14_wrong(), encoding="utf-8")
+    (ROOT / "ink-film-14-b.svg").write_text(SVG14_B, encoding="utf-8")
     (ROOT / "ink-film-10-reference.svg").write_text(SVG10, encoding="utf-8")
     (ROOT / "ink-film-3-reference.svg").write_text(SVG3, encoding="utf-8")
     for number in (14, 10, 3):

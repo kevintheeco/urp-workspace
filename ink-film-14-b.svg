@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 390" role="img" aria-labelledby="title desc">
+<title id="title">6/7 · 미지수 b가 그래프에서 가리키는 위치</title>
+<desc id="desc">x가 2보다 큰 경우의 오른쪽 이차곡선만 나타낸 개념도이다. x=2의 y=9에는 빈 점이 있고, x=b의 y=9에는 채운 점이 있다. 두 점 가운데의 꼭짓점 x=(2+b)/2는 높이 m이다. b의 숫자는 아직 모른다.</desc>
+<style>text{font:15px 'Malgun Gothic','Noto Sans CJK KR',Arial,sans-serif;fill:#393734}.strong{font-weight:700;fill:#8a1c2b}</style>
+<rect width="750" height="390" rx="12" fill="#fffdf9"/>
+<text x="29" y="31" font-size="18" font-weight="700">6/7 · b는 숫자를 아직 모르는 x좌표</text>
+<text x="30" y="60">f₂(x)=a(x−2)(x−b)+9 → x=b를 넣으면 f₂(b)=9</text>
+<line x1="75" y1="309" x2="690" y2="309" stroke="#9f9b95" stroke-width="1.8"/>
+<line x1="76" y1="88" x2="76" y2="329" stroke="#9f9b95" stroke-width="1.8"/>
+<text x="698" y="313">x</text><text x="85" y="98">y</text>
+<line x1="76" y1="128" x2="668" y2="128" stroke="#c8b5a6" stroke-dasharray="6 5"/>
+<text x="52" y="133">9</text>
+<path d="M190 128 Q390 374 590 128" fill="none" stroke="#a53d4a" stroke-width="4.3" stroke-linecap="round"/>
+<circle cx="190" cy="128" r="6" fill="#fffdf9" stroke="#a53d4a" stroke-width="2.5"/>
+<circle cx="590" cy="128" r="6" fill="#a53d4a"/>
+<circle cx="390" cy="251" r="5" fill="#a53d4a"/>
+<line x1="190" y1="138" x2="190" y2="309" stroke="#d1c0b1" stroke-dasharray="4 5"/>
+<line x1="390" y1="258" x2="390" y2="309" stroke="#d1c0b1" stroke-dasharray="4 5"/>
+<line x1="590" y1="138" x2="590" y2="309" stroke="#d1c0b1" stroke-dasharray="4 5"/>
+<text x="157" y="116" class="strong">(2,9) ○</text>
+<text x="602" y="120" class="strong">(b,9) ●</text>
+<text x="402" y="278" class="strong">꼭짓점 높이 m</text>
+<text x="190" y="335" text-anchor="middle">2</text>
+<text x="390" y="335" text-anchor="middle">(2+b)/2</text>
+<text x="590" y="335" text-anchor="middle" class="strong">b?</text>
+<rect x="27" y="348" width="696" height="29" rx="7" fill="#fff0df"/>
+<text x="39" y="368">b&gt;2인 모양만 보여주는 개념도 · b의 실제 값은 7/7에서 후보를 찾습니다.</text>
+</svg>

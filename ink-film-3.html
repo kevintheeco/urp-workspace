@@ -68,6 +68,7 @@ canvas{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair}
   font-size:14px;color:var(--gray);
 }
 .stats b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+.timing-tip{margin-top:7px;font-size:12px;line-height:1.5;color:#6B6259}
 .hint{margin-top:14px;font-size:13.5px;line-height:1.75;color:#6B6259;max-width:1000px}
 .hint b{color:var(--ink)}
 #toast{
@@ -151,11 +152,13 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 <div class="stats">
   <span>획 <b id="sN">0</b></span>
   <span>총 시간 <b id="sT">0.0초</b></span>
-  <span>가장 긴 멈춤 <b id="sP">—</b></span>
+  <span>가장 긴 필기 공백 <b id="sP">—</b></span>
+  <span>문제 확인 방문 <b id="sR">0</b></span>
   <span>지운 획 <b id="sE">0</b></span>
   <span>입력 <b id="sD">—</b></span>
 </div>
 
+<p class="timing-tip">문제 원문을 확인하거나 화면을 이동한 시간도 필기 공백에 들어갑니다. 긴 공백만 보고 풀이를 못한 시간으로 판단하지 않습니다.</p>
 <p class="hint"><b>회색 안내는 저장되지 않습니다.</b> 쓰고 지운 실제 획만 남습니다. 위치는 대략 맞추고 글씨는 평소처럼 써주세요. 멈춤과 속도는 편집할 수 있으니 서두르지 않아도 됩니다.</p><p id="backupStatus" class="hint" aria-live="polite"></p>
 <div id="toast"></div>
 
@@ -212,6 +215,7 @@ let width = 4;
 let nextId = 1;
 let fingerInk = false;       // 갤탭: 손가락·손바닥 접촉은 기본적으로 획으로 받지 않음
 let navigationMode = false;  // 화면 이동 중에는 펜도 획으로 받지 않음
+let problemReviewActive=false, padVisited=false, problemVisible=false, padVisible=false;
 
 function now() { return performance.now(); }
 function relT() { if (t0 === null) t0 = now(); return +(timeOffset + now() - t0).toFixed(1); }
@@ -329,6 +333,7 @@ function stats() {
   const live = strokes.filter(s => s.erasedAt === null);
   document.getElementById('sN').textContent = strokes.length;
   document.getElementById('sE').textContent = strokes.filter(s => s.erasedAt !== null).length;
+  document.getElementById('sR').textContent=marks.filter(m=>m.type==='problem-review-start').length+(problemReviewActive?' · 확인 중':'');
   if (!strokes.length) { document.getElementById('sT').textContent = '0.0초';
     document.getElementById('sP').textContent = '—'; return; }
   const end = strokes[strokes.length-1].pts.slice(-1)[0].t;
@@ -355,7 +360,7 @@ document.getElementById('w').oninput = e => { width = +e.target.value; document.
 document.getElementById('undo').onclick = () => { eraseLast(); };
 document.getElementById('clear').onclick = () => {
   if (strokes.length && !confirm('현재 기록은 브라우저에 보관하고 빈 필기를 시작할까요? 오래 보관하려면 먼저 필기 저장을 눌러 주세요.')) return;
-  archiveDraft(); strokes = []; t0 = null; timeOffset = 0; nextId = 1; marks = []; stepIndex = 0; captureId = Date.now().toString(36); saveSeq = 0; renderGuide(); redraw(); stats(); persistDraft();
+  archiveDraft(); strokes = []; t0 = null; timeOffset = 0; nextId = 1; marks = []; problemReviewActive=false; padVisited=false; stepIndex = 0; captureId = Date.now().toString(36); saveSeq = 0; renderGuide(); redraw(); stats(); persistDraft();
 };
 window.addEventListener('keydown', e => {
   if ((e.metaKey||e.ctrlKey) && e.key === 'z') { e.preventDefault(); eraseLast(); }
@@ -399,6 +404,11 @@ function makeCapturePayload() {
     captureKind: 'directed-reenactment',
     sourcePage: '승주 2024학년도 수능 3번 교육 시나리오',
     captureId, marks,
+    timingContext: {
+      longInkGapsMayIncludeProblemReading: true,
+      problemReviewVisits: marks.filter(m=>m.type==='problem-review-start').length,
+      reportedContext: task.id==='csat2024-q14'?'대표님이 14번 6/7까지 문제 원문과 필기장을 오가며 확인했습니다. 이전 긴 필기 공백의 원인은 시간만으로 판별하지 않습니다.':null,
+    },
     productRecognitionVerified: false,
     task: { id: task.id, tag: task.tag, text: task.text },
     canvas: { w: W, h: H },
@@ -458,6 +468,17 @@ try{const d=JSON.parse(localStorage.getItem(draftKey)||'null');if(d&&Array.isArr
 renderGuide();
 
 redraw(); stats();
+function markProblemReview(type,label){marks.push({type,at:relT(),step:stepIndex+1,label});stats();persistDraft();}
+function closeProblemReview(label){if(!problemReviewActive)return;problemReviewActive=false;markProblemReview('problem-review-end',label);}
+const referenceObserver=new IntersectionObserver(entries=>{
+  for(const e of entries){if(e.target===pad)padVisible=e.isIntersecting;else problemVisible=e.isIntersecting;}
+  if(padVisible){padVisited=true;closeProblemReview('필기장으로 돌아옴');}
+  else if(problemVisible&&padVisited&&strokes.length&&!problemReviewActive){problemReviewActive=true;markProblemReview('problem-review-start','문제 원문을 다시 확인');}
+},{threshold:0.1});
+referenceObserver.observe(document.querySelector('.problem-card'));
+referenceObserver.observe(pad);
+window.addEventListener('pagehide',()=>closeProblemReview('화면을 떠남'));
+document.addEventListener('visibilitychange',()=>{if(document.hidden)closeProblemReview('다른 화면으로 이동');});
 </script>
 </body>
 </html>
