@@ -31,15 +31,15 @@ GUIDES = {
         },
         {
             "title": "승주형 원문의 잘못된 시도",
-            "where": "기존 그래프 오른쪽, x>2 구간",
-            "text": "먼저 b>2인 모양을 생각합니다.\n승주형 학생의 시도 재현: (2,9) 빈 점에서 시작해 가운데가 위로 솟은 ∩ 곡선을 잠깐 그립니다.\n그 잘못된 곡선의 획을 남겨 둡니다.",
-            "note": "이 단계는 승주형 원문에서 학생이 곡선 방향을 놓친 장면입니다. 이미 양수 계수를 이해했다면 실제 풀이에서는 ∩을 그릴 이유가 없지만, 영상에 수정 과정을 보여주려면 이 시도를 따로 남겨 주세요. 다음 단계에서 이 곡선만 지웁니다.",
+            "where": "2/7의 그래프에서 (2,9) 빈 점 ○의 오른쪽 · 주황 점선 자리",
+            "text": "① 기존 그래프의 (2,9) 빈 점 ○에서 시작합니다.\n② 그 점 오른쪽으로 곡선을 위로 올려, x=2와 x=b 사이에서 꼭대기를 만듭니다.\n③ 다시 내려와 x=b에서 높이 9를 지나게 이어 ∩ 모양을 만듭니다.\n④ 승주형 학생의 잘못된 시도이므로 지우기 전 잠깐 남깁니다.",
+            "note": "단계 안의 주황 벡터 그림을 보고 선의 경로만 따라 그리세요. 수치 b=6은 위치를 보여주는 예시이며 실제 답의 a,b를 확정한 것이 아닙니다. 이 ∩은 a가 자연수라는 조건과 맞지 않는 학생의 실수입니다. 영상 재현용으로 그렸다면 5/7에서 이 곡선 획만 지우고 올바른 ∪로 바꿉니다.",
         },
         {
             "title": "자연수 조건으로 곡선 고치기",
-            "where": "문제 첫 줄 → 같은 그래프 오른쪽",
-            "text": "문제 첫 줄: a는 자연수 → a>0\n오른쪽 식의 x² 계수는 a>0 → 이차곡선은 ∪\n지우개로 ∩ 획만 지우고, (2,9) 빈 점에서 내려갔다가 꼭짓점에서 돌아 올라가는 ∪를 그립니다.\nx=b에서 y=9를 지나갑니다.",
-            "note": "왜 ∪인가요? 이차식 a(x−2)(x−b)+9를 펼치면 x²의 계수가 a입니다. 양수이면 양끝이 위로 올라가는 ∪입니다. (2,9)는 빈 점, b>2이면 (b,9)는 실제 곡선의 점입니다. 꼭짓점 높이는 아직 m으로 두세요.",
+            "where": "① 오른쪽 위에 a>0 → ② 같은 그래프의 (2,9) ○ 오른쪽",
+            "text": "문제 첫 줄: a는 자연수 → a>0\n오른쪽 식의 x² 계수 a>0 → 곡선은 ∪\n4/7의 ∩ 곡선 획만 지웁니다.\n(2,9) ○에서 오른쪽 아래로 내려가 중간 꼭짓점을 지나, 다시 올라와 x=b의 높이 9를 지나게 ∪로 고쳐 그립니다.",
+            "note": "왜 ∪인가요? 이차식의 x² 계수가 양수 a이기 때문입니다. 단계 안의 붉은 벡터 그림은 (a,b)=(3,6)일 때의 모양 예시입니다. 이 단계에서는 실제 a,b나 꼭짓점 높이를 확정하지 말고 높이를 m으로 남겨 두세요. (2,9)는 빈 점이고 b>2일 때 (b,9)는 실제 곡선의 점입니다.",
         },
         {
             "title": "수평선으로 교점 세기",
@@ -144,6 +144,8 @@ GUIDES = {
     ],
 }
 GUIDES[14][1]["preview"] = "ink-film-14-left.svg"
+GUIDES[14][3]["preview"] = "ink-film-14-wrong.svg"
+GUIDES[14][4]["preview"] = "ink-film-14-reference.svg"
 GUIDES[10][4]["preview"] = "ink-film-10-reference.svg"
 GUIDES[3][1]["preview"] = "ink-film-3-reference.svg"
 GUIDES[3][4]["preview"] = "ink-film-3-reference.svg"
@@ -157,9 +159,9 @@ for number, steps in {
         [area("2/7 · 여기에 x≤2 삼차곡선", 5, 30, 61, 34)],
         [area("① 오른쪽 위에 f₂ 식·값 비교", 57, 7, 38, 21),
          area("② 기존 그래프 x=2 위에 (2,9) ○", 5, 30, 61, 34)],
-        [area("4/7 · 기존 그래프 x>2 쪽에 ∩ 시도", 5, 30, 61, 34)],
+        [area("4/7 · (2,9) ○에서 오른쪽 ∩", 42, 30, 24, 34)],
         [area("① 여기에 a>0 조건", 57, 7, 38, 21),
-         area("② 같은 그래프에서 ∩ 지우고 ∪", 5, 30, 61, 34)],
+         area("② 같은 그래프에서 ∩ 지우고 ∪", 42, 30, 24, 34)],
         [area("① 그래프에 y=t 가로선", 5, 30, 61, 34),
          area("② 여기서 g(t)·m 비교", 5, 68, 53, 23)],
         [area("7/7 · 자연수 후보와 최대 합", 62, 68, 33, 23)],
@@ -314,6 +316,60 @@ def svg_plot_14(include_right: bool = True) -> str:
 {footer}
 </svg>\n'''
 
+def svg_plot_14_wrong() -> str:
+    """4/7의 의도적인 오답 시도: 오른쪽 이차곡선을 ∩으로 그린다."""
+    def xy(x: float, y: float) -> tuple[float, float]:
+        return 82 + 65 * (x + 2.5), 400 - 17 * (y + 6)
+
+    def polyline(fn, start: float, stop: float) -> str:
+        points = []
+        count = 150
+        for i in range(count + 1):
+            x = start + (stop - start) * i / count
+            px, py = xy(x, fn(x))
+            points.append(f"{px:.1f},{py:.1f}")
+        return " ".join(points)
+
+    left = polyline(lambda x: 2*x**3 - 6*x + 1, -2.1, 2)
+    wrong = polyline(lambda x: 9 - .75*(x-2)*(x-6), 2, 6)
+    x0, y0 = xy(0, 0)
+    x2, y5 = xy(2, 5)
+    _, y9 = xy(2, 9)
+    x4, y12 = xy(4, 12)
+    x6, _ = xy(6, 9)
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 465" role="img" aria-labelledby="title desc">
+<title id="title">4/7 · 학생이 오른쪽 곡선을 ∩으로 잘못 그린 예시</title>
+<desc id="desc">왼쪽 파란 삼차곡선은 x=2의 채운 점 (2,5)에서 끝난다. 그 위의 빈 점 (2,9)에서 주황색 잘못된 곡선이 오른쪽 위로 올라가 x=4 부근에서 꼭대기를 만든 뒤 아래로 내려와 (b,9)에 닿는다. 실제 문제의 오른쪽 이차곡선은 이 모양이 아니므로 다음 단계에서 주황색 선만 지운다.</desc>
+<style>text{{font:14px 'Malgun Gothic','Noto Sans CJK KR',Arial,sans-serif;fill:#383b42}}.axis{{stroke:#a7a8ab;stroke-width:1.6}}.hint{{font-weight:700;fill:#a64c1c}}</style>
+<rect width="750" height="465" rx="12" fill="#fffdf9"/>
+<text x="28" y="29" font-size="17" font-weight="700">4/7 · 오른쪽 ∩을 그리는 학생의 실수</text>
+<line class="axis" x1="62" y1="{y0:.1f}" x2="710" y2="{y0:.1f}"/>
+<line class="axis" x1="{x0:.1f}" y1="43" x2="{x0:.1f}" y2="416"/>
+<text x="714" y="{y0+5:.1f}">x</text><text x="{x0+8:.1f}" y="50">y</text>
+<line x1="70" y1="{y9:.1f}" x2="700" y2="{y9:.1f}" stroke="#d5c6b6" stroke-dasharray="5 5"/>
+<text x="{x0-10:.1f}" y="{y9+4:.1f}" text-anchor="end">9</text>
+<text x="{x0-10:.1f}" y="{y5+4:.1f}" text-anchor="end">5</text>
+<text x="{x0-10:.1f}" y="{xy(0,-3)[1]+4:.1f}" text-anchor="end">−3</text>
+<text x="{x2:.1f}" y="{y0+25:.1f}" text-anchor="middle">2</text>
+<text x="{x4:.1f}" y="{y0+25:.1f}" text-anchor="middle">가운데</text>
+<text x="{x6:.1f}" y="{y0+25:.1f}" text-anchor="middle">b (위치 예시)</text>
+<polyline points="{left}" fill="none" stroke="#215c99" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="31" y="67" fill="#215c99">f₁(x) · 이미 그린 왼쪽 곡선</text>
+<circle cx="{x2:.1f}" cy="{y5:.1f}" r="5" fill="#215c99"/>
+<text x="{x2+9:.1f}" y="{y5+5:.1f}" fill="#215c99">(2,5) ●</text>
+<polyline points="{wrong}" fill="none" stroke="#bb6427" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 7"/>
+<circle cx="{x2:.1f}" cy="{y9:.1f}" r="6" fill="#fffdf9" stroke="#bb6427" stroke-width="2.6"/>
+<circle cx="{x4:.1f}" cy="{y12:.1f}" r="4" fill="#bb6427"/>
+<circle cx="{x6:.1f}" cy="{y9:.1f}" r="4" fill="#bb6427"/>
+<text class="hint" x="{x2-96:.1f}" y="{y9-18:.1f}">① (2,9) ○부터 시작</text>
+<text class="hint" x="{x4-38:.1f}" y="{y12-16:.1f}">② 위로 올려 ∩ 꼭대기</text>
+<text class="hint" x="{x6-72:.1f}" y="{y9+26:.1f}">③ 아래로 내려 (b,9)</text>
+<path d="M {xy(2.8,10.52)[0]:.1f} {xy(2.8,10.52)[1]:.1f} l 11 -9 -4 13" fill="none" stroke="#bb6427" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M {xy(5.2,10.52)[0]:.1f} {xy(5.2,10.52)[1]:.1f} l 7 12 -13 -5" fill="none" stroke="#bb6427" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="28" y="424" width="694" height="30" rx="6" fill="#fff0df"/>
+<text x="41" y="444" fill="#a64c1c">주황 점선은 학생의 틀린 획 · 5/7에서 이 선만 지우고 ∪로 다시 그림</text>
+</svg>\n'''
+
 SVG10 = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 280"><style>text{font:18px Arial,sans-serif;fill:#3d3935}</style><rect width="760" height="280" fill="#fffdf9"/><text x="35" y="39">Q의 속도 v₂(t)=2t−7</text><line x1="90" y1="145" x2="690" y2="145" stroke="#9c9388" stroke-width="3"/><g stroke="#3d3935" stroke-width="2"><line x1="135" y1="133" x2="135" y2="157"/><line x1="380" y1="133" x2="380" y2="157"/><line x1="625" y1="133" x2="625" y2="157"/></g><text x="125" y="187">2=a</text><text x="353" y="187">7/2</text><text x="610" y="187">6=b</text><path d="M350 106 H175 l22 -13 M175 106 l22 13" fill="none" stroke="#a53d4a" stroke-width="4"/><path d="M410 106 H590 l-22 -13 M590 106 l-22 13" fill="none" stroke="#215c99" stroke-width="4"/><text x="156" y="87">v₂&lt;0 · 왼쪽으로 9/4</text><text x="438" y="87">v₂&gt;0 · 오른쪽으로 25/4</text><text x="238" y="244">움직인 거리 = 9/4 + 25/4 = 17/2</text></svg>\n'''
 SVG3 = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380"><style>text{font:17px Arial,sans-serif;fill:#3d3935}</style><rect width="760" height="380" fill="#fffdf9"/><line x1="85" y1="155" x2="690" y2="155" stroke="#9c9388" stroke-width="2"/><line x1="330" y1="35" x2="330" y2="330" stroke="#9c9388" stroke-width="2"/><text x="698" y="160">x</text><text x="335" y="31">y</text><path d="M330 155 L565 265 L565 155 Z" fill="#fbeded" stroke="#a53d4a" stroke-width="3"/><circle cx="330" cy="155" r="5" fill="#3d3935"/><text x="388" y="199">빗변 길이 3</text><text x="445" y="145">가로 +2√2</text><text x="572" y="216">세로 −1</text><text x="487" y="292">θ: 제4사분면</text><text x="46" y="315">길이 1은 양수지만, 세로 좌표는 −1</text><text x="46" y="346">tan θ = −1/(2√2) = −√2/4</text></svg>\n'''
 
@@ -378,6 +434,7 @@ def main() -> None:
     base = update_q14()
     (ROOT / "ink-film-14-reference.svg").write_text(svg_plot_14(), encoding="utf-8")
     (ROOT / "ink-film-14-left.svg").write_text(svg_plot_14(False), encoding="utf-8")
+    (ROOT / "ink-film-14-wrong.svg").write_text(svg_plot_14_wrong(), encoding="utf-8")
     (ROOT / "ink-film-10-reference.svg").write_text(SVG10, encoding="utf-8")
     (ROOT / "ink-film-3-reference.svg").write_text(SVG3, encoding="utf-8")
     for number in (14, 10, 3):
