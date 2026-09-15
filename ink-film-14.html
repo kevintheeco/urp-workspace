@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Provee — 승주 14번 따라 쓰기</title>
+
+<style>
+:root{
+  --ivory:#FAF6F0; --ink:#1A1614; --wine:#8A1C2B;
+  --gray:#8A8178; --line:#E3DBD1; --paper:#FFFDFA;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Pretendard Variable',Pretendard,system-ui,sans-serif;
+  background:#EFE9E1; color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  padding:28px 32px 40px;
+}
+header{display:flex;align-items:baseline;gap:18px;margin-bottom:6px}
+header h1{font-size:22px;font-weight:800;letter-spacing:-.02em}
+header h1 i{color:var(--wine);font-style:normal}
+header .sub{font-size:14px;color:var(--gray)}
+
+/* ── 과제 ─────────────────────────────── */
+.tasks{
+  display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 14px;
+}
+.task{
+  border:1px solid var(--line);background:#fff;border-radius:10px;
+  padding:10px 16px;cursor:pointer;font-size:14px;line-height:1.45;
+  min-width:180px;transition:.12s;
+}
+.task:hover{border-color:#C9BFB2}
+.task.on{border-color:var(--wine);background:#FCF4F4;box-shadow:0 0 0 1px var(--wine) inset}
+.task b{display:block;font-size:13px;font-weight:700;color:var(--wine);margin-bottom:4px;letter-spacing:.02em}
+.task span{color:#4A423C;font-size:15px}
+.task em{display:block;font-style:normal;color:var(--gray);font-size:12.5px;margin-top:4px}
+
+/* ── 도구 ─────────────────────────────── */
+.bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+button{
+  font-family:inherit;font-size:14px;font-weight:600;
+  border:1px solid var(--line);background:#fff;color:var(--ink);
+  border-radius:8px;padding:9px 15px;cursor:pointer;transition:.12s;
+}
+button:hover{border-color:#C9BFB2;background:#FDFBF8}
+button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.primary{background:var(--wine);color:#fff;border-color:var(--wine)}
+button.primary:hover{background:#73172390}
+.sep{width:1px;height:24px;background:var(--line);margin:0 4px}
+.bar label{font-size:13px;color:var(--gray);display:flex;align-items:center;gap:7px}
+input[type=range]{width:120px;accent-color:var(--wine)}
+
+/* ── 캔버스 ────────────────────────────── */
+.pad{
+  position:relative;background:var(--paper);
+  border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 6px 28px rgba(70,58,48,.10);
+  overflow:hidden;
+}
+canvas{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair}
+.pad.erase canvas{cursor:cell}
+
+/* ── 상태 ─────────────────────────────── */
+.stats{
+  display:flex;gap:26px;flex-wrap:wrap;margin-top:14px;
+  font-size:14px;color:var(--gray);
+}
+.stats b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+.hint{margin-top:14px;font-size:13.5px;line-height:1.75;color:#6B6259;max-width:1000px}
+.hint b{color:var(--ink)}
+#toast{
+  position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:#fff;padding:13px 22px;border-radius:10px;
+  font-size:14.5px;font-weight:600;opacity:0;pointer-events:none;transition:.22s;
+  box-shadow:0 8px 30px rgba(0,0,0,.25);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.tasks[hidden]{display:none}.film-guide{position:sticky;top:0;z-index:5;background:#faf6f0ed;backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:12px;padding:13px 18px;margin:16px 0 12px;box-shadow:0 4px 14px #00000008}.guide-top{display:flex;justify-content:space-between;gap:14px;align-items:center}.guide-top b{color:var(--wine);font-size:17px}.guide-top div{display:flex;align-items:center;gap:8px}.guide-top a{font-size:13px;color:var(--wine);margin-left:6px}.guide-body{display:grid;grid-template-columns:1.7fr 1fr;gap:28px;margin-top:10px}.guide-body strong{font-size:12px;color:var(--gray)}pre{font:17px/1.55 "Malgun Gothic",system-ui,sans-serif;white-space:pre-wrap;margin-top:5px}.guide-body p{font-size:14px;line-height:1.7;color:#6b6259}.bar{position:sticky;top:0;z-index:6;background:#efe9e1;padding:6px 0}button:disabled{opacity:.4;cursor:default}.pad:before{content:"";position:absolute;inset:5%;border:1px dashed #e6ded6;pointer-events:none}.pad canvas{position:relative}.zones{position:absolute;inset:0;pointer-events:none;z-index:0;color:#b4a99b;font-size:12px}.zone{position:absolute;border-top:1px dashed #e6ded6;padding-top:7px}.z1{left:5%;top:5%;width:48%}.z2{left:65%;top:5%;width:30%}.z3{left:5%;top:30%;width:66%}.z4{left:5%;top:64%;width:52%}.z5{left:65%;top:64%;width:30%}@media(max-width:800px){body{padding:12px}.guide-body{grid-template-columns:1fr;gap:7px}.guide-body p{font-size:12px}.guide-top{align-items:flex-start}.guide-top b{font-size:14px}.guide-top div{gap:5px}.guide-top button{padding:6px 9px}.guide-top a{font-size:11px}pre{font-size:14px}.film-guide{padding:11px 13px;position:relative}.bar{top:0}header{display:block}header .sub{display:block;margin-top:5px;font-size:12px}.zone{font-size:9px}}
+.film-guide.collapsed .guide-body{display:none}
+.tablet-tip{font-size:13px;line-height:1.5;color:#6B6259;margin:6px 0 10px}
+.cloud-entry{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 16px;font-size:13px;color:#6B6259}.cloud-entry button{background:#fff}.cloud-entry strong{color:var(--wine)}
+@media(max-width:1200px){.film-guide{position:relative}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Provee 필기 공간<i>.</i></h1>
+  <span class="sub">승주 14번 · 평소 글씨로 한 번 따라 쓰기 · 지운 과정도 보존</span>
+</header>
+<div class="cloud-entry"><button id="cloudLogin">회사 구글 계정으로 로그인</button><span id="cloudStatus" aria-live="polite">저장 연결을 확인하는 중입니다.</span></div>
+
+<div class="tasks" id="tasks" hidden></div>
+<section class="film-guide" id="filmGuide"><div class="guide-top"><b id="guideTitle"></b><div><button id="prevStep">이전</button><button id="nextStep">다음</button><button id="toggleGuide" aria-expanded="true">안내 접기</button><a href="ink-film-14-guide.html" target="_blank" rel="noopener">전체 안내</a></div></div><div class="guide-body"><div><strong id="guideWhere"></strong><pre id="guideText"></pre></div><p id="guideNote"></p></div></section>
+<p class="tablet-tip">태블릿은 가로 방향에서 쓰기 편합니다. 안내를 읽은 뒤 접으면 필기 공간을 더 넓게 볼 수 있습니다.</p>
+
+<div class="bar">
+  <button id="mPen" class="on">펜</button>
+  <button id="mErase">지우개</button>
+  <div class="sep"></div>
+  <label>굵기 <input type="range" id="w" min="1.5" max="9" step="0.5" value="4"><span id="wv">4.0</span></label>
+  <div class="sep"></div>
+  <button id="undo">마지막 획 지우기</button>
+  <button id="clear">새 기록</button>
+  <div class="sep"></div>
+  <button id="save" class="primary">필기 저장</button>
+</div>
+
+<div class="pad" id="pad">
+  <div class="zones" aria-hidden="true"><span class="zone z1">미분 · 극값</span><span class="zone z2">함수 형태 · 조건</span><span class="zone z3">왼쪽 그래프 → 오른쪽 시도 · 지움 · 수정</span><span class="zone z4">경우 나누기 · 높이 확정</span><span class="zone z5">자연수 후보 · 마무리</span></div><canvas id="cv"></canvas>
+</div>
+
+<div class="stats">
+  <span>획 <b id="sN">0</b></span>
+  <span>총 시간 <b id="sT">0.0초</b></span>
+  <span>가장 긴 멈춤 <b id="sP">—</b></span>
+  <span>지운 획 <b id="sE">0</b></span>
+  <span>입력 <b id="sD">—</b></span>
+</div>
+
+<p class="hint"><b>회색 안내는 저장되지 않습니다.</b> 쓰고 지운 실제 획만 남습니다. 위치는 대략 맞추고 글씨는 평소처럼 써주세요. 멈춤과 속도는 편집할 수 있으니 서두르지 않아도 됩니다.</p><p id="backupStatus" class="hint" aria-live="polite"></p>
+<div id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script>
+const FB_CONFIG={apiKey:'AIzaSyD0ObaK3aKotOjKjtg1MGz_SB4qHX0DhdA',authDomain:'yourprofessor-94a2d.firebaseapp.com',projectId:'yourprofessor-94a2d',storageBucket:'yourprofessor-94a2d.firebasestorage.app',messagingSenderId:'307018527457',appId:'1:307018527457:web:83c46611055283c427bda0'};
+let cloudAuth=null,cloudStorage=null;
+try{
+  if(window.firebase){if(!firebase.apps.length)firebase.initializeApp(FB_CONFIG);cloudAuth=firebase.auth();cloudStorage=firebase.storage();
+    cloudAuth.onAuthStateChanged(user=>{document.getElementById('cloudStatus').textContent=user?'로그인 완료 · 필기를 저장할 수 있습니다.':'필기는 바로 쓸 수 있습니다. 저장할 때 회사 구글 계정으로 로그인해 주세요.';document.getElementById('cloudLogin').hidden=!!user;});
+  }else document.getElementById('cloudStatus').textContent='저장 연결을 불러오지 못했습니다. 인터넷을 확인해 주세요.';
+}catch(e){document.getElementById('cloudStatus').textContent='저장 연결을 확인하지 못했습니다. 새로고침해 주세요.';}
+async function cloudSignIn(){
+  if(!cloudAuth)throw new Error('저장 연결을 불러오지 못했습니다. 인터넷을 확인해 주세요.');
+  if(cloudAuth.currentUser)return cloudAuth.currentUser;
+  const result=await cloudAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+  return result.user;
+}
+document.getElementById('cloudLogin').onclick=async()=>{try{await cloudSignIn();}catch(e){toast('구글 로그인에 실패했습니다. 다시 눌러 주세요.',true);}};
+// ══ 과제 목록 ═══════════════════════════════════
+const TASKS = [{id:'csat2024-q14',tag:'승주 14번 · 광고 재현 필기',text:'조건을 보고 스스로 고친 뒤 끝까지 풀이',note:'새 자료'}];
+let task = TASKS[0];
+
+const tasksEl = document.getElementById('tasks');
+TASKS.forEach(t => {
+  const d = document.createElement('div');
+  d.className = 'task' + (t.id === task.id ? ' on' : '');
+  d.innerHTML = `<b>${t.tag}</b><span>${t.text}</span><em>${t.note}</em>`;
+  d.onclick = () => { task = t; [...tasksEl.children].forEach(c => c.classList.remove('on')); d.classList.add('on'); };
+  tasksEl.appendChild(d);
+});
+
+// ══ 캔버스 ══════════════════════════════════════
+const pad = document.getElementById('pad');
+const cv  = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+
+const W = 2400, H = 1900;          // 논리 해상도
+let dpr = Math.min(window.devicePixelRatio || 1, 2);
+cv.width = W * dpr; cv.height = H * dpr;
+cv.style.aspectRatio = W + '/' + H;
+ctx.scale(dpr, dpr);
+
+let strokes = [];      // {id, pts:[{x,y,t,p}], w, erasedAt|null, device}
+let cur = null;
+let t0 = null;
+let timeOffset = 0;
+let mode = 'pen';
+let width = 4;
+let nextId = 1;
+
+function now() { return performance.now(); }
+function relT() { if (t0 === null) t0 = now(); return +(timeOffset + now() - t0).toFixed(1); }
+
+function pos(e) {
+  const r = cv.getBoundingClientRect();
+  return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H };
+}
+
+// ── 그리기 ──────────────────────────────
+function redraw() {
+  ctx.clearRect(0, 0, W, H);
+  // 안내 영역은 CSS 배경이며 내보내는 그림에 포함하지 않음
+  /* 아주 옅은 괘선
+  ctx.save();
+  ctx.strokeStyle = '#EFE7DC'; ctx.lineWidth = 1;
+  for (let y = 125; y < H; y += 125) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  ctx.restore(); */
+
+  for (const s of strokes) drawStroke(s);
+  if (cur) drawStroke(cur);
+}
+
+function drawStroke(s) {
+  if (s.erasedAt !== null) return;
+  const p = s.pts; if (p.length < 2) {
+    if (p.length === 1) { ctx.fillStyle = s.erasedAt !== null ? '#C9BFB2' : '#1A1614';
+      ctx.beginPath(); ctx.arc(p[0].x, p[0].y, s.w/2, 0, 7); ctx.fill(); }
+    return;
+  }
+  ctx.save();
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.strokeStyle = s.erasedAt !== null ? '#CFC5B8' : '#1A1614';
+  ctx.lineWidth = s.w;
+  ctx.beginPath();
+  ctx.moveTo(p[0].x, p[0].y);
+  for (let i = 1; i < p.length - 1; i++) {
+    const mx = (p[i].x + p[i+1].x) / 2, my = (p[i].y + p[i+1].y) / 2;
+    ctx.quadraticCurveTo(p[i].x, p[i].y, mx, my);
+  }
+  ctx.lineTo(p[p.length-1].x, p[p.length-1].y);
+  ctx.stroke();
+
+  if (s.erasedAt !== null) {   // 지운 획엔 취소선
+    const xs = p.map(q=>q.x), ys = p.map(q=>q.y);
+    const x1 = Math.min(...xs), x2 = Math.max(...xs);
+    const ym = (Math.min(...ys) + Math.max(...ys)) / 2;
+    ctx.strokeStyle = '#B4A99A'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x1-4, ym); ctx.lineTo(x2+4, ym); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ── 히트 테스트 (지우개) ─────────────────
+function hit(x, y) {
+  for (let i = strokes.length - 1; i >= 0; i--) {
+    const s = strokes[i]; if (s.erasedAt !== null) continue;
+    for (const q of s.pts) {
+      if ((q.x-x)**2 + (q.y-y)**2 < (s.w*3 + 14)**2) return s;
+    }
+  }
+  return null;
+}
+
+// ── 포인터 ──────────────────────────────
+let devSeen = '';
+cv.addEventListener('pointerdown', e => {
+  cv.setPointerCapture(e.pointerId);
+  devSeen = e.pointerType; document.getElementById('sD').textContent =
+    ({pen:'펜', touch:'터치', mouse:'마우스'})[e.pointerType] || e.pointerType;
+  const {x, y} = pos(e);
+  if (mode === 'erase') {
+    const s = hit(x, y);
+    if (s) { s.erasedAt = relT(); redraw(); stats(); persistDraft(); }
+    return;
+  }
+  cur = { id: nextId++, w: width, erasedAt: null, device: e.pointerType, pts: [] };
+  cur.pts.push({ x:+x.toFixed(2), y:+y.toFixed(2), t: relT(), p:+(e.pressure||0.5).toFixed(3) });
+  redraw();
+});
+
+cv.addEventListener('pointermove', e => {
+  const {x, y} = pos(e);
+  if (mode === 'erase') {
+    if (e.buttons) { const s = hit(x, y); if (s) { s.erasedAt = relT(); redraw(); stats(); persistDraft(); } }
+    return;
+  }
+  if (!cur) return;
+  const last = cur.pts[cur.pts.length - 1];
+  if ((last.x-x)**2 + (last.y-y)**2 < 1.2) return;
+  cur.pts.push({ x:+x.toFixed(2), y:+y.toFixed(2), t: relT(), p:+(e.pressure||0.5).toFixed(3) });
+  redraw();
+});
+
+function endStroke() {
+  if (!cur) return;
+  if (cur.pts.length) strokes.push(cur);
+  cur = null; redraw(); stats(); persistDraft();
+}
+cv.addEventListener('pointerup', endStroke);
+cv.addEventListener('pointercancel', endStroke);
+cv.addEventListener('pointerleave', e => { if (cur) endStroke(); });
+
+// ── 통계 ────────────────────────────────
+function stats() {
+  const live = strokes.filter(s => s.erasedAt === null);
+  document.getElementById('sN').textContent = strokes.length;
+  document.getElementById('sE').textContent = strokes.filter(s => s.erasedAt !== null).length;
+  if (!strokes.length) { document.getElementById('sT').textContent = '0.0초';
+    document.getElementById('sP').textContent = '—'; return; }
+  const end = strokes[strokes.length-1].pts.slice(-1)[0].t;
+  document.getElementById('sT').textContent = (end/1000).toFixed(1) + '초';
+  let gap = 0, gapAt = 0;
+  for (let i = 1; i < strokes.length; i++) {
+    const g = strokes[i].pts[0].t - strokes[i-1].pts.slice(-1)[0].t;
+    if (g > gap) { gap = g; gapAt = strokes[i-1].pts.slice(-1)[0].t; }
+  }
+  document.getElementById('sP').textContent = gap > 400
+    ? (gap/1000).toFixed(1) + '초 (' + (gapAt/1000).toFixed(0) + '초 지점)' : '—';
+}
+
+// ── 도구 ────────────────────────────────
+const bPen = document.getElementById('mPen'), bEr = document.getElementById('mErase');
+bPen.onclick = () => { mode='pen'; bPen.classList.add('on'); bEr.classList.remove('on'); pad.classList.remove('erase'); };
+bEr.onclick  = () => { mode='erase'; bEr.classList.add('on'); bPen.classList.remove('on'); pad.classList.add('erase'); };
+document.getElementById('w').oninput = e => { width = +e.target.value; document.getElementById('wv').textContent = width.toFixed(1); };
+document.getElementById('undo').onclick = () => { eraseLast(); };
+document.getElementById('clear').onclick = () => {
+  if (strokes.length && !confirm('현재 기록은 브라우저에 보관하고 빈 필기를 시작할까요? 오래 보관하려면 먼저 필기 저장을 눌러 주세요.')) return;
+  archiveDraft(); strokes = []; t0 = null; timeOffset = 0; nextId = 1; marks = []; stepIndex = 0; captureId = Date.now().toString(36); saveSeq = 0; renderGuide(); redraw(); stats(); persistDraft();
+};
+window.addEventListener('keydown', e => {
+  if ((e.metaKey||e.ctrlKey) && e.key === 'z') { e.preventDefault(); eraseLast(); }
+  if ((e.metaKey||e.ctrlKey) && e.key === 's') { e.preventDefault(); save(); }
+  if (e.key === 'e') bEr.click();
+  if (e.key === 'p') bPen.click();
+});
+
+// ── SVG 내보내기 ─────────────────────────
+function toSVG() {
+  const path = s => {
+    const p = s.pts; if (!p.length) return '';
+    if (p.length === 1) return `M${p[0].x} ${p[0].y} l0.1 0`;
+    let d = `M${p[0].x} ${p[0].y}`;
+    for (let i = 1; i < p.length - 1; i++) {
+      const mx = ((p[i].x + p[i+1].x)/2).toFixed(2), my = ((p[i].y + p[i+1].y)/2).toFixed(2);
+      d += ` Q${p[i].x} ${p[i].y} ${mx} ${my}`;
+    }
+    d += ` L${p[p.length-1].x} ${p[p.length-1].y}`;
+    return d;
+  };
+  const g = strokes.map(s =>
+    `<path d="${path(s)}" fill="none" stroke="#1A1614" stroke-width="${s.w}" `+
+    `stroke-linecap="round" stroke-linejoin="round" `+
+    `data-id="${s.id}" data-t0="${s.pts[0].t}" data-t1="${s.pts.slice(-1)[0].t}"`+
+    (s.erasedAt !== null ? ` data-erased="${s.erasedAt}" opacity="0"` : '') + `/>`
+  ).join('\n  ');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">\n  ${g}\n</svg>`;
+}
+
+// ── 저장 ────────────────────────────────
+function toast(msg, bad) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.background = bad ? '#8A1C2B' : '#1A1614';
+  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+async function save() {
+  if (saveBusy) return;
+  endStroke();
+  if (!strokes.length) return toast('아직 쓰신 게 없습니다', true);
+  const payload = {
+    name: task.id + '_' + captureId + '_' + (++saveSeq),
+    captureKind: 'directed-reenactment',
+    sourcePage: '승주 2024학년도 수능 14번 교육 시나리오',
+    captureId, marks,
+    productRecognitionVerified: false,
+    task: { id: task.id, tag: task.tag, text: task.text },
+    canvas: { w: W, h: H },
+    device: devSeen,
+    savedAt: new Date().toISOString(),
+    summary: {
+      strokes: strokes.length,
+      erased: strokes.filter(s => s.erasedAt !== null).length,
+      totalMs: Math.max(relT(), ...strokes.map(s => s.erasedAt || 0)),
+    },
+    strokes,
+    svg: toSVG(),
+    png: cv.toDataURL('image/png'),
+  };
+  saveBusy=true; document.getElementById('save').disabled=true;
+  try {
+    const user=await cloudSignIn();
+    const file='film-ink/q14/'+user.uid+'/'+task.id+'_'+captureId+'_'+saveSeq+'_'+Date.now()+'.json';
+    await cloudStorage.ref(file).put(new Blob([JSON.stringify(payload)],{type:'application/json'}),{contentType:'application/json'});
+    toast('필기와 지운 과정이 저장됐습니다.');
+    document.getElementById('backupStatus').textContent='저장 완료 · 이 영상 소스로 받았습니다.';
+    lastSavedFile=file;persistDraft();
+  } catch (e) {
+    const msg=e&&e.code==='storage/unauthorized'?'회사에 등록된 구글 계정으로 로그인해 주세요.':'저장 연결을 확인해 주세요. 현재 필기는 브라우저에 남아 있습니다.';
+    toast(msg, true);
+  } finally { saveBusy=false; document.getElementById('save').disabled=false; }
+}
+document.getElementById('save').onclick = save;
+
+
+const GUIDE = [{"title": "미분과 극값", "where": "왼쪽 위", "text": "p(x)=2x³−6x+1\np′(x)=6(x−1)(x+1), x=−1,1\np(−1)=5, p(1)=−3, p(2)=5", "note": "평소 글씨로 써주세요. 문제 문장 전체는 베껴 쓰지 않아도 됩니다."}, {"title": "왼쪽 그래프와 첫 멈춤", "where": "가운데 왼쪽, 넓은 자리", "text": "좌표축과 x≤2 삼차곡선을 그립니다.\n(−1,5), (1,−3), (2,5)를 표시합니다.", "note": "(2,5)는 채운 점. 오른쪽 곡선은 아직 비워두고 잠깐 멈춥니다."}, {"title": "다른 여백에서 함수 형태 찾기", "where": "오른쪽 위로 이동", "text": "q(x)=a(x−2)(x−b)+9\n이차함수 / q(2)=q(b)=9", "note": "q는 이차식 전체입니다. 실제 f의 오른쪽 가지는 x>2라서 x=2는 포함하지 않습니다."}, {"title": "틀린 시도를 남기기", "where": "오른쪽 여백 → 그래프로 복귀", "text": "우선 b>2인 경우\n오른쪽 가지를 일부러 ∩ 모양으로 그립니다.", "note": "높이 9의 x=2, x=b를 기준으로 그립니다. x=2는 빈 점. 이 곡선은 다음 단계에서 지울 오답입니다. 잠깐 멈춰 주세요."}, {"title": "조건 확인 → 직접 지우고 고치기", "where": "위쪽 빈 자리 → 같은 그래프", "text": "a는 자연수 → a>0\n지우개로 ∩만 지운 뒤 ∪로 고쳐 그립니다.", "note": "(2,9)는 빈 점을 유지합니다. 꼭짓점 높이는 아직 m. 말하거나 채팅을 입력할 필요 없습니다."}, {"title": "경우를 줄이고 높이 확정하기", "where": "아래쪽 왼편과 그래프", "text": "b≤2: −3<k<5에서 3+3+3=9 → k 여러 개 → 제외\n∴ b>2, m=9−a(b−2)²/4\nm<−3, m>−3: k 여러 개\nm=−3: 1+3+5=9\nk=−3만 성립 (5에서는 11, 9에서는 4, 그 외 g(k)≠3)", "note": "m=−3에 동그라미. 이때 그래프의 최종 꼭짓점 높이를 −3으로 고쳐 맞춥니다. 작은 보조 그림을 여백에 그려도 됩니다."}, {"title": "자연수 후보와 마무리", "where": "아래쪽 오른편", "text": "9−a(b−2)²/4=−3 → a(b−2)²=48\n(a,b)=(48,3), (12,4), (3,6)\na+b=51, 16, 9 → 최댓값 51", "note": "51에 동그라미를 하고 ‘필기 저장’을 눌러 주세요. Note 복습과 생각 구름은 이 기록으로 제가 만듭니다."}];
+const draftKey='provee-film-csat2024-q14-v1';
+let stepIndex=0, marks=[], captureId=Date.now().toString(36), saveSeq=0, saveBusy=false, lastSavedFile=null;
+function eraseLast(){const s=[...strokes].reverse().find(s=>s.erasedAt===null);if(s){s.erasedAt=relT();redraw();stats();persistDraft();}}
+function draftObject(){return {canvas:{w:W,h:H},strokes,elapsed:t0===null?timeOffset:relT(),nextId,stepIndex,marks,captureId,saveSeq,lastSavedFile,device:devSeen};}
+function persistDraft(){try{localStorage.setItem(draftKey,JSON.stringify(draftObject()));}catch(e){document.getElementById('backupStatus').textContent='브라우저 자동 보관 공간이 부족합니다. 필기 저장을 눌러 주세요.';}}
+window.addEventListener('pagehide',persistDraft);
+function archiveDraft(){if(strokes.length)localStorage.setItem(draftKey+'-archive-'+captureId,JSON.stringify(draftObject()));}
+function renderGuide(){const s=GUIDE[stepIndex];document.getElementById('guideTitle').textContent=(stepIndex+1)+' / '+GUIDE.length+' · '+s.title;document.getElementById('guideWhere').textContent=s.where;document.getElementById('guideText').textContent=s.text;document.getElementById('guideNote').textContent=s.note;document.getElementById('prevStep').disabled=stepIndex===0;document.getElementById('nextStep').disabled=stepIndex===GUIDE.length-1;}
+function goStep(delta){endStroke();stepIndex=Math.max(0,Math.min(GUIDE.length-1,stepIndex+delta));marks.push({step:stepIndex+1,at:t0===null?0:relT(),label:GUIDE[stepIndex].title});renderGuide();setGuideCollapsed(false);persistDraft();}
+function setGuideCollapsed(collapsed){const guide=document.getElementById('filmGuide'),button=document.getElementById('toggleGuide');guide.classList.toggle('collapsed',collapsed);button.textContent=collapsed?'안내 보기':'안내 접기';button.setAttribute('aria-expanded',String(!collapsed));}
+document.getElementById('prevStep').onclick=()=>goStep(-1);
+document.getElementById('nextStep').onclick=()=>goStep(1);
+document.getElementById('toggleGuide').onclick=()=>setGuideCollapsed(!document.getElementById('filmGuide').classList.contains('collapsed'));
+try{const d=JSON.parse(localStorage.getItem(draftKey)||'null');if(d&&Array.isArray(d.strokes)&&d.canvas.w===W&&d.canvas.h===H){strokes=d.strokes;nextId=d.nextId;stepIndex=d.stepIndex||0;marks=d.marks||[];captureId=d.captureId;saveSeq=d.saveSeq||0;lastSavedFile=d.lastSavedFile||null;timeOffset=d.elapsed||0;t0=null;devSeen=d.device||'';document.getElementById('backupStatus').textContent=strokes.length?'이 브라우저에 보관한 필기를 복원했습니다.':'';}}catch(e){document.getElementById('backupStatus').textContent='이전 자동 보관 기록은 복원하지 못했습니다.';}
+renderGuide();
+
+redraw(); stats();
+</script>
+</body>
+</html>
