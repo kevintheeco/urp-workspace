@@ -82,6 +82,8 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 .film-guide.collapsed .guide-body{display:none}
 .tablet-tip{font-size:13px;line-height:1.5;color:#6B6259;margin:6px 0 10px}
 .cloud-entry{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 16px;font-size:13px;color:#6B6259}.cloud-entry button{background:#fff}.cloud-entry strong{color:var(--wine)}
+.problem-card,.source-card{background:#fffdf9;border:1px solid var(--line);border-radius:12px;padding:15px 18px;margin:12px 0;line-height:1.65}.problem-card h2{font-size:17px;margin-bottom:5px}.problem-card .formula{font-size:17px;font-weight:700;margin:8px 0;color:#302922}.problem-card .plain{color:#645b52;font-size:14px}.source-card summary{cursor:pointer;font-weight:700;color:var(--wine)}.source-card blockquote{border-left:3px solid #d9b7b9;padding:8px 12px;margin:11px 0;background:#fcf7f4;font-size:14px}.source-card .source-note{font-size:13px;color:#6b6259;margin-top:9px}.account-help{font-size:13px;color:#645b52;margin:0 0 8px}.guide-body p:before{content:'왜 이걸 쓰나요?';display:block;font-weight:700;color:var(--wine);margin-bottom:3px}.cloud-entry{background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 14px}.cloud-entry span{overflow-wrap:anywhere}.cloud-entry button{white-space:nowrap}
+@media(max-width:800px){.problem-card,.source-card{padding:12px 14px}.problem-card .formula{font-size:15px}.cloud-entry{gap:7px}.problem-card h2{font-size:16px}}
 @media(max-width:1200px){.film-guide{position:relative}}
 </style>
 </head>
@@ -91,7 +93,10 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
   <h1>Provee 필기 공간<i>.</i></h1>
   <span class="sub">승주 14번 · 평소 글씨로 한 번 따라 쓰기 · 지운 과정도 보존</span>
 </header>
-<div class="cloud-entry"><button id="cloudLogin">회사 구글 계정으로 로그인</button><span id="cloudStatus" aria-live="polite">저장 연결을 확인하는 중입니다.</span></div>
+<div class="cloud-entry"><button id="cloudLogin">대표님 계정으로 로그인</button><span id="cloudStatus" aria-live="polite">저장 연결을 확인하는 중입니다.</span></div>
+<p class="account-help">대표님 저장 계정: <b>soomin020114@gmail.com</b> · 위에 다른 이메일이 보이면 ‘계정 바꾸기’를 누르세요. 필기는 그대로 남습니다.</p>
+<section class="problem-card" aria-label="수능 14번 원문 문제"><h2>2024학년도 수능 수학 14번 · 문제</h2><p>자연수 a, b에 대하여 함수 f(x)가 아래와 같습니다.</p><p class="formula">x ≤ 2: f(x)=2x³−6x+1<br>x &gt; 2: f(x)=a(x−2)(x−b)+9</p><p>g(t)는 수평선 y=t와 그래프 y=f(x)가 만나는 점의 개수입니다. <b>g(k−)+g(k)+g(k+)=9</b>를 만족하는 실수 k가 정확히 하나일 때, <b>a+b의 최댓값</b>을 구합니다.</p><p class="plain">g(k−), g(k+)는 높이를 k보다 아주 조금 낮거나 높게 잡았을 때 교점 개수가 어떻게 바뀌는지 뜻합니다. ‘교점 개수 3개’가 세 번 합쳐져 9가 되는 높이를 찾는 문제입니다.</p></section>
+<details class="source-card" id="sourceText"><summary>승주형 원문 대화 보기 · 학생이 어디서 막히는지 확인</summary><div id="sourceConversation"><blockquote>(학생) 맞네? 오, 극댓값 f(-1)과 값이 같다! 굉장한 정보군. 근데 이제 x&gt;2에서의 그래프는 어떻게 분석해야 할지 모르겠어.</blockquote><blockquote>(프루비) 역시 ‘고정된 것’에 집중해봐. a, b가 있지만, 이건 매우 잘 알려진 어떤 함수잖아?</blockquote><blockquote>(학생) 이차함수네. y=9와 x=2, x=b에서 만나. 그럼 f(x)는 x=2에서 불연속이게 그려지긴 해. 그렇다면 중요한 건 b와 2의 대소관계겠네? 왜냐면 2보다 작으면 b가 왼쪽에 있게 되고, 그 경우엔 어떻게 그려도 g(t)의 조건을 만족하는 k를 찾을 수가 없어.</blockquote><blockquote>(학생) 그럼 b&gt;2일 수밖에 없고, 그림을 그려봐야 하는데.. (위로 볼록한 이차함수를 그린다)</blockquote><blockquote>(프루비) 잠깐. 문제 맨 앞을 봐봐</blockquote><blockquote>(학생) a가 자연수였구나? 그럼 무조건 최고차항의 계수가 양수니까 무조건 아래로 볼록. 이거 덕분에 벌써 절반의 케이스는 생각할 필요도 없어졌군! 문제 조건 이거 놓치면 큰일날뻔 했네</blockquote></div><p class="source-note">원문에는 학생이 잘못 그린 그래프와 그걸 고치는 장면이 그대로 들어 있습니다. 아래 ‘왜 이걸 쓰나요?’는 대표님이 이해할 수 있도록 제가 따로 붙인 설명입니다.</p></details>
 
 <div class="tasks" id="tasks" hidden></div>
 <section class="film-guide" id="filmGuide"><div class="guide-top"><b id="guideTitle"></b><div><button id="prevStep">이전</button><button id="nextStep">다음</button><button id="toggleGuide" aria-expanded="true">안내 접기</button><a href="ink-film-14-guide.html" target="_blank" rel="noopener">전체 안내</a></div></div><div class="guide-body"><div><strong id="guideWhere"></strong><pre id="guideText"></pre></div><p id="guideNote"></p></div></section>
@@ -107,6 +112,7 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
   <button id="clear">새 기록</button>
   <div class="sep"></div>
   <button id="save" class="primary">필기 저장</button>
+  <button id="downloadBackup" title="인터넷 저장이 안 될 때 이 태블릿에 필기 파일을 보관합니다">필기 파일 받기</button>
 </div>
 
 <div class="pad" id="pad">
@@ -132,16 +138,18 @@ const FB_CONFIG={apiKey:'AIzaSyD0ObaK3aKotOjKjtg1MGz_SB4qHX0DhdA',authDomain:'yo
 let cloudAuth=null,cloudStorage=null;
 try{
   if(window.firebase){if(!firebase.apps.length)firebase.initializeApp(FB_CONFIG);cloudAuth=firebase.auth();cloudStorage=firebase.storage();
-    cloudAuth.onAuthStateChanged(user=>{document.getElementById('cloudStatus').textContent=user?'로그인 완료 · 필기를 저장할 수 있습니다.':'필기는 바로 쓸 수 있습니다. 저장할 때 회사 구글 계정으로 로그인해 주세요.';document.getElementById('cloudLogin').hidden=!!user;});
+    cloudAuth.onAuthStateChanged(user=>{const email=user?.email||'';document.getElementById('cloudStatus').textContent=user?'현재 로그인: '+email+(email.toLowerCase()==='soomin020114@gmail.com'?' · 대표님 계정 확인됨':' · 대표님 계정으로 바꿔 주세요'):'로그인 전 · 필기는 자동으로 이 태블릿에 남습니다.';const button=document.getElementById('cloudLogin');button.textContent=user?'계정 바꾸기':'대표님 계정으로 로그인';button.hidden=false;});
   }else document.getElementById('cloudStatus').textContent='저장 연결을 불러오지 못했습니다. 인터넷을 확인해 주세요.';
 }catch(e){document.getElementById('cloudStatus').textContent='저장 연결을 확인하지 못했습니다. 새로고침해 주세요.';}
-async function cloudSignIn(){
+async function cloudSignIn(forceSwitch=false){
   if(!cloudAuth)throw new Error('저장 연결을 불러오지 못했습니다. 인터넷을 확인해 주세요.');
-  if(cloudAuth.currentUser)return cloudAuth.currentUser;
-  const result=await cloudAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+  if(cloudAuth.currentUser&&!forceSwitch)return cloudAuth.currentUser;
+  if(forceSwitch&&cloudAuth.currentUser)await cloudAuth.signOut();
+  const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});
+  const result=await cloudAuth.signInWithPopup(provider);
   return result.user;
 }
-document.getElementById('cloudLogin').onclick=async()=>{try{await cloudSignIn();}catch(e){toast('구글 로그인에 실패했습니다. 다시 눌러 주세요.',true);}};
+document.getElementById('cloudLogin').onclick=async()=>{try{const user=await cloudSignIn(!!cloudAuth?.currentUser);if(user.email?.toLowerCase()!=='soomin020114@gmail.com')toast('현재 '+user.email+'로 로그인됐습니다. 대표님 계정을 선택해 주세요.',true);else toast('대표님 계정으로 연결됐습니다.');}catch(e){toast('구글 로그인에 실패했습니다. 다시 눌러 주세요.',true);}};
 // ══ 과제 목록 ═══════════════════════════════════
 const TASKS = [{id:'csat2024-q14',tag:'승주 14번 · 광고 재현 필기',text:'조건을 보고 스스로 고친 뒤 끝까지 풀이',note:'새 자료'}];
 let task = TASKS[0];
@@ -340,11 +348,8 @@ function toast(msg, bad) {
   t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3200);
 }
 
-async function save() {
-  if (saveBusy) return;
-  endStroke();
-  if (!strokes.length) return toast('아직 쓰신 게 없습니다', true);
-  const payload = {
+function makeCapturePayload() {
+  return {
     name: task.id + '_' + captureId + '_' + (++saveSeq),
     captureKind: 'directed-reenactment',
     sourcePage: '승주 2024학년도 수능 14번 교육 시나리오',
@@ -363,23 +368,33 @@ async function save() {
     svg: toSVG(),
     png: cv.toDataURL('image/png'),
   };
+}
+function downloadCapture(){endStroke();if(!strokes.length)return toast('아직 쓰신 게 없습니다',true);const blob=new Blob([JSON.stringify(makeCapturePayload())],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='승주14번-필기-'+captureId+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),60000);document.getElementById('backupStatus').textContent='필기 파일을 이 태블릿에 받았습니다. 브라우저에도 원본 획이 계속 남습니다.';}
+document.getElementById('downloadBackup').onclick=downloadCapture;
+async function save() {
+  if (saveBusy) return;
+  endStroke();
+  if (!strokes.length) return toast('아직 쓰신 게 없습니다', true);
+  const payload=makeCapturePayload();
   saveBusy=true; document.getElementById('save').disabled=true;
   try {
     const user=await cloudSignIn();
+    if(user.email?.toLowerCase()!=='soomin020114@gmail.com')throw Object.assign(new Error('다른 구글 계정으로 로그인됨'),{code:'film/wrong-account'});
     const file='film-ink/q14/'+user.uid+'/'+task.id+'_'+captureId+'_'+saveSeq+'_'+Date.now()+'.json';
     await cloudStorage.ref(file).put(new Blob([JSON.stringify(payload)],{type:'application/json'}),{contentType:'application/json'});
     toast('필기와 지운 과정이 저장됐습니다.');
     document.getElementById('backupStatus').textContent='저장 완료 · 이 영상 소스로 받았습니다.';
     lastSavedFile=file;persistDraft();
   } catch (e) {
-    const msg=e&&e.code==='storage/unauthorized'?'회사에 등록된 구글 계정으로 로그인해 주세요.':'저장 연결을 확인해 주세요. 현재 필기는 브라우저에 남아 있습니다.';
+    const msg=e?.code==='film/wrong-account'?'위에 표시된 이메일을 확인하고 ‘계정 바꾸기’에서 soomin020114@gmail.com을 선택해 주세요.':e?.code==='storage/unauthorized'?'대표님 계정은 등록돼 있습니다. 저장 연결이 거절됐습니다. 필기 파일 받기를 누르면 획을 보관할 수 있습니다.':'저장 연결에 실패했습니다. 필기는 이 태블릿에 남아 있습니다. 필기 파일 받기로도 보관할 수 있습니다.';
+    document.getElementById('backupStatus').textContent=msg;
     toast(msg, true);
   } finally { saveBusy=false; document.getElementById('save').disabled=false; }
 }
 document.getElementById('save').onclick = save;
 
 
-const GUIDE = [{"title": "미분과 극값", "where": "왼쪽 위", "text": "p(x)=2x³−6x+1\np′(x)=6(x−1)(x+1), x=−1,1\np(−1)=5, p(1)=−3, p(2)=5", "note": "평소 글씨로 써주세요. 문제 문장 전체는 베껴 쓰지 않아도 됩니다."}, {"title": "왼쪽 그래프와 첫 멈춤", "where": "가운데 왼쪽, 넓은 자리", "text": "좌표축과 x≤2 삼차곡선을 그립니다.\n(−1,5), (1,−3), (2,5)를 표시합니다.", "note": "(2,5)는 채운 점. 오른쪽 곡선은 아직 비워두고 잠깐 멈춥니다."}, {"title": "다른 여백에서 함수 형태 찾기", "where": "오른쪽 위로 이동", "text": "q(x)=a(x−2)(x−b)+9\n이차함수 / q(2)=q(b)=9", "note": "q는 이차식 전체입니다. 실제 f의 오른쪽 가지는 x>2라서 x=2는 포함하지 않습니다."}, {"title": "틀린 시도를 남기기", "where": "오른쪽 여백 → 그래프로 복귀", "text": "우선 b>2인 경우\n오른쪽 가지를 일부러 ∩ 모양으로 그립니다.", "note": "높이 9의 x=2, x=b를 기준으로 그립니다. x=2는 빈 점. 이 곡선은 다음 단계에서 지울 오답입니다. 잠깐 멈춰 주세요."}, {"title": "조건 확인 → 직접 지우고 고치기", "where": "위쪽 빈 자리 → 같은 그래프", "text": "a는 자연수 → a>0\n지우개로 ∩만 지운 뒤 ∪로 고쳐 그립니다.", "note": "(2,9)는 빈 점을 유지합니다. 꼭짓점 높이는 아직 m. 말하거나 채팅을 입력할 필요 없습니다."}, {"title": "경우를 줄이고 높이 확정하기", "where": "아래쪽 왼편과 그래프", "text": "b≤2: −3<k<5에서 3+3+3=9 → k 여러 개 → 제외\n∴ b>2, m=9−a(b−2)²/4\nm<−3, m>−3: k 여러 개\nm=−3: 1+3+5=9\nk=−3만 성립 (5에서는 11, 9에서는 4, 그 외 g(k)≠3)", "note": "m=−3에 동그라미. 이때 그래프의 최종 꼭짓점 높이를 −3으로 고쳐 맞춥니다. 작은 보조 그림을 여백에 그려도 됩니다."}, {"title": "자연수 후보와 마무리", "where": "아래쪽 오른편", "text": "9−a(b−2)²/4=−3 → a(b−2)²=48\n(a,b)=(48,3), (12,4), (3,6)\na+b=51, 16, 9 → 최댓값 51", "note": "51에 동그라미를 하고 ‘필기 저장’을 눌러 주세요. Note 복습과 생각 구름은 이 기록으로 제가 만듭니다."}];
+const GUIDE = [{"title": "미분과 극값", "where": "왼쪽 위", "text": "p(x)=2x³−6x+1\np′(x)=6(x−1)(x+1), x=−1,1\np(−1)=5, p(1)=−3, p(2)=5", "note": "왼쪽 삼차함수는 a,b와 무관하게 이미 정해져 있습니다. 먼저 꼭대기 5와 바닥 −3을 찾으면, 교점 개수가 바뀌는 높이를 알 수 있습니다."}, {"title": "왼쪽 그래프와 첫 멈춤", "where": "가운데 왼쪽, 넓은 자리", "text": "좌표축과 x≤2 삼차곡선을 그립니다.\n(−1,5), (1,−3), (2,5)를 표시합니다.", "note": "x=2는 왼쪽 식에 포함되므로 (2,5)는 채운 점입니다. 오른쪽 식의 시작점 (2,9)는 포함되지 않아 빈 점이 됩니다. 이 차이가 교점 개수를 바꿉니다."}, {"title": "다른 여백에서 함수 형태 찾기", "where": "오른쪽 위로 이동", "text": "q(x)=a(x−2)(x−b)+9\n이차함수 / q(2)=q(b)=9", "note": "승주형의 ‘고정된 것’ 질문은 모르는 a,b보다 이차함수라는 익숙한 모양을 먼저 보라는 뜻입니다. x=2와 x=b에서 높이 9인 점을 기준으로 잡습니다."}, {"title": "틀린 시도를 남기기", "where": "오른쪽 여백 → 그래프로 복귀", "text": "우선 b>2인 경우\n오른쪽 가지를 일부러 ∩ 모양으로 그립니다.", "note": "승주형 원문에서 학생이 위로 솟은 ∩ 그래프를 먼저 그립니다. 영상에서는 이 실수를 실제 획으로 남겨야 다음에 조건을 보고 스스로 고친 이유가 보입니다."}, {"title": "조건 확인 → 직접 지우고 고치기", "where": "위쪽 빈 자리 → 같은 그래프", "text": "a는 자연수 → a>0\n지우개로 ∩만 지운 뒤 ∪로 고쳐 그립니다.", "note": "이차항의 계수가 양수라 실제 그래프는 아래로 열린 ∪ 모양입니다. 방금 그린 ∩를 지우고 같은 곳에 ∪를 다시 그리면, 조건을 놓쳤다가 이해하고 수정한 과정이 보입니다."}, {"title": "경우를 줄이고 높이 확정하기", "where": "아래쪽 왼편과 그래프", "text": "b≤2: −3<k<5에서 3+3+3=9 → k 여러 개 → 제외\n∴ b>2, m=9−a(b−2)²/4\nm<−3, m>−3: k 여러 개\nm=−3: 1+3+5=9\nk=−3만 성립 (5에서는 11, 9에서는 4, 그 외 g(k)≠3)", "note": "문제는 합이 9가 되는 높이가 ‘딱 하나’여야 합니다. 여러 높이에서 3+3+3=9가 되면 실패입니다. 오른쪽 곡선의 가장 낮은 높이 m을 왼쪽 그래프의 바닥 −3에 맞추면 그 높이에서만 개수가 바뀝니다."}, {"title": "자연수 후보와 마무리", "where": "아래쪽 오른편", "text": "9−a(b−2)²/4=−3 → a(b−2)²=48\n(a,b)=(48,3), (12,4), (3,6)\na+b=51, 16, 9 → 최댓값 51", "note": "가장 낮은 높이 m=−3이라는 조건을 숫자로 바꾸면 a(b−2)²=48입니다. a,b가 자연수이고 b>2인 후보를 비교해 가장 큰 합 51을 고릅니다."}];
 const draftKey='provee-film-csat2024-q14-v1';
 let stepIndex=0, marks=[], captureId=Date.now().toString(36), saveSeq=0, saveBusy=false, lastSavedFile=null;
 function eraseLast(){const s=[...strokes].reverse().find(s=>s.erasedAt===null);if(s){s.erasedAt=relT();redraw();stats();persistDraft();}}
