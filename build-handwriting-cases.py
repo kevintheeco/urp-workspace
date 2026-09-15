@@ -151,6 +151,18 @@ GUIDES[10][4]["preview"] = "ink-film-10-reference.svg"
 GUIDES[3][1]["preview"] = "ink-film-3-reference.svg"
 GUIDES[3][4]["preview"] = "ink-film-3-reference.svg"
 
+# The printed question now sits at the top of the same notebook sheet as the pad.
+for case_guides in GUIDES.values():
+    for guide in case_guides:
+        for field in ("where", "text", "note"):
+            if field in guide:
+                guide[field] = (guide[field]
+                    .replace("위의 ‘시험지 문제 위에 표시하기’에서", "같은 노트 맨 위 인쇄된 문제에서")
+                    .replace("시험지 문제 면으로 올라가", "같은 노트 맨 위 인쇄된 문제로 올라가")
+                    .replace("시험지 문제 면에서", "같은 노트 맨 위 인쇄된 문제에서")
+                    .replace("시험지 문제 면의", "같은 노트 맨 위 인쇄된 문제의")
+                    .replace("문제 면과 풀이장 획은 한 저장 파일에 함께 들어갑니다.", "문제 위 표시와 풀이 획이 같은 노트에 이어집니다."))
+
 def area(label: str, left: int, top: int, width: int, height: int) -> dict:
     return {"label": label, "left": left, "top": top, "width": width, "height": height}
 
@@ -451,7 +463,7 @@ def make_case(base: str, number: int) -> str:
     page = replace_once(page, '승주 14번 · 문제를 보며 평소처럼 풀기 · 지운 과정도 보존',
                         f'승주 {number}번 · 문제를 이해하며 손으로 풀기 · 지운 과정도 보존')
     start = page.index('<section class="problem-card"')
-    end = page.index('<div class="tasks"', start)
+    end = page.index('<!-- case-support-close -->', start)
     page = page[:start] + BLOCKS[number].strip() + "\n\n" + page[end:]
     old_task = "const TASKS = [{id:'csat2024-q14',tag:'승주 14번 · 광고 재현 필기',text:'조건을 보고 스스로 고친 뒤 끝까지 풀이',note:'새 자료'}];"
     new_task = ("const TASKS = [{id:'csat2024-q" + str(number) + "',tag:" + json.dumps(title, ensure_ascii=False) +

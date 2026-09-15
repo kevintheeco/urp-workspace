@@ -95,7 +95,22 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 .step-areas{position:absolute;inset:0;z-index:3;pointer-events:none}.step-area{position:absolute;border:2px dashed #8a1c2bb8;border-radius:12px;background:#fff9f112}.step-area:nth-child(2){border-color:#215c99b8}.step-area-label{position:absolute;left:8px;top:-15px;max-width:calc(100% - 16px);background:#fff;border:1px solid #d7c8b8;border-radius:6px;padding:3px 7px;color:#7a1b28;font-size:13px;font-weight:800;line-height:1.35;white-space:normal;box-shadow:0 2px 7px #00000010}.step-area:nth-child(2) .step-area-label{color:#215c99}.pad.areas-off .step-areas{display:none}
 .scroll-rail{position:absolute;z-index:4;right:0;top:0;bottom:0;width:44px;background:#f5eee5d9;border-left:1px dashed #c6b9a9;touch-action:pan-y;display:flex;justify-content:center;align-items:flex-start;padding-top:16px;pointer-events:auto}.scroll-rail span{writing-mode:vertical-rl;font-size:12px;line-height:1.5;font-weight:700;color:#776b5d}.pad.scroll-mode canvas{touch-action:pan-y;cursor:grab}.scroll-mode-hint{display:none;position:absolute;z-index:5;top:42%;left:20%;width:60%;pointer-events:none;text-align:center;background:#fffdf9ed;border:2px solid var(--wine);border-radius:12px;padding:12px;color:var(--wine);font-weight:800}.pad.scroll-mode .scroll-mode-hint{display:block}
 @media(max-width:800px){.step-area-label{font-size:10px;padding:2px 4px;top:-12px}.scroll-rail{width:34px}.scroll-rail span{font-size:10px}}
-.exam-workspace{background:#fffdf9;border:1px solid var(--line);border-radius:12px;margin:11px 0;padding:12px 15px}.exam-workspace summary{cursor:pointer;color:var(--wine);font-size:16px;font-weight:800}.exam-workspace .exam-controls{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.exam-workspace .exam-controls button{font-size:13px;padding:7px 10px}.exam-sheet{position:relative;width:min(1100px,100%);margin:0 auto;border:1px solid #dad5ce;border-radius:7px;overflow:hidden;background:#fff}.exam-sheet img{display:block;width:100%;height:auto;pointer-events:none}.exam-sheet canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;touch-action:none;cursor:crosshair}.exam-sheet.erase canvas{cursor:cell}.exam-sheet.scroll-mode canvas{touch-action:pan-y;cursor:grab}.exam-sheet .scroll-rail{width:34px}.exam-sheet .scroll-rail span{font-size:10px}.exam-highlight{position:absolute;z-index:1;left:9.3%;top:4.3%;width:24%;height:5.4%;background:#ffe14c99;mix-blend-mode:multiply;pointer-events:none}.exam-highlight[hidden]{display:none}.exam-workspace .exam-note{font-size:12px;line-height:1.5;color:#6B6259;margin-top:8px}.exam-workspace .cue-message{font-size:14px;font-weight:700;color:var(--wine);margin:8px 0}.exam-workspace .cue-message[hidden]{display:none}
+.exam-workspace{background:#fffdf9;border:1px solid var(--line);border-radius:12px;margin:11px 0;padding:12px 15px}.exam-workspace summary{cursor:pointer;color:var(--wine);font-size:16px;font-weight:800}.exam-workspace .exam-controls{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.exam-workspace .exam-controls button{font-size:13px;padding:7px 10px}.exam-sheet{position:relative;width:min(1100px,100%);margin:0 auto;border:1px solid #dad5ce;border-radius:7px;overflow:hidden;background:#fff}.exam-sheet img{display:block;width:100%;height:auto;pointer-events:none}.exam-sheet canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;touch-action:none;cursor:crosshair}.exam-sheet.erase canvas{cursor:cell}.exam-sheet.scroll-mode canvas{touch-action:pan-y;cursor:grab}.exam-sheet .scroll-rail{width:34px}.exam-sheet .scroll-rail span{font-size:10px}.exam-highlight{position:absolute;z-index:1;left:9.4%;top:1.6%;width:20.6%;height:5.0%;background:#ffe14c99;mix-blend-mode:multiply;pointer-events:none}.exam-highlight[hidden]{display:none}.exam-workspace .exam-note{font-size:12px;line-height:1.5;color:#6B6259;margin-top:8px}.exam-workspace .cue-message{font-size:14px;font-weight:700;color:var(--wine);margin:8px 0}.exam-workspace .cue-message[hidden]{display:none}
+
+/* 인쇄된 문제와 손풀이가 이어지는 한 장의 노트 */
+.notebook-sheet{width:min(1100px,100%);margin:12px auto 0;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 28px rgba(70,58,48,.10);overflow:hidden}
+.notebook-sheet .exam-workspace{display:block;background:#fff;border:0;border-radius:0;margin:0;padding:0}
+.notebook-sheet .exam-workspace summary{display:none}
+.notebook-sheet .exam-sheet{width:100%;border:0;border-radius:0;margin:0;overflow:hidden}
+.notebook-sheet .pad{background:#fff;border:0;border-radius:0;box-shadow:none;margin:0;overflow:hidden}
+.notebook-sheet .pad:before{display:none}
+.notebook-sheet .cue-message{font-size:14px;line-height:1.5;color:var(--wine);font-weight:700;padding:10px 22px;margin:0}
+.bar{width:min(1100px,100%);margin:12px auto;position:relative;z-index:1}
+.film-guide{position:relative;top:auto}
+.reading-help{width:min(1100px,100%);margin:18px auto;background:#fffdf9;border:1px solid var(--line);border-radius:10px;padding:12px 16px}
+.reading-help>summary{cursor:pointer;font-size:15px;font-weight:700;color:var(--wine)}
+.reading-help .problem-card,.reading-help .source-card{margin-top:12px}
+@media(max-width:800px){.notebook-sheet{margin-top:8px}.notebook-sheet .cue-message{padding:8px 12px;font-size:12px}.reading-help{padding:10px 12px}}
 </style>
 </head>
 <body>
@@ -107,20 +122,9 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 <div class="cloud-entry"><button id="cloudLogin">대표님 계정으로 로그인</button><span id="cloudStatus" aria-live="polite">저장 연결을 확인하는 중입니다.</span></div>
 <p class="account-help">대표님 저장 계정: <b>soomin020114@gmail.com</b> · 위에 다른 이메일이 보이면 ‘계정 바꾸기’를 누르세요. 필기는 그대로 남습니다.</p>
 <nav class="case-nav" aria-label="승주형 세 문제"><a href="ink-film-14.html">14번 · 그래프</a><a href="ink-film-10.html">10번 · 적분·이동거리</a><a href="ink-film-3.html">3번 · 사분면</a></nav>
-<section class="problem-card" aria-label="수능 14번 문제"><h2>2024학년도 수능 수학 14번 · 문제</h2><p>자연수 a, b에 대하여 함수 f(x)가 아래와 같습니다.</p><p class="formula">x ≤ 2: f(x)=2x³−6x+1<br>x &gt; 2: f(x)=a(x−2)(x−b)+9</p><p>g(t)는 수평선 y=t와 그래프 y=f(x)가 만나는 점의 개수입니다. <b>g(k−)+g(k)+g(k+)=9</b>를 만족하는 실수 k가 정확히 하나일 때, <b>a+b의 최댓값</b>을 구합니다.</p><p class="plain">g(k−), g(k+)는 높이를 k보다 아주 조금 낮거나 높게 잡았을 때 교점 개수가 어떻게 바뀌는지 뜻합니다. 세 값을 더해 9가 되는 높이를 찾습니다. 꼭짓점에서는 1+3+5처럼 개수가 달라질 수도 있습니다.</p><p class="plain">시험지 선택지 · [4점] ① 51 &nbsp; ② 52 &nbsp; ③ 53 &nbsp; ④ 54 &nbsp; ⑤ 55</p></section>
-<details class="graph-reference" id="shapeReference"><summary>왼쪽 그래프 모양 보기 · 2/7에서 그리는 곡선</summary><img src="ink-film-14-reference.svg" alt="x가 −2 부근에서 왼쪽 아래로 시작해 (−1,5)까지 상승, (1,−3)까지 하강, (2,5)까지 상승하는 삼차곡선. (2,5)는 채운 점, 오른쪽 이차곡선은 빈 점 (2,9)에서 시작해 ∪ 모양이다."><p>2/7에서는 파란 왼쪽 삼차곡선만 그립니다. 오른쪽 붉은 ∪는 5/7에 그릴 최종 모양입니다. 도표는 (a,b)=(3,6)의 모양 예시이며, 실제 풀이에서는 먼저 a,b를 미지수로 둡니다.</p></details>
-<details class="graph-card" id="graphChecklist"><summary>그래프도 그려 주세요 · 14번에서 그릴 점과 수평선 보기</summary><p class="notation">승주형 표기: f₁(x)=2x³−6x+1, f₂(x)=a(x−2)(x−b)+9<br>f(x)는 x≤2에서 f₁, x&gt;2에서 f₂입니다.</p><ol><li><b>왼쪽 삼차 그래프:</b> f₁′(x)=6x²−6 → x=−1,1. (−1,5), (1,−3), (2,5)를 찍고 x≤2 곡선을 그립니다. (2,5)는 채운 점입니다.</li><li><b>오른쪽 이차 그래프:</b> 연장한 식 f₂(2)=9지만 실제 f(2)=5입니다. 따라서 (2,9)는 빈 점입니다. b&gt;2인 경우 꼭짓점 x=(2+b)/2를 표시하고, 실제 곡선은 a&gt;0이므로 ∪ 모양으로 그립니다.</li><li><b>원문 속 수정 장면:</b> 학생은 처음에 ∩ 모양으로 잘못 그렸다가, a가 자연수라는 조건을 보고 지우고 ∪로 고칩니다. 이 잘못 그린 획과 지운 기록도 남길 수 있습니다.</li><li><b>교점 개수:</b> 여백에 수평선 y=t를 그어 y=f(x)와 만나는 점을 세어 보세요. 교점 개수가 바뀌는 높이 −3, 5, 9와 이차함수의 꼭짓점 높이 m을 표시하면 g(t)를 이해하기 쉽습니다.</li></ol><p class="fine">f′(x)는 x&lt;2에서 f₁′(x), x&gt;2에서 f₂′(x)=a(2x−b−2)입니다. f는 x=2에서 불연속이므로 f′(2)는 없습니다. f₁, f₂는 두 식의 이름이며, f₂(2)=9는 실제 f(2)의 값이 아닙니다.</p></details><aside class="film-focus"><b>지금 쓰는 14번의 핵심:</b> 학생은 처음엔 시작하지 못하고, 오른쪽 이차함수 앞에서 다시 막힌 뒤 ∩ 모양으로 잘못 그립니다. 승주형이 강조한 장면은 “문제 맨 앞을 봐봐” 다음 학생이 a가 자연수임을 확인하고 ∪로 고치는 과정입니다. 절댓값 누락은 10번의 별도 문제입니다.</aside><details class="source-card" id="sourceText"><summary>승주형 14번 원문 전체 보기 · 붉은 표시가 실제 하이라이트</summary><p class="source-count">원문 진행 17장면 중 볼드 하이라이트는 오른쪽 그래프에서 막히는 6장면입니다. 대사는 원문 그대로이고 수식 한 줄은 읽기 쉽게 정리했습니다.</p><ol class="source-flow" id="sourceConversation"><li>(학생) 그냥 건들지도 못하는 중.</li><li>(프루비) 어렵지 않아 (독려). 일단 f(x)에서 x≤2인 구간에서의 함수는 우리가 잘 알고 있는 삼차함수야! 문제에서 ‘고정된 것’이 있다!</li><li>(학생) 맞네. 그건 좋은 소식이야. y=t 수평선과의 교점이고, 문제에도 y=f(x)의 그래프를 언급하고 있으니 일단 그거부터 그려봐야겠다. 미분해서 극값부터 파악하자. (그리기 시작)<p class="formula-note">원문 수식: f₁′(x)=6x²−6 → x=±1; f(−1)=5, f(1)=−3</p></li><li>(학생) 근데 이거 x=2에서 어떻게 끊어야 할지 모르겠네?</li><li>(프루비) f(2-)를 계산해보면 되지!</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) 맞네? 오, 극댓값 f(-1)과 값이 같다! 굉장한 정보군. 근데 이제 x&gt;2에서의 그래프는 어떻게 분석해야 할지 모르겠어.</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(프루비) 역시 ‘고정된 것’에 집중해봐. a, b가 있지만, 이건 매우 잘 알려진 어떤 함수잖아?</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) 이차함수네. y=9와 x=2, x=b에서 만나. 그럼 f(x)는 x=2에서 불연속이게 그려지긴 해. 그렇다면 중요한 건 b와 2의 대소관계겠네? 왜냐면 2보다 작으면 b가 왼쪽에 있게 되고, 그 경우엔 어떻게 그려도 g(t)의 조건을 만족하는 k를 찾을 수가 없어.</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) 그럼 b&gt;2일 수밖에 없고, 그림을 그려봐야 하는데.. (위로 볼록한 이차함수를 그린다)</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(프루비) 잠깐. 문제 맨 앞을 봐봐</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) a가 자연수였구나? 그럼 무조건 최고차항의 계수가 양수니까 무조건 아래로 볼록. 이거 덕분에 벌써 절반의 케이스는 생각할 필요도 없어졌군! 문제 조건 이거 놓치면 큰일날뻔 했네</li><li>(학생) 아래로 볼록한 이차함수들을 그려보니까, x≤2일 때 그린 삼차함수의 극댓값, 극솟값이랑 이 이차함수의 꼭짓점이 만나는 부분이 크리티컬 할 수밖에 없네. (각 경우를 그리며 확인) 아하, 결국 꼭짓점의 y좌표가 삼차함수의 극솟값인 -3일 때가 조건이 되는구만.<p class="formula-note">원문 수식을 읽기 쉽게 정리: f₂((2+b)/2)=−3 → a(b−2)²=48</p></li><li>(학생) (이 식을 전개 후 한참동안 액션이 없다) 이거 전개해보니까 뭔 식이 나오는데 뭐 어쩌라는 거지?</li><li>(프루비) 문제 맨 앞을 다시 읽어봐</li><li>(학생) 아 자연수 조건이 있었지! 그럼 몇 개 안 나오겠네. 나열해서 답 찾아야겠다~</li><li>(학생) a=48, b=3일 때, 답은 51이구만</li><li>(프루비) 굿. 이 문제에서 얻은 건, ‘고정된 거 집중하기’랑 ‘문제 조건 안 빠트리기’…</li></ol><p class="source-note">학생의 ∩ 그래프는 원문 속 실수입니다. 실제 f의 오른쪽 가지는 a&gt;0이므로 ∪ 모양이고, x=2의 오른쪽 시작점 (2,9)은 빈 점입니다. 원문의 “b&lt;2면 k가 없다”는 표현은 정확히는 b≤2일 때 그런 k가 여러 개라 “정확히 하나” 조건을 어긴다는 뜻입니다. 단계별 ‘왜 이걸 쓰나요?’는 원문과 구분한 이해 설명입니다.</p></details>
-
 <div class="tasks" id="tasks" hidden></div>
 <section class="film-guide" id="filmGuide"><div class="guide-top"><b id="guideTitle"></b><div><button id="prevStep">이전</button><button id="nextStep">다음</button><button id="toggleGuide" aria-expanded="true">안내 접기</button><a href="ink-film-14-guide.html" target="_blank" rel="noopener">전체 안내</a></div></div><div class="guide-body"><div><strong id="guideWhere"></strong><pre id="guideText"></pre><img id="guidePreview" class="guide-preview" alt="현재 단계에서 손으로 그릴 그림 예시" hidden></div><p id="guideNote"></p></div></section>
-<p class="tablet-tip">갤탭: S펜으로 쓰고 손가락·손바닥 접촉은 필기에서 무시합니다. 캔버스 오른쪽 ‘손가락 스크롤’ 띠를 위아래로 밀거나 ‘손가락 스크롤 모드’를 누르세요. 단계별 점선 칸은 위치 안내이며 저장되지 않습니다.</p>
-<details class="exam-workspace" id="examWorkspace" open><summary>시험지 문제 위에 표시하기 · 조건 밑줄·답 체크</summary>
-  <div class="exam-controls"><button id="examPen" class="on">문제에 펜</button><button id="examErase">문제에 지우개</button><button id="examUndo">문제 표시 한 획 지우기</button><button id="examScroll">문제 면 스크롤</button><button id="proveeCue" hidden>Provee · 첫 줄 조건 짚기</button><span class="exam-note">문제 표시 획 <b id="examCount">0</b></span></div>
-  <div class="exam-sheet" id="examSheet" data-w="1480" data-h="1088"><img id="examImage" src="ink-film-14-exam.png" alt="2024학년도 수능 수학 14번 실제 문항과 다섯 선택지"><span class="exam-highlight" id="examHighlight" hidden></span><canvas id="examInk" aria-label="시험지 문제 위에 직접 표시하는 펜 면"></canvas><div class="scroll-rail" aria-label="손가락으로 시험지 화면을 스크롤하세요"><span>손가락 스크롤</span></div></div>
-  <p id="cueMessage" class="cue-message" hidden>Provee · 잠깐. 문제 맨 앞의 조건을 다시 읽어봐.</p>
-  <p class="exam-note">시험지에 밑줄·동그라미·선택지 체크를 직접 하세요. 기존 풀이장과 별도로 획과 지운 시점이 함께 보관됩니다. 접으면 풀이장으로 바로 내려갈 수 있습니다. 출처: 2024학년도 수능 수학 시험지, 한국교육과정평가원.</p>
-</details>
-
+<p class="tablet-tip">갤탭: 같은 노트 맨 위 문제에도, 아래 풀이 여백에도 S펜으로 바로 쓰세요. 손가락·손바닥은 필기에 반영되지 않습니다. 오른쪽 스크롤 띠나 ‘손가락 스크롤 모드’로 한 장의 노트를 위아래로 움직일 수 있습니다.</p>
 <div class="bar">
   <button id="mPen" class="on">펜</button>
   <button id="mErase">지우개</button>
@@ -132,20 +136,28 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
   <button id="toggleFingerInk" aria-pressed="false">손가락 필기: 꺼짐</button>
   <div class="sep"></div>
   <button id="undo">마지막 획 지우기</button>
+  <button id="proveeCue" hidden>Provee · 첫 줄 조건 짚기</button>
   <button id="clear">새 기록</button>
   <div class="sep"></div>
   <button id="save" class="primary">필기 저장</button>
   <button id="downloadBackup" title="인터넷 저장이 안 될 때 이 태블릿에 필기 파일을 보관합니다">필기 파일 받기</button>
 </div>
 
+<section class="notebook-sheet" id="notebookSheet" aria-label="인쇄된 문제와 손풀이가 이어진 한 장의 노트">
+<details class="exam-workspace" id="examWorkspace" open><summary hidden>같은 노트 맨 위의 인쇄된 시험지</summary>
+  <div class="exam-sheet" id="examSheet" data-w="1480" data-h="1088"><img id="examImage" src="ink-film-14-exam.png" alt="2024학년도 수능 수학 14번 실제 문항과 다섯 선택지"><span class="exam-highlight" id="examHighlight" hidden></span><canvas id="examInk" aria-label="시험지 문제 위에 직접 표시하는 펜 면"></canvas><div class="scroll-rail" aria-label="손가락으로 시험지 화면을 스크롤하세요"><span>손가락 스크롤</span></div></div>
+  <p id="cueMessage" class="cue-message" hidden>Provee · 잠깐. 문제 맨 앞의 조건을 다시 읽어봐.</p>
+</details>
 <div class="pad" id="pad">
   <div class="step-areas" id="stepAreas" aria-hidden="true"></div><canvas id="cv"></canvas>
   <div class="scroll-rail" aria-label="손가락으로 여기서 화면을 위아래로 움직이세요"><span>손가락 스크롤</span></div>
   <div class="scroll-mode-hint">손가락 스크롤 중 · 다시 쓰려면 위의 ‘S펜 필기 모드’를 누르세요.</div>
 </div>
+</section>
 
 <div class="stats">
   <span>획 <b id="sN">0</b></span>
+  <span>문제 위 표시 <b id="examCount">0</b></span>
   <span>총 시간 <b id="sT">0.0초</b></span>
   <span>가장 긴 필기 공백 <b id="sP">—</b></span>
   <span>문제 확인 방문 <b id="sR">0</b></span>
@@ -153,8 +165,14 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
   <span>입력 <b id="sD">—</b></span>
 </div>
 
-<p class="timing-tip">문제 원문을 확인하거나 화면을 이동한 시간도 필기 공백에 들어갑니다. 긴 공백만 보고 풀이를 못한 시간으로 판단하지 않습니다.</p>
-<p class="hint"><b>회색 안내는 저장되지 않습니다.</b> 쓰고 지운 실제 획만 남습니다. 위치는 대략 맞추고 글씨는 평소처럼 써주세요. 멈춤과 속도는 편집할 수 있으니 서두르지 않아도 됩니다.</p><p id="backupStatus" class="hint" aria-live="polite"></p>
+<p class="timing-tip">같은 노트 위쪽 문제를 다시 읽거나 화면을 움직인 시간도 필기 공백에 들어갑니다. 긴 공백만 보고 풀이를 못한 시간으로 판단하지 않습니다.</p>
+<p class="hint"><b>문제와 풀이가 같은 노트에 있습니다.</b> 문제 문장 위에 밑줄·표시를 하고, 바로 아래 여백에서 그래프와 계산을 이어 쓰세요. 쓰고 지운 획은 모두 보관됩니다.</p><p id="backupStatus" class="hint" aria-live="polite"></p>
+<details class="reading-help" id="readingHelp"><summary>문제 이해 도움 · 승주형 원문 · 그림 예시 보기</summary>
+<section class="problem-card" aria-label="수능 14번 문제"><h2>2024학년도 수능 수학 14번 · 문제</h2><p>자연수 a, b에 대하여 함수 f(x)가 아래와 같습니다.</p><p class="formula">x ≤ 2: f(x)=2x³−6x+1<br>x &gt; 2: f(x)=a(x−2)(x−b)+9</p><p>g(t)는 수평선 y=t와 그래프 y=f(x)가 만나는 점의 개수입니다. <b>g(k−)+g(k)+g(k+)=9</b>를 만족하는 실수 k가 정확히 하나일 때, <b>a+b의 최댓값</b>을 구합니다.</p><p class="plain">g(k−), g(k+)는 높이를 k보다 아주 조금 낮거나 높게 잡았을 때 교점 개수가 어떻게 바뀌는지 뜻합니다. 세 값을 더해 9가 되는 높이를 찾습니다. 꼭짓점에서는 1+3+5처럼 개수가 달라질 수도 있습니다.</p><p class="plain">시험지 선택지 · [4점] ① 51 &nbsp; ② 52 &nbsp; ③ 53 &nbsp; ④ 54 &nbsp; ⑤ 55</p></section>
+<details class="graph-reference" id="shapeReference"><summary>왼쪽 그래프 모양 보기 · 2/7에서 그리는 곡선</summary><img src="ink-film-14-reference.svg" alt="x가 −2 부근에서 왼쪽 아래로 시작해 (−1,5)까지 상승, (1,−3)까지 하강, (2,5)까지 상승하는 삼차곡선. (2,5)는 채운 점, 오른쪽 이차곡선은 빈 점 (2,9)에서 시작해 ∪ 모양이다."><p>2/7에서는 파란 왼쪽 삼차곡선만 그립니다. 오른쪽 붉은 ∪는 5/7에 그릴 최종 모양입니다. 도표는 (a,b)=(3,6)의 모양 예시이며, 실제 풀이에서는 먼저 a,b를 미지수로 둡니다.</p></details>
+<details class="graph-card" id="graphChecklist"><summary>그래프도 그려 주세요 · 14번에서 그릴 점과 수평선 보기</summary><p class="notation">승주형 표기: f₁(x)=2x³−6x+1, f₂(x)=a(x−2)(x−b)+9<br>f(x)는 x≤2에서 f₁, x&gt;2에서 f₂입니다.</p><ol><li><b>왼쪽 삼차 그래프:</b> f₁′(x)=6x²−6 → x=−1,1. (−1,5), (1,−3), (2,5)를 찍고 x≤2 곡선을 그립니다. (2,5)는 채운 점입니다.</li><li><b>오른쪽 이차 그래프:</b> 연장한 식 f₂(2)=9지만 실제 f(2)=5입니다. 따라서 (2,9)는 빈 점입니다. b&gt;2인 경우 꼭짓점 x=(2+b)/2를 표시하고, 실제 곡선은 a&gt;0이므로 ∪ 모양으로 그립니다.</li><li><b>원문 속 수정 장면:</b> 학생은 처음에 ∩ 모양으로 잘못 그렸다가, a가 자연수라는 조건을 보고 지우고 ∪로 고칩니다. 이 잘못 그린 획과 지운 기록도 남길 수 있습니다.</li><li><b>교점 개수:</b> 여백에 수평선 y=t를 그어 y=f(x)와 만나는 점을 세어 보세요. 교점 개수가 바뀌는 높이 −3, 5, 9와 이차함수의 꼭짓점 높이 m을 표시하면 g(t)를 이해하기 쉽습니다.</li></ol><p class="fine">f′(x)는 x&lt;2에서 f₁′(x), x&gt;2에서 f₂′(x)=a(2x−b−2)입니다. f는 x=2에서 불연속이므로 f′(2)는 없습니다. f₁, f₂는 두 식의 이름이며, f₂(2)=9는 실제 f(2)의 값이 아닙니다.</p></details><aside class="film-focus"><b>지금 쓰는 14번의 핵심:</b> 학생은 처음엔 시작하지 못하고, 오른쪽 이차함수 앞에서 다시 막힌 뒤 ∩ 모양으로 잘못 그립니다. 승주형이 강조한 장면은 “문제 맨 앞을 봐봐” 다음 학생이 a가 자연수임을 확인하고 ∪로 고치는 과정입니다. 절댓값 누락은 10번의 별도 문제입니다.</aside><details class="source-card" id="sourceText"><summary>승주형 14번 원문 전체 보기 · 붉은 표시가 실제 하이라이트</summary><p class="source-count">원문 진행 17장면 중 볼드 하이라이트는 오른쪽 그래프에서 막히는 6장면입니다. 대사는 원문 그대로이고 수식 한 줄은 읽기 쉽게 정리했습니다.</p><ol class="source-flow" id="sourceConversation"><li>(학생) 그냥 건들지도 못하는 중.</li><li>(프루비) 어렵지 않아 (독려). 일단 f(x)에서 x≤2인 구간에서의 함수는 우리가 잘 알고 있는 삼차함수야! 문제에서 ‘고정된 것’이 있다!</li><li>(학생) 맞네. 그건 좋은 소식이야. y=t 수평선과의 교점이고, 문제에도 y=f(x)의 그래프를 언급하고 있으니 일단 그거부터 그려봐야겠다. 미분해서 극값부터 파악하자. (그리기 시작)<p class="formula-note">원문 수식: f₁′(x)=6x²−6 → x=±1; f(−1)=5, f(1)=−3</p></li><li>(학생) 근데 이거 x=2에서 어떻게 끊어야 할지 모르겠네?</li><li>(프루비) f(2-)를 계산해보면 되지!</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) 맞네? 오, 극댓값 f(-1)과 값이 같다! 굉장한 정보군. 근데 이제 x&gt;2에서의 그래프는 어떻게 분석해야 할지 모르겠어.</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(프루비) 역시 ‘고정된 것’에 집중해봐. a, b가 있지만, 이건 매우 잘 알려진 어떤 함수잖아?</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) 이차함수네. y=9와 x=2, x=b에서 만나. 그럼 f(x)는 x=2에서 불연속이게 그려지긴 해. 그렇다면 중요한 건 b와 2의 대소관계겠네? 왜냐면 2보다 작으면 b가 왼쪽에 있게 되고, 그 경우엔 어떻게 그려도 g(t)의 조건을 만족하는 k를 찾을 수가 없어.</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) 그럼 b&gt;2일 수밖에 없고, 그림을 그려봐야 하는데.. (위로 볼록한 이차함수를 그린다)</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(프루비) 잠깐. 문제 맨 앞을 봐봐</li><li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) a가 자연수였구나? 그럼 무조건 최고차항의 계수가 양수니까 무조건 아래로 볼록. 이거 덕분에 벌써 절반의 케이스는 생각할 필요도 없어졌군! 문제 조건 이거 놓치면 큰일날뻔 했네</li><li>(학생) 아래로 볼록한 이차함수들을 그려보니까, x≤2일 때 그린 삼차함수의 극댓값, 극솟값이랑 이 이차함수의 꼭짓점이 만나는 부분이 크리티컬 할 수밖에 없네. (각 경우를 그리며 확인) 아하, 결국 꼭짓점의 y좌표가 삼차함수의 극솟값인 -3일 때가 조건이 되는구만.<p class="formula-note">원문 수식을 읽기 쉽게 정리: f₂((2+b)/2)=−3 → a(b−2)²=48</p></li><li>(학생) (이 식을 전개 후 한참동안 액션이 없다) 이거 전개해보니까 뭔 식이 나오는데 뭐 어쩌라는 거지?</li><li>(프루비) 문제 맨 앞을 다시 읽어봐</li><li>(학생) 아 자연수 조건이 있었지! 그럼 몇 개 안 나오겠네. 나열해서 답 찾아야겠다~</li><li>(학생) a=48, b=3일 때, 답은 51이구만</li><li>(프루비) 굿. 이 문제에서 얻은 건, ‘고정된 거 집중하기’랑 ‘문제 조건 안 빠트리기’…</li></ol><p class="source-note">학생의 ∩ 그래프는 원문 속 실수입니다. 실제 f의 오른쪽 가지는 a&gt;0이므로 ∪ 모양이고, x=2의 오른쪽 시작점 (2,9)은 빈 점입니다. 원문의 “b&lt;2면 k가 없다”는 표현은 정확히는 b≤2일 때 그런 k가 여러 개라 “정확히 하나” 조건을 어긴다는 뜻입니다. 단계별 ‘왜 이걸 쓰나요?’는 원문과 구분한 이해 설명입니다.</p></details>
+<!-- case-support-close -->
+</details>
 <div id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -396,24 +414,22 @@ function stats() {
 // ── 도구 ────────────────────────────────
 const bPen = document.getElementById('mPen'), bEr = document.getElementById('mErase');
 const areaButton=document.getElementById('toggleAreas'), scrollButton=document.getElementById('toggleScrollMode'), fingerButton=document.getElementById('toggleFingerInk');
-const examPen=document.getElementById('examPen'),examErase=document.getElementById('examErase'),examScroll=document.getElementById('examScroll'),proveeCue=document.getElementById('proveeCue');
-function syncQuestionTools(){examPen.classList.toggle('on',mode==='pen');examErase.classList.toggle('on',mode==='erase');examSheet.classList.toggle('erase',mode==='erase');}
-function setNavigationMode(enabled){endStroke();questionEnd();navigationMode=enabled;pad.classList.toggle('scroll-mode',enabled);examSheet.classList.toggle('scroll-mode',enabled);scrollButton.classList.toggle('on',enabled);scrollButton.textContent=enabled?'S펜 필기 모드':'손가락 스크롤 모드';scrollButton.setAttribute('aria-pressed',String(enabled));examScroll.classList.toggle('on',enabled);examScroll.textContent=enabled?'문제 면에 쓰기':'문제 면 스크롤';}
+const proveeCue=document.getElementById('proveeCue');
+function syncQuestionTools(){examSheet.classList.toggle('erase',mode==='erase');}
+function setNavigationMode(enabled){endStroke();questionEnd();navigationMode=enabled;pad.classList.toggle('scroll-mode',enabled);examSheet.classList.toggle('scroll-mode',enabled);scrollButton.classList.toggle('on',enabled);scrollButton.textContent=enabled?'S펜 필기 모드':'손가락 스크롤 모드';scrollButton.setAttribute('aria-pressed',String(enabled));}
 bPen.onclick = () => { setNavigationMode(false);mode='pen'; bPen.classList.add('on'); bEr.classList.remove('on'); pad.classList.remove('erase');syncQuestionTools(); };
 bEr.onclick  = () => { setNavigationMode(false);mode='erase'; bEr.classList.add('on'); bPen.classList.remove('on'); pad.classList.add('erase');syncQuestionTools(); };
-examPen.onclick=()=>bPen.click();examErase.onclick=()=>bEr.click();examScroll.onclick=()=>setNavigationMode(!navigationMode);
-document.getElementById('examUndo').onclick=questionEraseLast;
 areaButton.onclick=()=>{const visible=pad.classList.toggle('areas-off')===false;areaButton.textContent=visible?'자리 표시 끄기':'자리 표시 켜기';areaButton.setAttribute('aria-pressed',String(visible));};
 scrollButton.onclick=()=>setNavigationMode(!navigationMode);
 fingerButton.onclick=()=>{fingerInk=!fingerInk;fingerButton.textContent=fingerInk?'손가락 필기: 켜짐':'손가락 필기: 꺼짐';fingerButton.setAttribute('aria-pressed',String(fingerInk));};
 document.getElementById('w').oninput = e => { width = +e.target.value; document.getElementById('wv').textContent = width.toFixed(1); };
-document.getElementById('undo').onclick = () => { eraseLast(); };
+document.getElementById('undo').onclick = () => { eraseLastOnNote(); };
 document.getElementById('clear').onclick = () => {
   if ((strokes.length||questionStrokes.length) && !confirm('현재 기록은 브라우저에 보관하고 빈 필기를 시작할까요? 오래 보관하려면 먼저 필기 저장을 눌러 주세요.')) return;
   archiveDraft(); strokes = []; questionStrokes=[];questionCur=null;questionNextId=1;cueVisible=false;renderCue();redrawQuestion(); t0 = null; timeOffset = 0; nextId = 1; marks = []; problemReviewActive=false; padVisited=false; stepIndex = 0; captureId = Date.now().toString(36); saveSeq = 0; renderGuide(); redraw(); stats(); persistDraft();
 };
 window.addEventListener('keydown', e => {
-  if ((e.metaKey||e.ctrlKey) && e.key === 'z') { e.preventDefault(); eraseLast(); }
+  if ((e.metaKey||e.ctrlKey) && e.key === 'z') { e.preventDefault(); eraseLastOnNote(); }
   if ((e.metaKey||e.ctrlKey) && e.key === 's') { e.preventDefault(); save(); }
   if (e.key === 'e') bEr.click();
   if (e.key === 'p') bPen.click();
@@ -460,9 +476,20 @@ function questionCompositePNG(){
   const composite=document.createElement('canvas');composite.width=QW;composite.height=QH;
   const c=composite.getContext('2d');
   if(examImage.complete&&examImage.naturalWidth)c.drawImage(examImage,0,0,QW,QH);
-  if(cueVisible&&task.id==='csat2024-q14'){c.fillStyle='#ffe14c99';c.fillRect(QW*.093,QH*.043,QW*.24,QH*.054);}
+  if(cueVisible&&task.id==='csat2024-q14'){c.fillStyle='#ffe14c99';c.fillRect(QW*.094,QH*.016,QW*.206,QH*.05);}
   c.drawImage(examInk,0,0,QW,QH);
   return composite.toDataURL('image/png');
+}
+
+function notebookCompositePNG(){
+  const writingHeight=Math.round(H*QW/W),composite=document.createElement('canvas');
+  composite.width=QW;composite.height=QH+writingHeight;
+  const c=composite.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,QW,QH+writingHeight);
+  if(examImage.complete&&examImage.naturalWidth)c.drawImage(examImage,0,0,QW,QH);
+  if(cueVisible&&task.id==='csat2024-q14'){c.fillStyle='#ffe14c99';c.fillRect(QW*.094,QH*.016,QW*.206,QH*.05);}
+  c.drawImage(examInk,0,0,QW,QH);
+  c.drawImage(cv,0,QH,QW,writingHeight);
+  return {canvas:{w:QW,h:QH+writingHeight},png:composite.toDataURL('image/png')};
 }
 
 function makeCapturePayload() {
@@ -471,6 +498,7 @@ function makeCapturePayload() {
     captureKind: 'directed-reenactment',
     sourcePage: '승주 2024학년도 수능 14번 교육 시나리오',
     captureId, marks,
+    notebook: notebookCompositePNG(),
     printedProblem: {imageUrl:new URL(examImage.getAttribute('src'),location.href).href,canvas:{w:QW,h:QH},strokes:questionStrokes,cueVisible,svg:toQuestionSVG(),png:questionCompositePNG()},
     timingContext: {
       longInkGapsMayIncludeProblemReading: true,
@@ -520,10 +548,11 @@ async function save() {
 document.getElementById('save').onclick = save;
 
 
-const GUIDE = [{"title":"왼쪽 식의 극값과 끝점","where":"필기장 왼쪽 위","text":"f₁(x)=2x³−6x+1  (x≤2)\nf₁′(x)=6x²−6=0 → x=−1, 1\nf(−1)=5, f(1)=−3\nf(2−)=f(2)=2·2³−6·2+1=5","note":"왜 f(2)를 넣나요? x=2는 왼쪽 식에 포함되는 마지막 점입니다. 곡선을 어디서 끝내고 점을 채울지 정하려면 그 높이 5가 필요합니다. 오른쪽 식을 x=2까지 연장하면 9라서 실제 f(2)=5와 다릅니다. 이 차이 때문에 수평선의 교점 수도 달라집니다.","areas":[{"label":"1/7 · 여기에 f₁ 미분과 f(2)","left":5,"top":7,"width":49,"height":20}]},{"title":"왼쪽 삼차곡선 그리기","where":"필기장 가운데 왼쪽의 넓은 자리","text":"1. 가로 x축·세로 y축을 그립니다.\n2. x=−1, 1, 2를 x축에 표시합니다. y=5, −3을 y축에 표시합니다.\n3. (−1,5) 극대, (1,−3) 극소, (2,5) 끝점을 찍습니다.\n4. 왼쪽 아래 → (−1,5)까지 상승 → (1,−3)까지 하강 → (2,5)까지 상승하는 한 줄 곡선을 그립니다.\n5. (2,5)는 채운 점. x>2 쪽은 아직 그리지 않습니다.","note":"무슨 곡선을 그리나요? y=f₁(x)=2x³−6x+1의 x≤2 부분입니다. 오른쪽 이차함수와 합쳐 그리지 마세요. 점의 상대 높이를 먼저 잡고 부드럽게 이으면 됩니다. 화면의 ‘왼쪽 그래프 모양 보기’를 열면 모양을 확인할 수 있습니다.","preview":"ink-film-14-left.svg","areas":[{"label":"2/7 · 여기에 x≤2 삼차곡선","left":5,"top":30,"width":61,"height":34}]},{"title":"오른쪽 식과 빈 시작점","where":"① 필기장 오른쪽 위 새 식칸 → ② 2/7에서 그린 그래프의 x=2 바로 위","text":"① 오른쪽 위 빈 칸에 새 식을 씁니다.\nf₂(x)=a(x−2)(x−b)+9  (x>2에서 쓰는 이차식)\n그 아래: f₂(2)=9, f₂(b)=9 / 실제 f(2)=5\n② 왼쪽에서 그렸던 그래프의 x=2로 돌아갑니다.\n(2,5) ●의 바로 위 높이 9에 (2,9) ○를 찍습니다.","note":"① 붉은 점선 칸은 오른쪽 식 f₂와 경계의 두 높이를 비교해 적는 자리입니다. ② 파란 점선 칸은 앞서 그린 그래프를 찾아 빈 점을 찍는 자리입니다. f₂(2)=9는 오른쪽 식을 x=2까지 연장한 값이고 실제 f(2)=5라서 점을 겹쳐 칠할 수 없습니다. 칸이 좁으면 f₂(x)=를 한 줄, a(x−2)(x−b)+9를 다음 줄에 써도 됩니다. f₂(b)=9는 b>2일 때 실제 오른쪽 가지의 점입니다.","areas":[{"label":"① 오른쪽 위에 f₂ 식·값 비교","left":57,"top":7,"width":38,"height":21},{"label":"② 기존 그래프 x=2 위에 (2,9) ○","left":5,"top":30,"width":61,"height":34}]},{"title":"승주형 원문의 잘못된 시도","where":"2/7의 그래프에서 (2,9) 빈 점 ○의 오른쪽 · 주황 점선 자리","text":"① 기존 그래프의 (2,9) 빈 점 ○에서 시작합니다.\n② 그 점 오른쪽으로 곡선을 위로 올려, x=2와 x=b 사이에서 꼭대기를 만듭니다.\n③ 다시 내려와 x=b에서 높이 9를 지나게 이어 ∩ 모양을 만듭니다.\n④ 곧바로 지우지 마세요. 펜을 떼고 방금 그린 곡선과 오른쪽 식을 다시 봅니다.\n⑤ 학생이 혼자 이유를 찾으려다 막히는 멈춤을 남깁니다. 그 뒤에 5/7로 넘어갑니다.","note":"단계 안의 주황 벡터 그림을 보고 선의 경로만 따라 그리세요. 수치 b=6은 위치를 보여주는 예시이며 실제 답의 a,b를 확정한 것이 아닙니다. 이 ∩은 a가 자연수라는 조건과 맞지 않는 학생의 실수입니다. 영상에는 틀린 획 뒤 학생의 자발적 검토와 막힘을 먼저 보여주세요. 실제로 몇 분이 지났는지는 중요하지 않습니다. 그다음 Provee가 첫 줄을 짚으면 5/7에서 이 곡선 획만 지우고 ∪로 바꿉니다.","preview":"ink-film-14-wrong.svg","areas":[{"label":"4/7 · (2,9) ○에서 오른쪽 ∩","left":42,"top":30,"width":24,"height":34}]},{"title":"자연수 조건으로 곡선 고치기","where":"① 오른쪽 위에 a>0 → ② 같은 그래프의 (2,9) ○ 오른쪽","text":"4/7에서 학생이 스스로 검토하다 막힌 뒤, Provee가 문제 첫 줄 ‘두 자연수 a, b’를 짚습니다.\n그 줄을 다시 보고 오른쪽 위에 직접 적습니다: a는 자연수 → a>0\n오른쪽 식의 x² 계수 a>0 → 곡선은 ∪\n4/7의 ∩ 곡선 획만 지웁니다.\n(2,9) ○에서 오른쪽 아래로 내려가 중간 꼭짓점을 지나, 다시 올라와 x=b의 높이 9를 지나게 ∪로 고쳐 그립니다.","note":"왜 ∪인가요? 이차식의 x² 계수가 양수 a이기 때문입니다. 단계 안의 붉은 벡터 그림은 (a,b)=(3,6)일 때의 모양 예시입니다. 이 단계에서는 실제 a,b나 꼭짓점 높이를 확정하지 말고 높이를 m으로 남겨 두세요. (2,9)는 빈 점이고 b>2일 때 (b,9)는 실제 곡선의 점입니다.","preview":"ink-film-14-reference.svg","areas":[{"label":"① 여기에 a>0 조건","left":57,"top":7,"width":38,"height":21},{"label":"② 같은 그래프에서 ∩ 지우고 ∪","left":42,"top":30,"width":24,"height":34}]},{"title":"b의 뜻 확인·수평선으로 교점 세기","where":"① 기존 그래프 오른쪽 x축에 b? 표시 → ② 그래프를 지나는 y=t 가로선 → ③ 필기장 아래 왼쪽에 교점 개수","text":"먼저 b의 뜻: f₂(x)=a(x−2)(x−b)+9에서 아직 모르는 자연수입니다.\nx=b를 넣으면 (x−b)=0 → f₂(b)=9. 따라서 b는 y=9를 다시 만나는 x좌표입니다.\n① 기존 x축의 2 오른쪽에 ‘b?’를 쓰세요. 지금 b=6 같은 숫자를 확정하지 않습니다.\n② b≤2면 오른쪽 가지(x>2)에 두 번째 y=9 점이 없고, −3<t<5에서 g(t)=3인 높이가 여러 개라 제외합니다.\n③ b>2면 (2,9) ○와 (b,9) ● 사이의 ∪ 꼭짓점: x=(2+b)/2, 높이 m=9−a(b−2)²/4.\n④ y=t 가로선을 아래→위로 옮기며 양쪽 곡선의 교점을 셉니다. m≠−3이면 g(t)=3인 높이가 여러 개, m=−3이면 k=−3 한 곳에서 g(k−),g(k),g(k+)=1,3,5 → 합 9입니다.","note":"b는 답으로 찾기 전까지 미지수입니다. 화면의 벡터 그림에서 x=b는 오른쪽 ∪가 y=9를 다시 지나는 위치일 뿐, 특정 숫자를 뜻하지 않습니다. g(t)는 높이 t의 가로선이 전체 그래프와 만나는 점의 개수이고 m은 ∪의 가장 낮은 높이입니다. 문제를 위에서 다시 읽고 돌아온 시간은 필기 공백에 섞일 수 있으므로 그 공백을 곧바로 망설임으로 해석하지 않습니다.","preview":"ink-film-14-b.svg","areas":[{"label":"① x축 오른쪽에 b? · 그래프에 y=t","left":5,"top":30,"width":61,"height":34},{"label":"② 아래에 g(t)·m 비교","left":5,"top":68,"width":53,"height":23}]},{"title":"자연수 후보와 답","where":"① 필기장 아래 오른쪽에 후보 계산 → ② 위의 ‘시험지 문제 위에 표시하기’에서 선택지 ①","text":"① 필기장 아래 오른쪽에 계산합니다.\nf₂((2+b)/2)=−3\n9−a(b−2)²/4=−3 → a(b−2)²=48\n(a,b)=(48,3), (12,4), (3,6)\na+b=51, 16, 9 → 최댓값 51\n② 시험지 문제 면으로 올라가 선택지 ① 51을 펜으로 체크합니다.","note":"왜 자연수를 다시 보나요? m=−3은 그래프 조건이고, 마지막에는 자연수 a,b라는 문제 첫 줄을 숫자 조건에 적용해야 합니다. 세 후보를 모두 비교한 뒤 실제 시험지의 ①을 체크하는 손동작을 남겨 주세요. 문제 면과 풀이장 획은 한 저장 파일에 함께 들어갑니다.","areas":[{"label":"7/7 · 자연수 후보와 최대 합","left":62,"top":68,"width":33,"height":23}]}];
+const GUIDE = [{"title":"왼쪽 식의 극값과 끝점","where":"필기장 왼쪽 위","text":"f₁(x)=2x³−6x+1  (x≤2)\nf₁′(x)=6x²−6=0 → x=−1, 1\nf(−1)=5, f(1)=−3\nf(2−)=f(2)=2·2³−6·2+1=5","note":"왜 f(2)를 넣나요? x=2는 왼쪽 식에 포함되는 마지막 점입니다. 곡선을 어디서 끝내고 점을 채울지 정하려면 그 높이 5가 필요합니다. 오른쪽 식을 x=2까지 연장하면 9라서 실제 f(2)=5와 다릅니다. 이 차이 때문에 수평선의 교점 수도 달라집니다.","areas":[{"label":"1/7 · 여기에 f₁ 미분과 f(2)","left":5,"top":7,"width":49,"height":20}]},{"title":"왼쪽 삼차곡선 그리기","where":"필기장 가운데 왼쪽의 넓은 자리","text":"1. 가로 x축·세로 y축을 그립니다.\n2. x=−1, 1, 2를 x축에 표시합니다. y=5, −3을 y축에 표시합니다.\n3. (−1,5) 극대, (1,−3) 극소, (2,5) 끝점을 찍습니다.\n4. 왼쪽 아래 → (−1,5)까지 상승 → (1,−3)까지 하강 → (2,5)까지 상승하는 한 줄 곡선을 그립니다.\n5. (2,5)는 채운 점. x>2 쪽은 아직 그리지 않습니다.","note":"무슨 곡선을 그리나요? y=f₁(x)=2x³−6x+1의 x≤2 부분입니다. 오른쪽 이차함수와 합쳐 그리지 마세요. 점의 상대 높이를 먼저 잡고 부드럽게 이으면 됩니다. 화면의 ‘왼쪽 그래프 모양 보기’를 열면 모양을 확인할 수 있습니다.","preview":"ink-film-14-left.svg","areas":[{"label":"2/7 · 여기에 x≤2 삼차곡선","left":5,"top":30,"width":61,"height":34}]},{"title":"오른쪽 식과 빈 시작점","where":"① 필기장 오른쪽 위 새 식칸 → ② 2/7에서 그린 그래프의 x=2 바로 위","text":"① 오른쪽 위 빈 칸에 새 식을 씁니다.\nf₂(x)=a(x−2)(x−b)+9  (x>2에서 쓰는 이차식)\n그 아래: f₂(2)=9, f₂(b)=9 / 실제 f(2)=5\n② 왼쪽에서 그렸던 그래프의 x=2로 돌아갑니다.\n(2,5) ●의 바로 위 높이 9에 (2,9) ○를 찍습니다.","note":"① 붉은 점선 칸은 오른쪽 식 f₂와 경계의 두 높이를 비교해 적는 자리입니다. ② 파란 점선 칸은 앞서 그린 그래프를 찾아 빈 점을 찍는 자리입니다. f₂(2)=9는 오른쪽 식을 x=2까지 연장한 값이고 실제 f(2)=5라서 점을 겹쳐 칠할 수 없습니다. 칸이 좁으면 f₂(x)=를 한 줄, a(x−2)(x−b)+9를 다음 줄에 써도 됩니다. f₂(b)=9는 b>2일 때 실제 오른쪽 가지의 점입니다.","areas":[{"label":"① 오른쪽 위에 f₂ 식·값 비교","left":57,"top":7,"width":38,"height":21},{"label":"② 기존 그래프 x=2 위에 (2,9) ○","left":5,"top":30,"width":61,"height":34}]},{"title":"승주형 원문의 잘못된 시도","where":"2/7의 그래프에서 (2,9) 빈 점 ○의 오른쪽 · 주황 점선 자리","text":"① 기존 그래프의 (2,9) 빈 점 ○에서 시작합니다.\n② 그 점 오른쪽으로 곡선을 위로 올려, x=2와 x=b 사이에서 꼭대기를 만듭니다.\n③ 다시 내려와 x=b에서 높이 9를 지나게 이어 ∩ 모양을 만듭니다.\n④ 곧바로 지우지 마세요. 펜을 떼고 방금 그린 곡선과 오른쪽 식을 다시 봅니다.\n⑤ 학생이 혼자 이유를 찾으려다 막히는 멈춤을 남깁니다. 그 뒤에 5/7로 넘어갑니다.","note":"단계 안의 주황 벡터 그림을 보고 선의 경로만 따라 그리세요. 수치 b=6은 위치를 보여주는 예시이며 실제 답의 a,b를 확정한 것이 아닙니다. 이 ∩은 a가 자연수라는 조건과 맞지 않는 학생의 실수입니다. 영상에는 틀린 획 뒤 학생의 자발적 검토와 막힘을 먼저 보여주세요. 실제로 몇 분이 지났는지는 중요하지 않습니다. 그다음 Provee가 첫 줄을 짚으면 5/7에서 이 곡선 획만 지우고 ∪로 바꿉니다.","preview":"ink-film-14-wrong.svg","areas":[{"label":"4/7 · (2,9) ○에서 오른쪽 ∩","left":42,"top":30,"width":24,"height":34}]},{"title":"자연수 조건으로 곡선 고치기","where":"① 오른쪽 위에 a>0 → ② 같은 그래프의 (2,9) ○ 오른쪽","text":"4/7에서 학생이 스스로 검토하다 막힌 뒤, Provee가 문제 첫 줄 ‘두 자연수 a, b’를 짚습니다.\n그 줄을 다시 보고 오른쪽 위에 직접 적습니다: a는 자연수 → a>0\n오른쪽 식의 x² 계수 a>0 → 곡선은 ∪\n4/7의 ∩ 곡선 획만 지웁니다.\n(2,9) ○에서 오른쪽 아래로 내려가 중간 꼭짓점을 지나, 다시 올라와 x=b의 높이 9를 지나게 ∪로 고쳐 그립니다.","note":"왜 ∪인가요? 이차식의 x² 계수가 양수 a이기 때문입니다. 단계 안의 붉은 벡터 그림은 (a,b)=(3,6)일 때의 모양 예시입니다. 이 단계에서는 실제 a,b나 꼭짓점 높이를 확정하지 말고 높이를 m으로 남겨 두세요. (2,9)는 빈 점이고 b>2일 때 (b,9)는 실제 곡선의 점입니다.","preview":"ink-film-14-reference.svg","areas":[{"label":"① 여기에 a>0 조건","left":57,"top":7,"width":38,"height":21},{"label":"② 같은 그래프에서 ∩ 지우고 ∪","left":42,"top":30,"width":24,"height":34}]},{"title":"b의 뜻 확인·수평선으로 교점 세기","where":"① 기존 그래프 오른쪽 x축에 b? 표시 → ② 그래프를 지나는 y=t 가로선 → ③ 필기장 아래 왼쪽에 교점 개수","text":"먼저 b의 뜻: f₂(x)=a(x−2)(x−b)+9에서 아직 모르는 자연수입니다.\nx=b를 넣으면 (x−b)=0 → f₂(b)=9. 따라서 b는 y=9를 다시 만나는 x좌표입니다.\n① 기존 x축의 2 오른쪽에 ‘b?’를 쓰세요. 지금 b=6 같은 숫자를 확정하지 않습니다.\n② b≤2면 오른쪽 가지(x>2)에 두 번째 y=9 점이 없고, −3<t<5에서 g(t)=3인 높이가 여러 개라 제외합니다.\n③ b>2면 (2,9) ○와 (b,9) ● 사이의 ∪ 꼭짓점: x=(2+b)/2, 높이 m=9−a(b−2)²/4.\n④ y=t 가로선을 아래→위로 옮기며 양쪽 곡선의 교점을 셉니다. m≠−3이면 g(t)=3인 높이가 여러 개, m=−3이면 k=−3 한 곳에서 g(k−),g(k),g(k+)=1,3,5 → 합 9입니다.","note":"b는 답으로 찾기 전까지 미지수입니다. 화면의 벡터 그림에서 x=b는 오른쪽 ∪가 y=9를 다시 지나는 위치일 뿐, 특정 숫자를 뜻하지 않습니다. g(t)는 높이 t의 가로선이 전체 그래프와 만나는 점의 개수이고 m은 ∪의 가장 낮은 높이입니다. 문제를 위에서 다시 읽고 돌아온 시간은 필기 공백에 섞일 수 있으므로 그 공백을 곧바로 망설임으로 해석하지 않습니다.","preview":"ink-film-14-b.svg","areas":[{"label":"① x축 오른쪽에 b? · 그래프에 y=t","left":5,"top":30,"width":61,"height":34},{"label":"② 아래에 g(t)·m 비교","left":5,"top":68,"width":53,"height":23}]},{"title":"자연수 후보와 답","where":"① 필기장 아래 오른쪽에 후보 계산 → ② 같은 노트 맨 위 인쇄된 문제에서 선택지 ①","text":"① 필기장 아래 오른쪽에 계산합니다.\nf₂((2+b)/2)=−3\n9−a(b−2)²/4=−3 → a(b−2)²=48\n(a,b)=(48,3), (12,4), (3,6)\na+b=51, 16, 9 → 최댓값 51\n② 같은 노트 맨 위 인쇄된 문제로 올라가 선택지 ① 51을 펜으로 체크합니다.","note":"왜 자연수를 다시 보나요? m=−3은 그래프 조건이고, 마지막에는 자연수 a,b라는 문제 첫 줄을 숫자 조건에 적용해야 합니다. 세 후보를 모두 비교한 뒤 실제 시험지의 ①을 체크하는 손동작을 남겨 주세요. 문제 위 표시와 풀이 획이 같은 노트에 이어집니다.","areas":[{"label":"7/7 · 자연수 후보와 최대 합","left":62,"top":68,"width":33,"height":23}]}];
 const draftKey='provee-film-csat2024-q14-v1';
 let stepIndex=0, marks=[], captureId=Date.now().toString(36), saveSeq=0, saveBusy=false, lastSavedFile=null;
 function eraseLast(){const s=[...strokes].reverse().find(s=>s.erasedAt===null);if(s){s.erasedAt=relT();redraw();stats();persistDraft();}}
+function eraseLastOnNote(){const latest=[...strokes.map(s=>({s,surface:'pad'})),...questionStrokes.map(s=>({s,surface:'question'}))].filter(({s})=>s.erasedAt===null&&s.pts.length).sort((a,b)=>b.s.pts.at(-1).t-a.s.pts.at(-1).t)[0];if(!latest)return;latest.s.erasedAt=relT();if(latest.surface==='question')redrawQuestion();else redraw();stats();persistDraft();}
 function draftObject(){return {canvas:{w:W,h:H},strokes,question:{canvas:{w:QW,h:QH},strokes:questionStrokes,nextId:questionNextId,cueVisible,open:examWorkspace.open},elapsed:t0===null?timeOffset:relT(),nextId,stepIndex,marks,captureId,saveSeq,lastSavedFile,device:devSeen};}
 function persistDraft(){try{localStorage.setItem(draftKey,JSON.stringify(draftObject()));}catch(e){document.getElementById('backupStatus').textContent='브라우저 자동 보관 공간이 부족합니다. 필기 저장을 눌러 주세요.';}}
 window.addEventListener('pagehide',persistDraft);
@@ -547,8 +576,9 @@ try{
     timeOffset=d.elapsed||0;t0=null;devSeen=d.device||'';
     if(d.question?.canvas?.w===QW&&d.question?.canvas?.h===QH&&Array.isArray(d.question.strokes)){
       questionStrokes=d.question.strokes;questionNextId=d.question.nextId||1;
-      cueVisible=!!d.question.cueVisible;examWorkspace.open=d.question.open!==false;
-    }else if(strokes.length&&stepIndex>0)examWorkspace.open=false;
+      cueVisible=!!d.question.cueVisible;
+    }
+    examWorkspace.open=true;
     document.getElementById('backupStatus').textContent=(strokes.length||questionStrokes.length)?'이 브라우저에 보관한 필기를 복원했습니다.':'';
   }
 }catch(e){document.getElementById('backupStatus').textContent='이전 자동 보관 기록은 복원하지 못했습니다.';}
@@ -562,7 +592,7 @@ const referenceObserver=new IntersectionObserver(entries=>{
   if(padVisible){padVisited=true;closeProblemReview('필기장으로 돌아옴');}
   else if(problemVisible&&padVisited&&strokes.length&&!problemReviewActive){problemReviewActive=true;markProblemReview('problem-review-start','문제 원문을 다시 확인');}
 },{threshold:0.1});
-referenceObserver.observe(document.querySelector('.problem-card'));
+referenceObserver.observe(examSheet);
 referenceObserver.observe(pad);
 window.addEventListener('pagehide',()=>closeProblemReview('화면을 떠남'));
 document.addEventListener('visibilitychange',()=>{if(document.hidden)closeProblemReview('다른 화면으로 이동');});

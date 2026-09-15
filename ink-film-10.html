@@ -95,7 +95,22 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 .step-areas{position:absolute;inset:0;z-index:3;pointer-events:none}.step-area{position:absolute;border:2px dashed #8a1c2bb8;border-radius:12px;background:#fff9f112}.step-area:nth-child(2){border-color:#215c99b8}.step-area-label{position:absolute;left:8px;top:-15px;max-width:calc(100% - 16px);background:#fff;border:1px solid #d7c8b8;border-radius:6px;padding:3px 7px;color:#7a1b28;font-size:13px;font-weight:800;line-height:1.35;white-space:normal;box-shadow:0 2px 7px #00000010}.step-area:nth-child(2) .step-area-label{color:#215c99}.pad.areas-off .step-areas{display:none}
 .scroll-rail{position:absolute;z-index:4;right:0;top:0;bottom:0;width:44px;background:#f5eee5d9;border-left:1px dashed #c6b9a9;touch-action:pan-y;display:flex;justify-content:center;align-items:flex-start;padding-top:16px;pointer-events:auto}.scroll-rail span{writing-mode:vertical-rl;font-size:12px;line-height:1.5;font-weight:700;color:#776b5d}.pad.scroll-mode canvas{touch-action:pan-y;cursor:grab}.scroll-mode-hint{display:none;position:absolute;z-index:5;top:42%;left:20%;width:60%;pointer-events:none;text-align:center;background:#fffdf9ed;border:2px solid var(--wine);border-radius:12px;padding:12px;color:var(--wine);font-weight:800}.pad.scroll-mode .scroll-mode-hint{display:block}
 @media(max-width:800px){.step-area-label{font-size:10px;padding:2px 4px;top:-12px}.scroll-rail{width:34px}.scroll-rail span{font-size:10px}}
-.exam-workspace{background:#fffdf9;border:1px solid var(--line);border-radius:12px;margin:11px 0;padding:12px 15px}.exam-workspace summary{cursor:pointer;color:var(--wine);font-size:16px;font-weight:800}.exam-workspace .exam-controls{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.exam-workspace .exam-controls button{font-size:13px;padding:7px 10px}.exam-sheet{position:relative;width:min(1100px,100%);margin:0 auto;border:1px solid #dad5ce;border-radius:7px;overflow:hidden;background:#fff}.exam-sheet img{display:block;width:100%;height:auto;pointer-events:none}.exam-sheet canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;touch-action:none;cursor:crosshair}.exam-sheet.erase canvas{cursor:cell}.exam-sheet.scroll-mode canvas{touch-action:pan-y;cursor:grab}.exam-sheet .scroll-rail{width:34px}.exam-sheet .scroll-rail span{font-size:10px}.exam-highlight{position:absolute;z-index:1;left:9.3%;top:4.3%;width:24%;height:5.4%;background:#ffe14c99;mix-blend-mode:multiply;pointer-events:none}.exam-highlight[hidden]{display:none}.exam-workspace .exam-note{font-size:12px;line-height:1.5;color:#6B6259;margin-top:8px}.exam-workspace .cue-message{font-size:14px;font-weight:700;color:var(--wine);margin:8px 0}.exam-workspace .cue-message[hidden]{display:none}
+.exam-workspace{background:#fffdf9;border:1px solid var(--line);border-radius:12px;margin:11px 0;padding:12px 15px}.exam-workspace summary{cursor:pointer;color:var(--wine);font-size:16px;font-weight:800}.exam-workspace .exam-controls{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.exam-workspace .exam-controls button{font-size:13px;padding:7px 10px}.exam-sheet{position:relative;width:min(1100px,100%);margin:0 auto;border:1px solid #dad5ce;border-radius:7px;overflow:hidden;background:#fff}.exam-sheet img{display:block;width:100%;height:auto;pointer-events:none}.exam-sheet canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;touch-action:none;cursor:crosshair}.exam-sheet.erase canvas{cursor:cell}.exam-sheet.scroll-mode canvas{touch-action:pan-y;cursor:grab}.exam-sheet .scroll-rail{width:34px}.exam-sheet .scroll-rail span{font-size:10px}.exam-highlight{position:absolute;z-index:1;left:9.4%;top:1.6%;width:20.6%;height:5.0%;background:#ffe14c99;mix-blend-mode:multiply;pointer-events:none}.exam-highlight[hidden]{display:none}.exam-workspace .exam-note{font-size:12px;line-height:1.5;color:#6B6259;margin-top:8px}.exam-workspace .cue-message{font-size:14px;font-weight:700;color:var(--wine);margin:8px 0}.exam-workspace .cue-message[hidden]{display:none}
+
+/* 인쇄된 문제와 손풀이가 이어지는 한 장의 노트 */
+.notebook-sheet{width:min(1100px,100%);margin:12px auto 0;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 28px rgba(70,58,48,.10);overflow:hidden}
+.notebook-sheet .exam-workspace{display:block;background:#fff;border:0;border-radius:0;margin:0;padding:0}
+.notebook-sheet .exam-workspace summary{display:none}
+.notebook-sheet .exam-sheet{width:100%;border:0;border-radius:0;margin:0;overflow:hidden}
+.notebook-sheet .pad{background:#fff;border:0;border-radius:0;box-shadow:none;margin:0;overflow:hidden}
+.notebook-sheet .pad:before{display:none}
+.notebook-sheet .cue-message{font-size:14px;line-height:1.5;color:var(--wine);font-weight:700;padding:10px 22px;margin:0}
+.bar{width:min(1100px,100%);margin:12px auto;position:relative;z-index:1}
+.film-guide{position:relative;top:auto}
+.reading-help{width:min(1100px,100%);margin:18px auto;background:#fffdf9;border:1px solid var(--line);border-radius:10px;padding:12px 16px}
+.reading-help>summary{cursor:pointer;font-size:15px;font-weight:700;color:var(--wine)}
+.reading-help .problem-card,.reading-help .source-card{margin-top:12px}
+@media(max-width:800px){.notebook-sheet{margin-top:8px}.notebook-sheet .cue-message{padding:8px 12px;font-size:12px}.reading-help{padding:10px 12px}}
 </style>
 </head>
 <body>
@@ -107,6 +122,52 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 <div class="cloud-entry"><button id="cloudLogin">대표님 계정으로 로그인</button><span id="cloudStatus" aria-live="polite">저장 연결을 확인하는 중입니다.</span></div>
 <p class="account-help">대표님 저장 계정: <b>soomin020114@gmail.com</b> · 위에 다른 이메일이 보이면 ‘계정 바꾸기’를 누르세요. 필기는 그대로 남습니다.</p>
 <nav class="case-nav" aria-label="승주형 세 문제"><a href="ink-film-14.html">14번 · 그래프</a><a href="ink-film-10.html">10번 · 적분·이동거리</a><a href="ink-film-3.html">3번 · 사분면</a></nav>
+<div class="tasks" id="tasks" hidden></div>
+<section class="film-guide" id="filmGuide"><div class="guide-top"><b id="guideTitle"></b><div><button id="prevStep">이전</button><button id="nextStep">다음</button><button id="toggleGuide" aria-expanded="true">안내 접기</button><a href="ink-film-10-guide.html" target="_blank" rel="noopener">전체 안내</a></div></div><div class="guide-body"><div><strong id="guideWhere"></strong><pre id="guideText"></pre><img id="guidePreview" class="guide-preview" alt="현재 단계에서 손으로 그릴 그림 예시" hidden></div><p id="guideNote"></p></div></section>
+<p class="tablet-tip">갤탭: 같은 노트 맨 위 문제에도, 아래 풀이 여백에도 S펜으로 바로 쓰세요. 손가락·손바닥은 필기에 반영되지 않습니다. 오른쪽 스크롤 띠나 ‘손가락 스크롤 모드’로 한 장의 노트를 위아래로 움직일 수 있습니다.</p>
+<div class="bar">
+  <button id="mPen" class="on">펜</button>
+  <button id="mErase">지우개</button>
+  <div class="sep"></div>
+  <label>굵기 <input type="range" id="w" min="1.5" max="9" step="0.5" value="4"><span id="wv">4.0</span></label>
+  <div class="sep"></div>
+  <button id="toggleAreas" aria-pressed="true">자리 표시 끄기</button>
+  <button id="toggleScrollMode" aria-pressed="false">손가락 스크롤 모드</button>
+  <button id="toggleFingerInk" aria-pressed="false">손가락 필기: 꺼짐</button>
+  <div class="sep"></div>
+  <button id="undo">마지막 획 지우기</button>
+  <button id="proveeCue" hidden>Provee · 첫 줄 조건 짚기</button>
+  <button id="clear">새 기록</button>
+  <div class="sep"></div>
+  <button id="save" class="primary">필기 저장</button>
+  <button id="downloadBackup" title="인터넷 저장이 안 될 때 이 태블릿에 필기 파일을 보관합니다">필기 파일 받기</button>
+</div>
+
+<section class="notebook-sheet" id="notebookSheet" aria-label="인쇄된 문제와 손풀이가 이어진 한 장의 노트">
+<details class="exam-workspace" id="examWorkspace" open><summary hidden>같은 노트 맨 위의 인쇄된 시험지</summary>
+  <div class="exam-sheet" id="examSheet" data-w="1480" data-h="936"><img id="examImage" src="ink-film-10-exam.png" alt="2024학년도 수능 수학 10번 실제 문항과 다섯 선택지"><span class="exam-highlight" id="examHighlight" hidden></span><canvas id="examInk" aria-label="시험지 문제 위에 직접 표시하는 펜 면"></canvas><div class="scroll-rail" aria-label="손가락으로 시험지 화면을 스크롤하세요"><span>손가락 스크롤</span></div></div>
+  <p id="cueMessage" class="cue-message" hidden>Provee · 잠깐. 문제 맨 앞의 조건을 다시 읽어봐.</p>
+</details>
+<div class="pad" id="pad">
+  <div class="step-areas" id="stepAreas" aria-hidden="true"></div><canvas id="cv"></canvas>
+  <div class="scroll-rail" aria-label="손가락으로 여기서 화면을 위아래로 움직이세요"><span>손가락 스크롤</span></div>
+  <div class="scroll-mode-hint">손가락 스크롤 중 · 다시 쓰려면 위의 ‘S펜 필기 모드’를 누르세요.</div>
+</div>
+</section>
+
+<div class="stats">
+  <span>획 <b id="sN">0</b></span>
+  <span>문제 위 표시 <b id="examCount">0</b></span>
+  <span>총 시간 <b id="sT">0.0초</b></span>
+  <span>가장 긴 필기 공백 <b id="sP">—</b></span>
+  <span>문제 확인 방문 <b id="sR">0</b></span>
+  <span>지운 획 <b id="sE">0</b></span>
+  <span>입력 <b id="sD">—</b></span>
+</div>
+
+<p class="timing-tip">같은 노트 위쪽 문제를 다시 읽거나 화면을 움직인 시간도 필기 공백에 들어갑니다. 긴 공백만 보고 풀이를 못한 시간으로 판단하지 않습니다.</p>
+<p class="hint"><b>문제와 풀이가 같은 노트에 있습니다.</b> 문제 문장 위에 밑줄·표시를 하고, 바로 아래 여백에서 그래프와 계산을 이어 쓰세요. 쓰고 지운 획은 모두 보관됩니다.</p><p id="backupStatus" class="hint" aria-live="polite"></p>
+<details class="reading-help" id="readingHelp"><summary>문제 이해 도움 · 승주형 원문 · 그림 예시 보기</summary>
 <section class="problem-card" aria-label="수능 10번 문제"><h2>2024학년도 수능 수학 10번 · 문제</h2>
 <p>시각 t=0에 두 점 P,Q가 원점에서 출발해 수직선 위를 움직입니다. t≥0에서 각각의 속도는 아래와 같습니다.</p>
 <p class="formula">v₁(t)=t²−6t+5<br>v₂(t)=2t−7</p>
@@ -129,50 +190,8 @@ body{padding:20px 24px 40px;font-family:"Malgun Gothic",system-ui,sans-serif}.ta
 <li class="highlight"><span class="mark">승주형 하이라이트</span>(학생) 아아, x(0)=0이구나. C가 애초에 없었네. 계속 계산한다…</li>
 </ol><p class="source-note">붉은 줄은 승주형의 실제 볼드입니다. 정확한 풀이에서는 부정적분 후 초기 조건으로 C를 정해도 됩니다. 원문 수학 오류는 보관하고 안내에서 보정했습니다.</p></details>
 
-<div class="tasks" id="tasks" hidden></div>
-<section class="film-guide" id="filmGuide"><div class="guide-top"><b id="guideTitle"></b><div><button id="prevStep">이전</button><button id="nextStep">다음</button><button id="toggleGuide" aria-expanded="true">안내 접기</button><a href="ink-film-10-guide.html" target="_blank" rel="noopener">전체 안내</a></div></div><div class="guide-body"><div><strong id="guideWhere"></strong><pre id="guideText"></pre><img id="guidePreview" class="guide-preview" alt="현재 단계에서 손으로 그릴 그림 예시" hidden></div><p id="guideNote"></p></div></section>
-<p class="tablet-tip">갤탭: S펜으로 쓰고 손가락·손바닥 접촉은 필기에서 무시합니다. 캔버스 오른쪽 ‘손가락 스크롤’ 띠를 위아래로 밀거나 ‘손가락 스크롤 모드’를 누르세요. 단계별 점선 칸은 위치 안내이며 저장되지 않습니다.</p>
-<details class="exam-workspace" id="examWorkspace" open><summary>시험지 문제 위에 표시하기 · 조건 밑줄·답 체크</summary>
-  <div class="exam-controls"><button id="examPen" class="on">문제에 펜</button><button id="examErase">문제에 지우개</button><button id="examUndo">문제 표시 한 획 지우기</button><button id="examScroll">문제 면 스크롤</button><button id="proveeCue" hidden>Provee · 첫 줄 조건 짚기</button><span class="exam-note">문제 표시 획 <b id="examCount">0</b></span></div>
-  <div class="exam-sheet" id="examSheet" data-w="1480" data-h="936"><img id="examImage" src="ink-film-10-exam.png" alt="2024학년도 수능 수학 10번 실제 문항과 다섯 선택지"><span class="exam-highlight" id="examHighlight" hidden></span><canvas id="examInk" aria-label="시험지 문제 위에 직접 표시하는 펜 면"></canvas><div class="scroll-rail" aria-label="손가락으로 시험지 화면을 스크롤하세요"><span>손가락 스크롤</span></div></div>
-  <p id="cueMessage" class="cue-message" hidden>Provee · 잠깐. 문제 맨 앞의 조건을 다시 읽어봐.</p>
-  <p class="exam-note">시험지에 밑줄·동그라미·선택지 체크를 직접 하세요. 기존 풀이장과 별도로 획과 지운 시점이 함께 보관됩니다. 접으면 풀이장으로 바로 내려갈 수 있습니다. 출처: 2024학년도 수능 수학 시험지, 한국교육과정평가원.</p>
+<!-- case-support-close -->
 </details>
-
-<div class="bar">
-  <button id="mPen" class="on">펜</button>
-  <button id="mErase">지우개</button>
-  <div class="sep"></div>
-  <label>굵기 <input type="range" id="w" min="1.5" max="9" step="0.5" value="4"><span id="wv">4.0</span></label>
-  <div class="sep"></div>
-  <button id="toggleAreas" aria-pressed="true">자리 표시 끄기</button>
-  <button id="toggleScrollMode" aria-pressed="false">손가락 스크롤 모드</button>
-  <button id="toggleFingerInk" aria-pressed="false">손가락 필기: 꺼짐</button>
-  <div class="sep"></div>
-  <button id="undo">마지막 획 지우기</button>
-  <button id="clear">새 기록</button>
-  <div class="sep"></div>
-  <button id="save" class="primary">필기 저장</button>
-  <button id="downloadBackup" title="인터넷 저장이 안 될 때 이 태블릿에 필기 파일을 보관합니다">필기 파일 받기</button>
-</div>
-
-<div class="pad" id="pad">
-  <div class="step-areas" id="stepAreas" aria-hidden="true"></div><canvas id="cv"></canvas>
-  <div class="scroll-rail" aria-label="손가락으로 여기서 화면을 위아래로 움직이세요"><span>손가락 스크롤</span></div>
-  <div class="scroll-mode-hint">손가락 스크롤 중 · 다시 쓰려면 위의 ‘S펜 필기 모드’를 누르세요.</div>
-</div>
-
-<div class="stats">
-  <span>획 <b id="sN">0</b></span>
-  <span>총 시간 <b id="sT">0.0초</b></span>
-  <span>가장 긴 필기 공백 <b id="sP">—</b></span>
-  <span>문제 확인 방문 <b id="sR">0</b></span>
-  <span>지운 획 <b id="sE">0</b></span>
-  <span>입력 <b id="sD">—</b></span>
-</div>
-
-<p class="timing-tip">문제 원문을 확인하거나 화면을 이동한 시간도 필기 공백에 들어갑니다. 긴 공백만 보고 풀이를 못한 시간으로 판단하지 않습니다.</p>
-<p class="hint"><b>회색 안내는 저장되지 않습니다.</b> 쓰고 지운 실제 획만 남습니다. 위치는 대략 맞추고 글씨는 평소처럼 써주세요. 멈춤과 속도는 편집할 수 있으니 서두르지 않아도 됩니다.</p><p id="backupStatus" class="hint" aria-live="polite"></p>
 <div id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -414,24 +433,22 @@ function stats() {
 // ── 도구 ────────────────────────────────
 const bPen = document.getElementById('mPen'), bEr = document.getElementById('mErase');
 const areaButton=document.getElementById('toggleAreas'), scrollButton=document.getElementById('toggleScrollMode'), fingerButton=document.getElementById('toggleFingerInk');
-const examPen=document.getElementById('examPen'),examErase=document.getElementById('examErase'),examScroll=document.getElementById('examScroll'),proveeCue=document.getElementById('proveeCue');
-function syncQuestionTools(){examPen.classList.toggle('on',mode==='pen');examErase.classList.toggle('on',mode==='erase');examSheet.classList.toggle('erase',mode==='erase');}
-function setNavigationMode(enabled){endStroke();questionEnd();navigationMode=enabled;pad.classList.toggle('scroll-mode',enabled);examSheet.classList.toggle('scroll-mode',enabled);scrollButton.classList.toggle('on',enabled);scrollButton.textContent=enabled?'S펜 필기 모드':'손가락 스크롤 모드';scrollButton.setAttribute('aria-pressed',String(enabled));examScroll.classList.toggle('on',enabled);examScroll.textContent=enabled?'문제 면에 쓰기':'문제 면 스크롤';}
+const proveeCue=document.getElementById('proveeCue');
+function syncQuestionTools(){examSheet.classList.toggle('erase',mode==='erase');}
+function setNavigationMode(enabled){endStroke();questionEnd();navigationMode=enabled;pad.classList.toggle('scroll-mode',enabled);examSheet.classList.toggle('scroll-mode',enabled);scrollButton.classList.toggle('on',enabled);scrollButton.textContent=enabled?'S펜 필기 모드':'손가락 스크롤 모드';scrollButton.setAttribute('aria-pressed',String(enabled));}
 bPen.onclick = () => { setNavigationMode(false);mode='pen'; bPen.classList.add('on'); bEr.classList.remove('on'); pad.classList.remove('erase');syncQuestionTools(); };
 bEr.onclick  = () => { setNavigationMode(false);mode='erase'; bEr.classList.add('on'); bPen.classList.remove('on'); pad.classList.add('erase');syncQuestionTools(); };
-examPen.onclick=()=>bPen.click();examErase.onclick=()=>bEr.click();examScroll.onclick=()=>setNavigationMode(!navigationMode);
-document.getElementById('examUndo').onclick=questionEraseLast;
 areaButton.onclick=()=>{const visible=pad.classList.toggle('areas-off')===false;areaButton.textContent=visible?'자리 표시 끄기':'자리 표시 켜기';areaButton.setAttribute('aria-pressed',String(visible));};
 scrollButton.onclick=()=>setNavigationMode(!navigationMode);
 fingerButton.onclick=()=>{fingerInk=!fingerInk;fingerButton.textContent=fingerInk?'손가락 필기: 켜짐':'손가락 필기: 꺼짐';fingerButton.setAttribute('aria-pressed',String(fingerInk));};
 document.getElementById('w').oninput = e => { width = +e.target.value; document.getElementById('wv').textContent = width.toFixed(1); };
-document.getElementById('undo').onclick = () => { eraseLast(); };
+document.getElementById('undo').onclick = () => { eraseLastOnNote(); };
 document.getElementById('clear').onclick = () => {
   if ((strokes.length||questionStrokes.length) && !confirm('현재 기록은 브라우저에 보관하고 빈 필기를 시작할까요? 오래 보관하려면 먼저 필기 저장을 눌러 주세요.')) return;
   archiveDraft(); strokes = []; questionStrokes=[];questionCur=null;questionNextId=1;cueVisible=false;renderCue();redrawQuestion(); t0 = null; timeOffset = 0; nextId = 1; marks = []; problemReviewActive=false; padVisited=false; stepIndex = 0; captureId = Date.now().toString(36); saveSeq = 0; renderGuide(); redraw(); stats(); persistDraft();
 };
 window.addEventListener('keydown', e => {
-  if ((e.metaKey||e.ctrlKey) && e.key === 'z') { e.preventDefault(); eraseLast(); }
+  if ((e.metaKey||e.ctrlKey) && e.key === 'z') { e.preventDefault(); eraseLastOnNote(); }
   if ((e.metaKey||e.ctrlKey) && e.key === 's') { e.preventDefault(); save(); }
   if (e.key === 'e') bEr.click();
   if (e.key === 'p') bPen.click();
@@ -478,9 +495,20 @@ function questionCompositePNG(){
   const composite=document.createElement('canvas');composite.width=QW;composite.height=QH;
   const c=composite.getContext('2d');
   if(examImage.complete&&examImage.naturalWidth)c.drawImage(examImage,0,0,QW,QH);
-  if(cueVisible&&task.id==='csat2024-q14'){c.fillStyle='#ffe14c99';c.fillRect(QW*.093,QH*.043,QW*.24,QH*.054);}
+  if(cueVisible&&task.id==='csat2024-q14'){c.fillStyle='#ffe14c99';c.fillRect(QW*.094,QH*.016,QW*.206,QH*.05);}
   c.drawImage(examInk,0,0,QW,QH);
   return composite.toDataURL('image/png');
+}
+
+function notebookCompositePNG(){
+  const writingHeight=Math.round(H*QW/W),composite=document.createElement('canvas');
+  composite.width=QW;composite.height=QH+writingHeight;
+  const c=composite.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,QW,QH+writingHeight);
+  if(examImage.complete&&examImage.naturalWidth)c.drawImage(examImage,0,0,QW,QH);
+  if(cueVisible&&task.id==='csat2024-q14'){c.fillStyle='#ffe14c99';c.fillRect(QW*.094,QH*.016,QW*.206,QH*.05);}
+  c.drawImage(examInk,0,0,QW,QH);
+  c.drawImage(cv,0,QH,QW,writingHeight);
+  return {canvas:{w:QW,h:QH+writingHeight},png:composite.toDataURL('image/png')};
 }
 
 function makeCapturePayload() {
@@ -489,6 +517,7 @@ function makeCapturePayload() {
     captureKind: 'directed-reenactment',
     sourcePage: '승주 2024학년도 수능 10번 교육 시나리오',
     captureId, marks,
+    notebook: notebookCompositePNG(),
     printedProblem: {imageUrl:new URL(examImage.getAttribute('src'),location.href).href,canvas:{w:QW,h:QH},strokes:questionStrokes,cueVisible,svg:toQuestionSVG(),png:questionCompositePNG()},
     timingContext: {
       longInkGapsMayIncludeProblemReading: true,
@@ -542,6 +571,7 @@ const GUIDE = [{"title":"무엇을 구하는 문제인가","where":"필기장 �
 const draftKey='provee-film-csat2024-q10-v1';
 let stepIndex=0, marks=[], captureId=Date.now().toString(36), saveSeq=0, saveBusy=false, lastSavedFile=null;
 function eraseLast(){const s=[...strokes].reverse().find(s=>s.erasedAt===null);if(s){s.erasedAt=relT();redraw();stats();persistDraft();}}
+function eraseLastOnNote(){const latest=[...strokes.map(s=>({s,surface:'pad'})),...questionStrokes.map(s=>({s,surface:'question'}))].filter(({s})=>s.erasedAt===null&&s.pts.length).sort((a,b)=>b.s.pts.at(-1).t-a.s.pts.at(-1).t)[0];if(!latest)return;latest.s.erasedAt=relT();if(latest.surface==='question')redrawQuestion();else redraw();stats();persistDraft();}
 function draftObject(){return {canvas:{w:W,h:H},strokes,question:{canvas:{w:QW,h:QH},strokes:questionStrokes,nextId:questionNextId,cueVisible,open:examWorkspace.open},elapsed:t0===null?timeOffset:relT(),nextId,stepIndex,marks,captureId,saveSeq,lastSavedFile,device:devSeen};}
 function persistDraft(){try{localStorage.setItem(draftKey,JSON.stringify(draftObject()));}catch(e){document.getElementById('backupStatus').textContent='브라우저 자동 보관 공간이 부족합니다. 필기 저장을 눌러 주세요.';}}
 window.addEventListener('pagehide',persistDraft);
@@ -565,8 +595,9 @@ try{
     timeOffset=d.elapsed||0;t0=null;devSeen=d.device||'';
     if(d.question?.canvas?.w===QW&&d.question?.canvas?.h===QH&&Array.isArray(d.question.strokes)){
       questionStrokes=d.question.strokes;questionNextId=d.question.nextId||1;
-      cueVisible=!!d.question.cueVisible;examWorkspace.open=d.question.open!==false;
-    }else if(strokes.length&&stepIndex>0)examWorkspace.open=false;
+      cueVisible=!!d.question.cueVisible;
+    }
+    examWorkspace.open=true;
     document.getElementById('backupStatus').textContent=(strokes.length||questionStrokes.length)?'이 브라우저에 보관한 필기를 복원했습니다.':'';
   }
 }catch(e){document.getElementById('backupStatus').textContent='이전 자동 보관 기록은 복원하지 못했습니다.';}
@@ -580,7 +611,7 @@ const referenceObserver=new IntersectionObserver(entries=>{
   if(padVisible){padVisited=true;closeProblemReview('필기장으로 돌아옴');}
   else if(problemVisible&&padVisited&&strokes.length&&!problemReviewActive){problemReviewActive=true;markProblemReview('problem-review-start','문제 원문을 다시 확인');}
 },{threshold:0.1});
-referenceObserver.observe(document.querySelector('.problem-card'));
+referenceObserver.observe(examSheet);
 referenceObserver.observe(pad);
 window.addEventListener('pagehide',()=>closeProblemReview('화면을 떠남'));
 document.addEventListener('visibilitychange',()=>{if(document.hidden)closeProblemReview('다른 화면으로 이동');});
