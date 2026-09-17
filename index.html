@@ -1307,9 +1307,52 @@
 
     <!-- 하루의 시작: 오늘의 말씀 + 오늘의 감사 (2026-09-17 대표: "말씀이랑 감사 적는 칸이 더 위에") -->
     <style>
-      .top-row{display:grid;grid-template-columns:1.15fr 1fr;gap:22px;margin:0 0 22px;align-items:stretch}
+      .top-row{display:grid;grid-template-columns:1.05fr 1fr .85fr;gap:22px;margin:0 0 22px;align-items:stretch}
       .top-row .verse-card{display:flex;flex-direction:column;justify-content:center}
-      @media(max-width:900px){.top-row{grid-template-columns:1fr;gap:14px}}
+      @media(max-width:1180px){.top-row{grid-template-columns:1fr 1fr}.top-row .verse-card{grid-column:1/-1;min-height:200px}}
+      @media(max-width:700px){.top-row{grid-template-columns:1fr;gap:14px}}
+      /* 적고 난 뒤: 서로의 감사 */
+      .gv-lab{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:800;color:var(--seal,#7c2d2a);letter-spacing:.3px;margin-bottom:6px}
+      .gv-lab small{font-weight:600;color:#a3978a}
+      .gv-edit{border:none;background:none;color:#a3978a;font-family:inherit;font-size:11.5px;cursor:pointer;padding:2px 4px;text-decoration:underline}
+      .gv-edit:hover{color:var(--seal,#7c2d2a)}
+      .gv-list{margin:0;padding-left:20px;font-size:13.5px;line-height:1.6;color:var(--ink,#2b2622)}
+      .gv-list li{margin:2px 0;word-break:break-word}
+      .gv-mine{background:var(--fill,#f3eee2);border-radius:12px;padding:10px 13px 9px;margin-bottom:12px}
+      .gv-team{max-height:340px;overflow-y:auto;padding-right:4px}
+      .gv-person{padding:8px 0;border-top:1px dashed var(--line,#d6c6a0)}
+      .gv-person:first-child{border-top:none;padding-top:0}
+      .gv-name{font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:13px;color:var(--seal,#7c2d2a);margin-bottom:3px;cursor:pointer}
+      .gv-name i{font-style:normal;font-size:10.5px;opacity:.5}
+      .gv-none{font-size:12.5px;color:#b8a984;padding:6px 0}
+      .gv-notyet{font-size:11.5px;color:#a3978a;margin-top:8px}
+      /* 오늘의 클로징 카드 */
+      .cl-home{display:flex;flex-direction:column}
+      .cl-home .gh-top h3{margin:0}.cl-home .gh-top .desc{margin:4px 0 0}
+      .ch-body{display:flex;flex-direction:column;gap:10px;flex:1}
+      .ch-empty{font-size:12.5px;color:#b8a984}
+      .ch-status{font-size:13.5px;font-weight:800;padding:9px 12px;border-radius:11px;background:var(--fill,#f3eee2);color:var(--ink-soft,#5c534b)}
+      .ch-status.due{background:rgba(138,28,43,.08);color:var(--seal,#7c2d2a)}
+      .ch-status.ok{background:#e3f1ea;color:#286f56}
+      .ch-status.exc{background:#f5ecd4;color:#8a6a20}
+      .ch-status.off{color:#a3978a}
+      .ch-note{font-size:13px;color:var(--ink,#2b2622);line-height:1.5}
+      .ch-btns{display:flex;gap:8px;flex-wrap:wrap}
+      .ch-go{flex:1;border:none;background:var(--seal,#7c2d2a);color:#fff;font-family:inherit;font-weight:800;font-size:14px;padding:12px 16px;border-radius:11px;cursor:pointer}
+      .ch-go:hover{background:#6B1420}
+      .ch-ghost{border:1px solid var(--line,#d6c6a0);background:#fff;color:var(--ink-soft,#5c534b);font-family:inherit;font-weight:700;font-size:12.5px;padding:10px 14px;border-radius:11px;cursor:pointer}
+      .ch-week{margin-top:auto;padding-top:12px;border-top:1px dashed var(--line,#d6c6a0);font-size:12px;color:var(--ink-soft,#5c534b);line-height:1.6}
+      .ch-week b{color:var(--seal,#7c2d2a)}
+      .ch-week small{color:#a3978a}
+      .ch-week a{color:#3a6ea5;cursor:pointer;margin-left:4px}
+      .ch-lab{font-size:12px;font-weight:800;color:var(--seal,#7c2d2a);display:flex;justify-content:space-between;align-items:baseline}
+      .ch-lab small{font-weight:600;color:#a3978a}
+      .ch-list{display:flex;flex-direction:column;gap:4px}
+      .ch-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 10px;border-radius:9px;background:var(--fill,#f3eee2)}
+      .ch-row.rd{cursor:pointer}.ch-row.rd:hover{background:#ece5d5}
+      .ch-row .nm{font-weight:800;color:var(--ink,#2b2622)}
+      .ch-row .st{font-size:12px;font-weight:700;color:#a3978a}
+      .ch-row .st.ok{color:#286f56}.ch-row .st.due{color:var(--seal,#7c2d2a)}.ch-row .st.exc{color:#8a6a20}.ch-row .st.wip{color:#5c6b7a}
       .grat-home{display:flex;flex-direction:column}
       .grat-home .gh-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
       .grat-home .gh-top h3{margin:0}
@@ -1334,24 +1377,47 @@
         <p class="verse-en" id="verseEn"></p>
         <div class="verse-ref" id="verseRef"></div>
       </div>
-      <!-- 오늘의 감사 — 앱 보관소에서 시작화면으로 올라옴. 아이콘·리마인더의 openApp('app-grat')은 여기로 스크롤한다 -->
+      <!-- 오늘의 감사 — 앱 보관소에서 시작화면으로 올라옴. 아이콘·리마인더의 openApp('app-grat')은 여기로 스크롤한다.
+           2026-09-17 대표: "내 감사 입력했으면 오늘 서로의 감사를 보게" → 적고 나면 카드가 팀의 오늘 감사로 바뀐다 -->
       <div class="panel grat grat-home" id="app-grat" data-app="app-grat">
         <div class="gh-top">
           <div>
             <h3><span class="ic">♡</span> 오늘의 감사 세 가지</h3>
-            <p class="desc">사소해도 좋아요. 매일 세 가지</p>
+            <p class="desc" id="gratDesc">사소해도 좋아요. 매일 세 가지</p>
           </div>
           <button class="gnb-btn" onclick="gnbOpen(CUR.id,CUR.name)">📖 내 감사노트</button>
         </div>
-        <div class="field"><span class="n">1</span><input id="g1" placeholder="첫 번째 감사" /></div>
-        <div class="field"><span class="n">2</span><input id="g2" placeholder="두 번째 감사" /></div>
-        <div class="field"><span class="n">3</span><input id="g3" placeholder="세 번째 감사" /></div>
-        <div class="grat-btns">
-          <button class="save" id="gratSave">오늘의 감사 저장</button>
-          <button class="grat-share-btn" id="gratShareBtn">🌿 팀과 감사 나누기</button>
+        <div id="gratEntry">
+          <div class="field"><span class="n">1</span><input id="g1" placeholder="첫 번째 감사" /></div>
+          <div class="field"><span class="n">2</span><input id="g2" placeholder="두 번째 감사" /></div>
+          <div class="field"><span class="n">3</span><input id="g3" placeholder="세 번째 감사" /></div>
+          <div class="grat-btns">
+            <button class="save" id="gratSave">오늘의 감사 저장</button>
+            <button class="grat-share-btn" id="gratShareBtn">🌿 팀과 감사 나누기</button>
+          </div>
+          <div class="done" id="gratDone"></div>
         </div>
-        <div class="done" id="gratDone"></div>
+        <div id="gratDoneView" style="display:none">
+          <div class="gv-mine">
+            <div class="gv-lab"><span>✓ 오늘 나의 감사</span><button class="gv-edit" onclick="gratEdit()">수정</button></div>
+            <ol class="gv-list" id="gvMine"></ol>
+          </div>
+          <div class="gv-team">
+            <div class="gv-lab"><span>🌿 오늘 서로의 감사</span><small id="gvCount"></small></div>
+            <div id="gvTeam"></div>
+          </div>
+        </div>
         <div class="grat-yday" id="gratYday"></div>
+      </div>
+      <!-- 오늘의 클로징 — 감사(오프닝) 옆에 나란히 (2026-09-17 대표: "클로징하기 감사랑 같이") -->
+      <div class="panel cl-home" id="clHome">
+        <div class="gh-top">
+          <div>
+            <h3><span class="ic">📕</span> 오늘의 클로징</h3>
+            <p class="desc">하루를 닫는 기록</p>
+          </div>
+        </div>
+        <div class="ch-body" id="clHomeBody"><div class="ch-empty">불러오는 중…</div></div>
       </div>
     </div>
 
@@ -2921,6 +2987,8 @@ function enterDash(){
   backfillGrats();
   loadTodayGratCloud();
   loadYdayGrat();
+  subscribeTodayGrats();   // 감사 카드: 적고 나면 서로의 감사
+  clHomeInit();            // 오늘의 클로징 카드
   const nat=document.getElementById('noticeAddToggle');
   if(nat) nat.style.display=(CUR&&CUR.code==='CEO')?'inline-block':'none';
   const tpe=document.getElementById('tpEditBtn');
@@ -3049,6 +3117,7 @@ function renderGrat(){
   g1.value=g[0]||'';g2.value=g[1]||'';g3.value=g[2]||'';
   updGratWidget(g);
   updateGratRemind();
+  if(typeof gratViewUpdate==='function')gratViewUpdate();
 }
 function updateGratRemind(){
   const el=document.getElementById('gratRemind'); if(!el||!CUR)return;
@@ -3074,6 +3143,8 @@ document.getElementById('gratSave').addEventListener('click',()=>{
   const d=document.getElementById('gratDone');
   d.textContent='오늘의 감사가 저장되었어요. 고마운 하루.';
   setTimeout(()=>d.textContent='',2600);
+  gratEditing=false;
+  setTimeout(gratViewUpdate,900);   // 저장 문구를 잠깐 보여준 뒤 서로의 감사로
 });
 /* 개인 감사 기록 — Firestore 저장(어느 기기서든 보임) */
 async function saveGratCloud(date,items){
@@ -4640,6 +4711,8 @@ document.getElementById('gratShareBtn').addEventListener('click',async()=>{
   const btn=document.getElementById('gratShareBtn');
   btn.textContent='✓ 공유됐어요!';
   setTimeout(()=>{btn.textContent='🌿 팀과 감사 나누기';},2500);
+  gratEditing=false;
+  setTimeout(gratViewUpdate,900);
 });
 
 /* 지난 팀 감사 캘린더 (ws_grats 날짜별) */
@@ -6193,6 +6266,13 @@ function clOpen(){
   const ex=clIsExempt(CUR.id);
   ['clWriteSec','clMe','clPlan','clHistToggle','clHistList'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=ex?'none':'';});
   const exn=document.getElementById('clExemptNote'); if(exn)exn.style.display=ex?'flex':'none';
+  if(CUR.closingMode==='주간'){   // 승주 — 주간 리포트(주 1회, 2026-09-17 대표)
+    const set=(sel,tx)=>{const el=document.querySelector(sel);if(el)el.innerHTML=tx;};
+    set('#app-closing .cl-sec .cl-lab','✍️ 이번 주 주간 리포트 쓰기<span class="hint" id="clDraftHint">쓰는 동안 자동으로 임시저장돼요</span>');
+    set('label[for="clDid"]','이번 주 한 일<span>Before/After · 공부한 것 · 만들거나 고친 이유 · 분석과 인사이트</span>');
+    set('label[for="clTodo"]','다음 주 할 일<span>이번 주와의 연결 · 발전시킬 부분 · 마치지 못한 일</span>');
+    const hl=document.querySelector('#app-closing .cl-hlab'); if(hl)hl.firstChild.textContent='이번 주 투자한 시간';
+  }
   if(!ex){
     clSubscribeDays();      // 전원 — 시작화면 표에서 체크한 이번 주 클로징 데이
     clSubscribeToday();
@@ -6327,12 +6407,13 @@ function clRenderDaysNote(){
    단 시작화면 표에서 스스로 체크한 날은 자율이어도 약속으로 본다(2026-09-17). */
 function clModeOf(m){
   if(clIsExempt((m&&m.email)||m))return '대표';
+  if(m&&m.closingMode==='주간')return '주간';
   if(m&&m.closingMode==='자율')return '자율';
   return clIsFull((m&&m.email)||m)?'풀타임':'파트타임';
 }
 /* 체크 문서가 없을 때의 기본값 — 풀타임=월~금, 파트타임·자율=없음 */
 function clDefaultDays(email,mode){
-  if(clIsExempt(email)||mode==='자율')return [];
+  if(clIsExempt(email)||mode==='자율'||mode==='주간')return [];   // 주간=본인이 표에서 주 1회 고른 날만
   return clIsFull(email)?[1,2,3,4,5]:[];
 }
 /* 그날이 제출 의무일인가 — days 배열이 있으면(체크 문서 존재) 그것만 본다. 없으면 기본값. */
@@ -6527,7 +6608,7 @@ async function clRenderBoard(){
       const days=Object.prototype.hasOwnProperty.call(daysBy,m.email)?daysBy[m.email]:null;   // 체크 문서 없으면 null → 기본값
       let hrs=0;
       const eff=Array.isArray(days)?days:clDefaultDays(m.email,mode);
-      const sub=(free?'자율':full?'풀타임':'파트타임')+' · '+(eff.length?eff.slice().sort((a,b)=>a-b).map(d=>CL_WK[d]).join(''):'체크 없음')+(Array.isArray(days)||!eff.length?'':' (기본값)');
+      const sub=(mode==='주간'?'주간 리포트':free?'자율':full?'풀타임':'파트타임')+' · '+(eff.length?eff.slice().sort((a,b)=>a-b).map(d=>CL_WK[d]).join(''):'체크 없음')+(Array.isArray(days)||!eff.length?'':' (기본값)');
       html+='<tr><td class="nm">'+clEsc(m.name)+'<small>'+sub+'</small></td>';
       dates.forEach(ds=>{
         const r=byKey[m.email+'_'+ds];
@@ -6632,7 +6713,8 @@ function wbRender(){
     const ex=clIsExempt(m.email);
     const plan=wbPlanOf(m.email);
     const free=(m.closingMode==='자율');
-    const sub=ex?'대표 · 클로징 없음':free?'자율':clIsFull(m.email)?'풀타임':'파트타임';
+    const weekly=(m.closingMode==='주간');
+    const sub=ex?'대표 · 클로징 없음':weekly?'주간 리포트 · 주 1회':free?'자율':clIsFull(m.email)?'풀타임':'파트타임';
     let planned=0, done=0, grats=0;
     html+='<tr><td class="nm"><span class="wb-nm" title="감사노트 펼치기" onclick="gnbOpen(\''+clEsc(m.email)+'\',\''+clEsc(m.name||'')+'\')">'+clEsc(m.name||m.email)+' <i>📖</i></span><small>'+sub+((plan.set||ex||free)?'':' · 미체크')+'</small></td>';
     dates.forEach(ds=>{
@@ -6740,6 +6822,111 @@ async function loadYdayGrat(){
   }catch(e){}
   el.innerHTML='<div class="gy-lab"><span>'+lab+'</span></div>'
     +(items.length?'<ol>'+items.map(t=>'<li>'+esc(String(t))+'</li>').join('')+'</ol>':'<div class="gy-none">어제는 적지 않았어요. 오늘 세 가지부터 🌿</div>');
+}
+
+/* ===== 감사 카드 두 얼굴 — 적기 전엔 입력칸, 적고 나면 "오늘 서로의 감사" (2026-09-17 대표) =====
+   서로의 감사 = ws_mygrats 오늘치(팀과 나누기를 눌렀는지와 무관). 내 것을 적어야 남의 것이 열린다. */
+let gratEditing=false, gvUnsub=null, gvToday={};
+function gratHasToday(){const g=LS.get(gratKey(),['','','']);return (g||[]).some(x=>x&&String(x).trim());}
+function gratEdit(){gratEditing=true;gratViewUpdate();const g=document.getElementById('g1');if(g)g.focus();}
+function gratViewUpdate(){
+  const entry=document.getElementById('gratEntry'), view=document.getElementById('gratDoneView'), desc=document.getElementById('gratDesc');
+  if(!entry||!view||!CUR)return;
+  const done=gratHasToday()&&!gratEditing;
+  entry.style.display=done?'none':'';
+  view.style.display=done?'':'none';
+  if(desc)desc.textContent=done?'오늘도 적었어요. 이제 서로의 감사를 봅니다':'사소해도 좋아요. 매일 세 가지';
+  if(done){
+    const g=LS.get(gratKey(),['','','']).filter(x=>x&&String(x).trim());
+    const ol=document.getElementById('gvMine'); if(ol)ol.innerHTML=g.map(t=>'<li>'+esc(String(t))+'</li>').join('');
+    gvRender();
+  }
+}
+function subscribeTodayGrats(){
+  if(!_db||gvUnsub)return;
+  gvUnsub=_db.collection('ws_mygrats').where('date','==',today()).onSnapshot(s=>{
+    gvToday={}; s.forEach(d=>{const r=d.data()||{};const items=(r.items||[]).filter(x=>x&&String(x).trim());if(r.email&&items.length)gvToday[r.email]=items;});
+    // 다른 기기에서 적은 내 감사도 카드에 반영
+    if(CUR&&gvToday[CUR.id]&&!gratHasToday()){LS.set(gratKey(),gvToday[CUR.id]);renderGrat();}
+    gvRender();
+  },err=>console.warn('오늘 감사 구독 실패',err));
+}
+async function gvRender(){
+  const box=document.getElementById('gvTeam'), cnt=document.getElementById('gvCount'); if(!box||!CUR)return;
+  if(!wbMembersLoaded){try{await wbLoadMembers();}catch(e){}}
+  const others=wbMembers.filter(m=>m.email!==CUR.id);
+  const wrote=others.filter(m=>gvToday[m.email]), notyet=others.filter(m=>!gvToday[m.email]);
+  if(cnt)cnt.textContent=wrote.length+' / '+others.length+'명';
+  let html=wrote.map(m=>'<div class="gv-person"><div class="gv-name" onclick="gnbOpen(\''+esc(m.email)+'\',\''+esc(m.name||'')+'\')" title="감사노트">'+esc(m.name||m.email)+' <i>📖</i></div><ol class="gv-list">'
+    +gvToday[m.email].map(t=>'<li>'+esc(String(t))+'</li>').join('')+'</ol></div>').join('');
+  if(!wrote.length)html='<div class="gv-none">아직 아무도 적지 않았어요. 오늘은 내가 첫 번째 🌿</div>';
+  if(notyet.length)html+='<div class="gv-notyet">아직 전 · '+notyet.map(m=>esc(m.name||m.email)).join(', ')+'</div>';
+  box.innerHTML=html;
+}
+
+/* ===== 오늘의 클로징 카드 (시작화면, 감사 옆) ===== */
+let chUnsub=null, chDaysUnsub=null, chTeamUnsub=null, chDoc=null, chDays=null, chTeam={};
+function clHomeInit(){
+  if(!_db||!CUR)return;
+  const ex=clIsExempt(CUR.id);
+  if(ex){
+    // 대표: 오늘 팀이 낸 것만
+    chTeamUnsub=_db.collection('ws_closings').where('date','==',clToday()).onSnapshot(s=>{
+      chTeam={}; s.forEach(d=>{const r=d.data()||{};if(r.email)chTeam[r.email]=r;});
+      clHomeRender();
+    },err=>console.warn('클로징 카드(팀) 구독 실패',err));
+    return;
+  }
+  chUnsub=_db.collection('ws_closings').doc(clDocId(CUR.id,clToday())).onSnapshot(s=>{chDoc=s.exists?s.data():null;clHomeRender();},err=>console.warn('클로징 카드 구독 실패',err));
+  chDaysUnsub=_db.collection('ws_closing_days').doc(CUR.id+'_'+clWeekKey(clToday())).onSnapshot(s=>{
+    chDays=(s.exists&&Array.isArray(s.data().days))?s.data().days:null; clHomeRender();
+  },err=>console.warn('클로징 카드(요일) 구독 실패',err));
+}
+function clHomeOpenWriter(){openApp('app-closing','📕 클로징 리포트');clOpen();}
+async function clHomeRender(){
+  const box=document.getElementById('clHomeBody'); if(!box||!CUR)return;
+  const ds=clToday();
+  if(clIsExempt(CUR.id)){
+    if(!wbMembersLoaded){try{await wbLoadMembers();}catch(e){}}
+    const team=wbMembers.filter(m=>!clIsExempt(m.email));
+    let daysBy={};
+    try{const s=await _db.collection('ws_closing_days').where('weekKey','==',clWeekKey(ds)).get();s.forEach(d=>{const r=d.data()||{};if(r.email)daysBy[r.email]=Array.isArray(r.days)?r.days:[];});}catch(e){}
+    const rows=team.map(m=>{
+      const r=chTeam[m.email];
+      const has=Object.prototype.hasOwnProperty.call(daysBy,m.email);
+      const due=clIsDue(m.email,ds,has?daysBy[m.email]:null,m.closingMode);
+      let st,cls;
+      if(r&&r.status==='제출'){st='✓ '+(r.hours?r.hours+'시간':'제출');cls='ok';}
+      else if(r&&r.status==='사전보고'){st='🕗 사전 보고';cls='exc';}
+      else if(r&&r.status==='임시'){st='✎ 쓰는 중';cls='wip';}
+      else if(due){st='아직';cls='due';}
+      else{st=(has||clIsFull(m.email))?'쉬는 날':'표 미체크';cls='off';}
+      return '<div class="ch-row'+(r&&r.status==='제출'?' rd':'')+'"'+(r&&r.status==='제출'?' onclick="clOpenRead(\''+clEsc(m.email)+'\',\''+ds+'\')"':'')+'><span class="nm">'+clEsc(m.name||m.email)+'</span><span class="st '+cls+'">'+st+'</span></div>';
+    }).join('');
+    const doneN=team.filter(m=>chTeam[m.email]&&chTeam[m.email].status==='제출').length;
+    box.innerHTML='<div class="ch-lab">오늘 팀 클로징 <small>'+doneN+' / '+team.length+'명 제출</small></div><div class="ch-list">'+rows+'</div>'
+      +'<button class="ch-ghost" onclick="clHomeOpenWriter()">🧭 주간 현황 보기</button>';
+    return;
+  }
+  const due=clIsDue(CUR.id,ds,chDays,CUR.closingMode);
+  const days=Array.isArray(chDays)?chDays:clDefaultDays(CUR.id,CUR.closingMode);
+  const dayTx=days.length?days.slice().sort((a,b)=>a-b).map(d=>CL_WK[d]).join('·'):'없음';
+  let html='';
+  if(chDoc&&chDoc.status==='제출'){
+    html+='<div class="ch-status ok">✓ 오늘 클로징 제출 완료'+(chDoc.hours?' · '+chDoc.hours+'시간':'')+'</div>'
+      +(chDoc.note?'<div class="ch-note">'+clEsc(chDoc.note)+'</div>':'')
+      +'<div class="ch-btns"><button class="ch-go" onclick="clOpenRead(\''+clEsc(CUR.id)+'\',\''+ds+'\')">읽기</button><button class="ch-ghost" onclick="clHomeOpenWriter()">고치기</button></div>';
+  }else if(chDoc&&chDoc.status==='사전보고'){
+    html+='<div class="ch-status exc">🕗 오늘은 못 내는 날로 미리 알렸어요</div><div class="ch-note">'+clEsc(chDoc.excuse||'')+'</div>'
+      +'<div class="ch-btns"><button class="ch-ghost" onclick="clHomeOpenWriter()">그래도 쓰기</button></div>';
+  }else{
+    const wip=chDoc&&chDoc.status==='임시';
+    const weekly=(CUR.closingMode==='주간');
+    html+='<div class="ch-status '+(due?'due':'off')+'">'+(due?(weekly?'오늘은 주간 리포트 내는 날':'오늘은 클로징 데이'):(weekly?'주간 리포트 · 주 1회, 표에서 고른 날에':'오늘은 클로징 데이가 아니에요'))+(wip?' · ✎ 쓰던 글이 있어요':'')+'</div>'
+      +'<div class="ch-btns"><button class="ch-go" onclick="clHomeOpenWriter()">'+(wip?'✍️ 이어서 쓰기':'✍️ 클로징 쓰기')+'</button></div>';
+  }
+  html+='<div class="ch-week">'+(CUR.closingMode==='주간'?'이번 주 리포트 날 ':'이번 주 클로징 데이 ')+'<b>'+dayTx+'</b>'+(Array.isArray(chDays)?'':' <small>(아직 체크 안 함)</small>')+' <a onclick="wbScrollTo()">표에서 체크</a></div>';
+  box.innerHTML=html;
 }
 
 /* ===== 홈 / 인덱스 모드 전환 + 인덱스 대시보드 ===== */

@@ -371,7 +371,7 @@ const CLOSING_EXEMPT = ['soomin020114@gmail.com'];   // 대표 — 클로징 의
  * 체크 문서가 없으면 기본값: 풀타임=월~금, 파트타임·자율=없음. 자율도 체크한 날은 약속으로 본다.
  * 포털 index.html의 clDefaultDays/clIsDue와 같은 규칙 — 한쪽만 고치지 말 것. */
 function closingDefaultDays(email, mode) {
-  if (CLOSING_EXEMPT.includes(email) || mode === '자율') return [];
+  if (CLOSING_EXEMPT.includes(email) || mode === '자율' || mode === '주간') return [];   // 주간(승주, 2026-09-17)=표에서 주 1회 고른 날만
   return CLOSING_FULLTIME.includes(email) ? [1, 2, 3, 4, 5] : [];
 }
 function closingIsDue(email, dow, days, mode) {
@@ -419,7 +419,7 @@ async function buildClosingBrief(offsetDays) {
     const email = m.id, v = m.data() || {}, nm = v.name || email;
     if (CLOSING_EXEMPT.includes(email)) return;   // 대표는 현황에 오르지 않는다
     // closingMode '자율' = 대표가 선택권을 준 사람(조건부 합류 등). 내면 기록하되 의무로 잡지 않는다.
-    const free = v.closingMode === '자율';
+    const free = v.closingMode === '자율';   // 주간(승주)은 free 아님 — 고른 날 안 내면 미제출, 안 고르면 미체크
     const full = CLOSING_FULLTIME.includes(email);
     const has = Object.prototype.hasOwnProperty.call(daysBy, email);
     const due = closingIsDue(email, dow, has ? daysBy[email] : null, v.closingMode);
