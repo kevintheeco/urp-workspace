@@ -1296,7 +1296,21 @@
     }
     .view{display:none;flex-direction:column;gap:22px}
     .view.on{display:flex}
-    #view-home>.hero-row{display:none!important}   /* 2026-09-18 공지·기도제목이 홈에서 빠져 빈 줄 */
+    #view-home>.hero-row{display:none!important}
+    .my-week .mw-only{font-size:12px;color:#8b8177;background:var(--fill,#f3eee2);border-radius:20px;padding:6px 12px;white-space:nowrap}
+    .my-week .mw-only b{color:var(--seal,#8A1C2B)}
+    table.mw-tb{border-collapse:collapse;width:100%;max-width:640px}
+    table.mw-tb th{font-size:12px;font-weight:800;color:var(--ink-soft);padding:4px 6px 8px;text-align:center}
+    table.mw-tb th small{display:block;font-weight:600;font-size:10.5px;color:#a3978a}
+    table.mw-tb th.today,table.mw-tb th.today small{color:var(--seal,#8A1C2B)}
+    table.mw-tb td{text-align:center;padding:6px;border-top:1px solid var(--line,#eae2d2)}
+    table.mw-tb td.lab{text-align:left;font-weight:800;font-size:13px;color:var(--ink);white-space:nowrap;width:90px}
+    table.mw-tb td.today{background:rgba(138,28,43,.05)}
+    .mw-m{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;background:var(--fill,#f3eee2);color:#c4b795;font-weight:800;font-size:14px}
+    .mw-m.on{background:var(--seal,#8A1C2B);color:#fff}
+    .mw-m.exc{background:#f5ecd4;color:#8a6a20}
+    .mw-m.miss{background:#f7e2da;color:#b0503a}
+    .mw-m.plan{background:#fff;border:1.5px dashed #cfc4ad;color:#a3978a}   /* 2026-09-18 공지·기도제목이 홈에서 빠져 빈 줄 */
     #topRow.solo{grid-template-columns:1fr}
     .view .panel>.gh-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;margin-bottom:12px}
     .view .panel>.gh-top h3{margin:0}.view .panel>.gh-top .desc{margin:4px 0 0}
@@ -1471,6 +1485,8 @@
       .gnb-btn{flex:none;border:1px solid var(--line,#d6c6a0);background:#fff;color:var(--seal,#7c2d2a);font-family:inherit;font-size:12px;font-weight:800;padding:7px 12px;border-radius:20px;cursor:pointer;white-space:nowrap}
       .gnb-btn:hover{background:var(--fill,#f3eee2)}
       .grat-home .grat-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px}
+      .grat-home .grat-btns.one{grid-template-columns:1fr}
+      .grat-home .grat-btns.one .grat-share-btn{padding:13px;font-size:14.5px}
       .grat-home .grat-btns .save,.grat-home .grat-btns .grat-share-btn{margin:0;width:100%}
       .grat-home .done{margin-top:8px}
       .grat-yday{margin-top:auto;padding-top:14px;border-top:1px dashed var(--line,#d6c6a0);font-size:12.5px;color:var(--ink-soft,#5c534b);line-height:1.6}
@@ -1502,9 +1518,8 @@
           <div class="field"><span class="n">1</span><input id="g1" placeholder="첫 번째 감사" /></div>
           <div class="field"><span class="n">2</span><input id="g2" placeholder="두 번째 감사" /></div>
           <div class="field"><span class="n">3</span><input id="g3" placeholder="세 번째 감사" /></div>
-          <div class="grat-btns">
-            <button class="save" id="gratSave">오늘의 감사 저장</button>
-            <button class="grat-share-btn" id="gratShareBtn">🌿 팀과 감사 나누기</button>
+          <div class="grat-btns one">
+            <button class="grat-share-btn" id="gratShareBtn">🌿 감사 나누기</button>
           </div>
           <div class="done" id="gratDone"></div>
         </div>
@@ -2644,6 +2659,27 @@
   </div>
 </div>
 
+<!-- 🙏 감사 인사 오버레이 — 나눔·클로징 제출 뒤 (2026-09-18) -->
+<style>
+  .ty-overlay{position:fixed;inset:0;z-index:9450;background:rgba(14,10,6,.55);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:22px}
+  .ty-overlay.show{display:flex}
+  .ty-box{width:min(520px,94vw);background:#fffdf9;border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.4);padding:36px 34px 28px;text-align:center;position:relative;overflow:hidden}
+  .ty-box:before{content:"";position:absolute;left:0;right:0;top:0;height:7px;background:linear-gradient(90deg,#8A1C2B,#a3323f)}
+  .ty-leaf{font-size:34px;margin-bottom:8px}
+  .ty-main{font-family:"Nanum Myeongjo",serif;font-weight:800;font-size:23px;color:#241f1c;line-height:1.4}
+  .ty-sub{margin-top:14px;font-family:"Nanum Myeongjo",serif;font-size:15.5px;line-height:1.85;color:#5b524a;word-break:keep-all}
+  .ty-ref{margin-top:8px;font-family:"Cormorant Garamond",serif;letter-spacing:2px;font-size:12.5px;color:#8A1C2B;font-weight:700}
+  .ty-ok{margin-top:22px;border:none;background:#8A1C2B;color:#fff;font-family:inherit;font-weight:800;font-size:14px;padding:11px 30px;border-radius:11px;cursor:pointer}
+</style>
+<div class="ty-overlay" id="tyOverlay" onclick="if(event.target===this)tyClose()">
+  <div class="ty-box">
+    <div class="ty-leaf">🌿</div>
+    <div class="ty-main" id="tyMain"></div>
+    <div class="ty-sub" id="tySub"></div>
+    <div class="ty-ref" id="tyRef"></div>
+    <button class="ty-ok" onclick="tyClose()">확인</button>
+  </div>
+</div>
 <!-- 📣 대표의 한마디 팝업 — ws_notices 24시간 이내, 확인 누르면 그 기기에서 사라짐 (2026-09-18) -->
 <style>
   .cw-overlay{position:fixed;inset:0;z-index:9400;background:rgba(14,10,6,.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:22px}
@@ -3289,7 +3325,7 @@ function updGratWidget(g){
   const n=g.filter(x=>x&&x.trim()).length;
   document.getElementById('wGrat').innerHTML=n+'<small>/3</small>';
 }
-document.getElementById('gratSave').addEventListener('click',()=>{
+(function(){const b=document.getElementById('gratSave');if(!b)return;b.addEventListener('click',()=>{   // 2026-09-18 저장 버튼 없음 — 나눔만 (호환용 가드)
   const g=[g1.value.trim(),g2.value.trim(),g3.value.trim()];
   LS.set(gratKey(),g);
   updGratWidget(g);
@@ -3300,7 +3336,7 @@ document.getElementById('gratSave').addEventListener('click',()=>{
   setTimeout(()=>d.textContent='',2600);
   gratEditing=false;
   setTimeout(gratViewUpdate,900);   // 저장 문구를 잠깐 보여준 뒤 서로의 감사로
-});
+});})();
 /* 개인 감사 기록 — Firestore 저장(어느 기기서든 보임) */
 async function saveGratCloud(date,items){
   if(!_db||!CUR)return;
@@ -4739,6 +4775,39 @@ function subscribeNotices(){
     }
   },err=>console.error('notices',err));
 }
+/* 감사 인사 오버레이 — thanksPop(큰 글, 작은 글, 출처) */
+let tyTimer=null;
+function thanksPop(main,sub,ref){
+  const ov=document.getElementById('tyOverlay'); if(!ov)return;
+  document.getElementById('tyMain').textContent=main||'';
+  document.getElementById('tySub').textContent=sub||'';
+  document.getElementById('tyRef').textContent=ref||'';
+  ov.classList.add('show');
+  clearTimeout(tyTimer); tyTimer=setTimeout(tyClose,9000);
+}
+function tyClose(){const ov=document.getElementById('tyOverlay');if(ov)ov.classList.remove('show');clearTimeout(tyTimer);}
+
+/* 나의 이번 주 — 본인만 보는 감사·클로징 체크 (2026-09-18 대표: "각자가 스스로만 보게, 다른 사람은 못 본다고 명시") */
+function mwRender(){
+  const box=document.getElementById('myWeekBody'); if(!box||!CUR||!wbWk)return;
+  const dates=wbDates(), todayStr=clToday(), ex=clIsExempt(CUR.id), plan=wbPlanOf(CUR.id);
+  let html='<table class="mw-tb"><thead><tr><th></th>'+dates.map(ds=>{const d=clParse(ds);return '<th'+(ds===todayStr?' class="today"':'')+'>'+CL_WK[d.getDay()]+'<small>'+(d.getMonth()+1)+'/'+d.getDate()+'</small></th>';}).join('')+'</tr></thead><tbody>';
+  html+='<tr><td class="lab">🙏 감사</td>'+dates.map(ds=>{const g=!!wbGrats[CUR.id+'_'+wbNp(ds)];return '<td'+(ds===todayStr?' class="today"':'')+'><span class="mw-m'+(g?' on':'')+'">'+(g?'✓':(ds<todayStr?'·':''))+'</span></td>';}).join('')+'</tr>';
+  if(!ex){
+    html+='<tr><td class="lab">📕 클로징</td>'+dates.map(ds=>{
+      const dow=clParse(ds).getDay(), on=plan.days.indexOf(dow)>=0, r=wbClos[CUR.id+'_'+ds];
+      let m='',cls='';
+      if(r&&r.status==='제출'){m='✓';cls=' on';}
+      else if(r&&r.status==='사전보고'){m='🕗';cls=' exc';}
+      else if(on&&ds<todayStr){m='✕';cls=' miss';}
+      else if(on){m='○';cls=' plan';}
+      return '<td'+(ds===todayStr?' class="today"':'')+'><span class="mw-m'+cls+'">'+m+'</span></td>';
+    }).join('')+'</tr>';
+  }
+  html+='</tbody></table>';
+  box.innerHTML=html;
+  const nm=document.getElementById('myWeekWho'); if(nm)nm.textContent=CUR.name+'님만 보여요';
+}
 /* 대표의 한마디 팝업 — 24시간 이내 공지 중 아직 확인 안 한 것을 하나씩 (2026-09-18 대표) */
 let cwQueue=[], cwCur=null;
 function cwSeenKey(id){return KEY(CUR.id,'cwSeen:'+id);}
@@ -4873,13 +4942,20 @@ document.getElementById('gratShareBtn').addEventListener('click',async()=>{
     document.getElementById('g2').value.trim(),
     document.getElementById('g3').value.trim()
   ].filter(Boolean);
-  if(items.length===0){alert('감사 내용을 먼저 입력해주세요.');return;}
-  await _db.collection('ws_grats').add({
+  if(items.length===0){alert('감사 내용을 먼저 적어주세요.');return;}
+  const shareBtn=document.getElementById('gratShareBtn'); if(shareBtn){shareBtn.disabled=true;shareBtn.textContent='나누는 중…';setTimeout(()=>{shareBtn.disabled=false;shareBtn.textContent='🌿 감사 나누기';},2500);}
+  let dup=false;
+  try{
+    const since=new Date(); since.setHours(0,0,0,0);
+    const prev=await _db.collection('ws_grats').where('authorEmail','==',CUR.email||CUR.id).get();
+    prev.forEach(d=>{const r=d.data()||{};const ts=r.createdAt&&r.createdAt.toDate?r.createdAt.toDate():null;if(!ts||ts<since)return;const a=(r.items||[]).map(x=>String(x).trim()).filter(Boolean);if(a.length===items.length&&a.every((x,i)=>x===items[i]))dup=true;});
+  }catch(e){}
+  if(!dup)await _db.collection('ws_grats').add({
     items,
     authorName:CUR.name,authorEmail:CUR.email||CUR.id,
     createdAt:firebase.firestore.FieldValue.serverTimestamp()
   });
-  // 팀에 나눈 것도 '오늘 감사를 적은 것'으로 함께 기록 — 리마인더가 다시 뜨지 않도록
+  // 팀에 나눈 것도 '오늘 감사를 적은 것'으로 함께 기록 — 리마인더가 다시 뜨지 않도록 (같은 내용이면 위에서 새로 안 만들고 여기만 갱신)
   try{
     const three=[document.getElementById('g1').value.trim(),document.getElementById('g2').value.trim(),document.getElementById('g3').value.trim()];
     LS.set(gratKey(),three);
@@ -4887,11 +4963,10 @@ document.getElementById('gratShareBtn').addEventListener('click',async()=>{
     updateGratRemind();
     saveGratCloud(today(),three);
   }catch(e){console.warn('감사 동기화 실패',e);}
-  const btn=document.getElementById('gratShareBtn');
-  btn.textContent='✓ 공유됐어요!';
-  setTimeout(()=>{btn.textContent='🌿 팀과 감사 나누기';},2500);
   gratEditing=false;
-  setTimeout(gratViewUpdate,900);
+  gratViewUpdate();
+  // 2026-09-18 대표: 나누면 "나눠주셔서 감사합니다" + 시편 50:23
+  thanksPop('나눠주셔서 감사합니다','"감사로 제사를 드리는 자가 나를 영화롭게 하나니 그의 행위를 옳게 하는 자에게 내가 하나님의 구원을 보이리라"','시편 50편 23절');
 });
 
 /* 지난 팀 감사 캘린더 (ws_grats 날짜별) */
@@ -6715,7 +6790,7 @@ async function closingSubmit(){
     clPickFile(null);
     if(st){st.textContent='✓ 제출되었습니다';setTimeout(()=>{if(st)st.textContent='';},4000);}
     const hint=document.getElementById('clDraftHint'); if(hint)hint.textContent='제출 완료';
-    if(typeof showToast==='function')showToast('📕','오늘의 클로징을 제출했어요. 수고하셨습니다.');
+    thanksPop('수고해주셔서 감사합니다.','함께해주셔서 감사합니다.','');   // 2026-09-18 대표
     if(clHistShown)clLoadHist();
   }catch(e){
     alert('제출 실패: '+((e&&e.message)||e));
@@ -6966,6 +7041,7 @@ function wbRender(){
   });
   html+='</tbody>';
   tb.innerHTML=html;
+  mwRender();
 }
 async function wbToggle(dow){
   if(!_db||!CUR||clIsExempt(CUR.id))return;
@@ -7237,7 +7313,11 @@ function navInit(){
   const home=mk('view-home'), grat=mk('view-grat'), closing=mk('view-closing'), cal=mk('view-cal'), ceos=mk('view-ceos'), page=mk('view-page'), ceov=mk('view-ceo');
   // 홈에 남는 것들을 순서대로 담는다
   c.insertBefore(home,c.firstChild);
-  ['.hello','#meetingBanner','#pushHint','#gratRemind','#topRow','.hero-row'].forEach(sel=>{const el=c.querySelector(sel);if(el)home.appendChild(el);});
+  ['.hello','#meetingBanner','#pushHint','#gratRemind','#topRow'].forEach(sel=>{const el=c.querySelector(sel);if(el)home.appendChild(el);});
+  const mw=document.createElement('div'); mw.className='panel my-week'; mw.id='myWeek';
+  mw.innerHTML='<div class="gh-top"><div><h3><span class="ic">🗓</span> 나의 이번 주</h3><p class="desc">내가 감사와 클로징을 어떻게 쓰고 있는지 — 쓰면 여기에 체크가 남아요</p></div><span class="mw-only">🔒 <b id="myWeekWho"></b> · 다른 사람에게는 보이지 않습니다</span></div><div id="myWeekBody"></div>';
+  home.appendChild(mw);
+  const hrw=c.querySelector('.hero-row'); if(hrw)home.appendChild(hrw);
   [grat,closing,cal,ceos,page,ceov].forEach(v=>home.after(v));
   // 감사 페이지 = 나의 감사노트(펼침) + 월간 감사 + 팀 감사 나눔 (2026-09-18 대표: "감사 페이지에는 나의 감사노트와 월간 감사가 잘 보이게")
   grat.innerHTML='<div class="panel"><div class="gh-top"><div><h3><span class="ic">📖</span> 나의 감사노트</h3><p class="desc">적은 날부터 오늘까지, 한 권</p></div><button class="gnb-btn" onclick="gnbOpen(CUR.id,CUR.name)">크게 펼치기</button></div><div id="gnbInline"></div></div>'
