@@ -1267,6 +1267,86 @@
     </div>
   </div>
 
+  <!-- 🗂 사이드바 인덱스 (2026-09-17 대표: "인덱스 형식으로 아예 개편, 사이드바처럼") -->
+  <style>
+    .snav{display:none;position:fixed;left:0;top:66px;bottom:0;width:232px;padding:16px 12px 28px;box-sizing:border-box;background:var(--card,#fffdf9);border-right:1px solid var(--line,#eae2d2);overflow-y:auto;z-index:4}
+    body.lit .snav{display:block}
+    .sn-g{margin-bottom:14px}
+    .sn-gh{font-size:10.5px;font-weight:800;letter-spacing:1.6px;color:#a3978a;margin:0 10px 6px}
+    .sn-item{display:flex;align-items:center;gap:10px;width:100%;border:none;background:none;text-align:left;padding:9px 10px;border-radius:10px;font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink,#2b2622);cursor:pointer;transition:background .12s}
+    .sn-item .ic{width:22px;text-align:center;font-size:16px;flex:none}
+    .sn-item:hover{background:var(--fill,#f3eee2)}
+    .sn-item.on{background:rgba(138,28,43,.09);color:var(--seal,#8A1C2B)}
+    .sn-item small{margin-left:auto;font-size:10.5px;color:#a3978a;font-weight:600;white-space:nowrap}
+    .sn-item .bd{margin-left:auto;background:var(--seal,#8A1C2B);color:#fff;font-size:10px;font-weight:800;border-radius:20px;padding:2px 7px;display:none}
+    .sn-more{margin-top:4px}
+    .sn-more summary{list-style:none;cursor:pointer;font-size:10.5px;font-weight:800;letter-spacing:1.6px;color:#a3978a;margin:0 10px 6px;display:flex;align-items:center;gap:6px}
+    .sn-more summary::-webkit-details-marker{display:none}
+    .sn-more summary:after{content:"▸";font-size:11px;margin-left:auto;transition:transform .15s}
+    .sn-more[open] summary:after{transform:rotate(90deg)}
+    .sn-more .sn-item{font-size:12.5px;font-weight:600;padding:7px 10px}
+    .sn-more .sn-item .ic{font-size:14px}
+    .sn-foot{margin:18px 10px 0;font-size:10.5px;color:#b8ad9e;line-height:1.5}
+    @media(min-width:900px){body.lit .container{margin-left:232px;max-width:none;padding:26px clamp(18px,3vw,40px) 80px}}
+    @media(max-width:899px){
+      .snav{position:sticky;top:66px;bottom:auto;width:auto;display:flex!important;flex-wrap:nowrap;overflow-x:auto;gap:2px;padding:6px 10px;border-right:none;border-bottom:1px solid var(--line,#eae2d2);white-space:nowrap}
+      .sn-g{display:flex;gap:2px;margin:0}.sn-gh{display:none}.sn-foot{display:none}
+      .sn-item{width:auto;padding:7px 9px;font-size:12.5px}.sn-item small,.sn-item .bd{display:none!important}
+      .sn-more{display:contents}.sn-more summary{display:none}
+    }
+    .view{display:none;flex-direction:column;gap:22px}
+    .view.on{display:flex}
+    #view-home>.hero-row{margin-bottom:0}
+    #topRow.solo{grid-template-columns:1fr}
+    #topRow.solo .verse-card{min-height:0;padding:22px 26px}
+    #topRow.solo .verse-kr{font-size:19px}
+    .pg-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .pg-head b{font-size:16px;color:var(--seal,#8A1C2B)}
+    .pg-head a{font-size:12.5px;color:#3a6ea5;font-weight:700;text-decoration:none;border:1px solid var(--line,#eae2d2);background:#fff;padding:7px 12px;border-radius:9px}
+    .pg-frame{width:100%;height:calc(100vh - 66px - 130px);min-height:520px;border:1px solid var(--line,#eae2d2);border-radius:16px;background:#fff}
+    #appGridBar,#appGrid,.mode-switch,#indexMode,#bellBtn,#ceoViewBtn{display:none!important}
+  </style>
+  <aside class="snav" id="sideNav">
+    <div class="sn-g">
+      <button class="sn-item" data-view="home" onclick="showView('home')"><span class="ic">🏠</span>홈</button>
+      <button class="sn-item" data-view="grat" onclick="showView('grat')"><span class="ic">♡</span>감사<small id="snGrat"></small></button>
+      <button class="sn-item" data-view="closing" onclick="showView('closing');clOpen()"><span class="ic">📕</span>클로징<small id="snClosing"></small></button>
+      <button class="sn-item" data-view="cal" onclick="showView('cal')"><span class="ic">📅</span>캘린더</button>
+      <button class="sn-item" data-view="ceos" onclick="showView('ceos');ceoScheduleOpen()"><span class="ic">🗓</span>대표 일정</button>
+      <button class="sn-item" onclick="document.getElementById('surfInBtn').click()"><span class="ic">✒️</span>메모<small>Surf In</small></button>
+      <button class="sn-item" onclick="document.getElementById('dmBtn').click()"><span class="ic">💬</span>메시지<span class="bd" id="snDm">0</span></button>
+    </div>
+    <div class="sn-g">
+      <div class="sn-gh">페이지</div>
+      <button class="sn-item" data-page="fin" onclick="pageOpen('fin')"><span class="ic">💰</span>재무 보드</button>
+      <button class="sn-item" data-page="intro" onclick="pageOpen('intro')"><span class="ic">📖</span>회사 소개</button>
+      <button class="sn-item" data-page="provee" onclick="pageOpen('provee')"><span class="ic">🎓</span>Provee 소개</button>
+      <button class="sn-item" data-page="org" onclick="pageOpen('org')"><span class="ic">🧭</span>조직</button>
+      <button class="sn-item" onclick="openApp('app-intra','🏢 회사 · 사내 내부망')"><span class="ic">🏢</span>사내 내부망</button>
+      <button class="sn-item" onclick="openWiki()"><span class="ic">📚</span>팀 위키</button>
+      <button class="sn-item" onclick="openAppPicker()"><span class="ic">🎓</span>Provee 앱</button>
+    </div>
+    <details class="sn-more" id="snMore">
+      <summary>도구</summary>
+      <button class="sn-item" onclick="openApp('app-todo','✅ 할 일 목록')"><span class="ic">✅</span>할 일</button>
+      <button class="sn-item" onclick="openApp('app-timetracker','⏱ Time Tracker');ttOpen()"><span class="ic">⏱</span>Time Tracker</button>
+      <button class="sn-item" onclick="openApp('app-checkin','📋 오늘의 체크인');subscribeCheckin();ckLoadExtras()"><span class="ic">📋</span>오늘의 체크인</button>
+      <button class="sn-item" onclick="openApp('app-proj','📈 프로젝트 · 진행사업 · 업무기한')"><span class="ic">📈</span>프로젝트</button>
+      <button class="sn-item" onclick="openBoardModal()"><span class="ic">🧠</span>브레인스토밍</button>
+      <button class="sn-item" onclick="openApp('app-drive','🗂 사내 드라이브')"><span class="ic">🗂</span>드라이브</button>
+      <button class="sn-item" onclick="openApp('app-later','👥 팀 공유 링크')"><span class="ic">👥</span>팀 공유 링크</button>
+      <button class="sn-item" onclick="openApp('app-meetingpoll','🗓 미팅 잡기');mpOpen()"><span class="ic">🗓</span>미팅 잡기</button>
+      <button class="sn-item" onclick="openApp('app-prayer','🕊 기도제목')"><span class="ic">🕊</span>기도제목</button>
+      <button class="sn-item" onclick="openApp('app-myboard','🗂 나의 보드');mbRender()"><span class="ic">🗂</span>나의 보드</button>
+      <button class="sn-item" onclick="openYoCall()"><span class="ic">🌤</span>요나단 부르기</button>
+      <button class="sn-item" onclick="callAgent()"><span class="ic">🤖</span>어푸 부르기</button>
+      <button class="sn-item sn-ceo" onclick="openApp('app-teamstatus','🧭 팀 현황');openTeamStatus()"><span class="ic">🧭</span>팀 현황</button>
+      <button class="sn-item sn-ceo" onclick="openCeoBoard()"><span class="ic">🎛</span>CEO 보드</button>
+      <button class="sn-item sn-ceo" onclick="openApp('app-yoreq','📨 받은 요청함');subscribeYoReqs()"><span class="ic">📨</span>받은 요청함</button>
+    </details>
+    <div class="sn-foot">URP Workspace · 감사로 열고 클로징으로 닫는 하루</div>
+  </aside>
+
   <div class="container">
     <div class="hello">
       <h2><span class="nm" id="greetName">-</span>님, 안녕하세요</h2>
@@ -1526,7 +1606,7 @@
       </div>
       </div><!-- /hero-left -->
       <div class="hero-right">
-      <div class="panel">
+      <div class="panel" id="panelTeamGrats">
         <h3><span class="ic">✦</span> 오늘의 팀 감사 나눔</h3>
         <p class="desc">오늘 팀이 나눈 감사 · 매일 새로 시작해요</p>
         <div class="grat-feed" id="gratFeed"></div>
@@ -1698,7 +1778,7 @@
             <button class="ix-item" onclick="openApp('app-ceoschedule','🗓 대표 일정');ceoScheduleOpen()"><span>🗓</span><b>대표 일정</b><i>대표님 일정 확인 · 미팅 신청</i></button>
             <button class="ix-item" onclick="openWiki()"><span>📚</span><b>팀 위키</b><i>공유 문서</i></button>
             <button class="ix-item" onclick="openAppPicker()"><span>🎓</span><b class="provee-wm">Provee<span class="wm-dot"></span></b><i>우리 앱 모아보기</i></button>
-            <button class="ix-item" onclick="window.open('https://youareprofessor.github.io/urp-finance/','_blank','noopener')"><span>💰</span><b>재무 보드</b><i>수익·비용·손익 실시간 공유</i></button>
+            <button class="ix-item" onclick="window.open('https://fin.provee.kr/','_blank','noopener')"><span>💰</span><b>재무 보드</b><i>수익·비용·손익 실시간 공유</i></button>
           </div>
           <div class="ix-group">
             <div class="ix-gh">🛠 도구</div>
@@ -1753,7 +1833,7 @@
       <button class="appicon" data-appid="closing" onclick="openApp('app-closing','📕 클로징 리포트');clOpen();"><span class="tile" style="background:linear-gradient(150deg,#a33f3a,#6d211f)">📕</span><span class="lbl">클로징 리포트</span></button>
       <button class="appicon" data-appid="yonathan" onclick="openYoCall()"><span class="tile" style="background:linear-gradient(150deg,#6db3d9,#3f7fb0)">🌤</span><span class="lbl">요나단·요청</span></button>
       <button class="appicon" data-appid="urpintro" onclick="window.open('https://kevintheeco.github.io/urp-sogaeso/','_blank','noopener')"><span class="tile" style="background:linear-gradient(150deg,#ec6a3a,#bf471a)">📖</span><span class="lbl">회사 소개</span></button>
-      <button class="appicon" data-appid="urpfinance" onclick="window.open('https://youareprofessor.github.io/urp-finance/','_blank','noopener')"><span class="tile" style="background:linear-gradient(150deg,#e8a23a,#b06a1a)">💰</span><span class="lbl">재무 보드</span></button>
+      <button class="appicon" data-appid="urpfinance" onclick="window.open('https://fin.provee.kr/','_blank','noopener')"><span class="tile" style="background:linear-gradient(150deg,#e8a23a,#b06a1a)">💰</span><span class="lbl">재무 보드</span></button>
     </div>
 
     <!-- 앱 본체 보관소 (아이콘 클릭 시 창으로 이동, 닫으면 되돌아옴) -->
@@ -2369,7 +2449,7 @@
           <a href="https://kevintheeco.github.io/urp-invitation/briefing.html" target="_blank"><span class="t">사업 브리핑</span><span class="d">우리가 만드는 것, 가는 길</span></a>
           <a href="https://kevintheeco.github.io/urp-invitation/" target="_blank"><span class="t">초대장</span><span class="d">함께할 사람을 부르는 편지</span></a>
           <a href="#" onclick="openWiki();return false;"><span class="t">사내 위키</span><span class="d">문서 · 회의록 · 정책</span></a>
-          <a href="https://youareprofessor.github.io/urp-finance/" target="_blank"><span class="t">재무 보드</span><span class="d">수익·비용·손익 한눈에</span></a>
+          <a href="https://fin.provee.kr/" target="_blank"><span class="t">재무 보드</span><span class="d">수익·비용·손익 한눈에</span></a>
         </div>
       </div>
 
@@ -2967,6 +3047,7 @@ function googleSignIn(){
 function enterDash(){
   screen.style.display='none';
   document.body.classList.add('lit');        // 숲의 문을 지나 일터로 — 낮의 숲 테마 켜기
+  navInit();                                 // 사이드바 인덱스 + 화면 배치 (2026-09-17)
   document.getElementById('dash').classList.add('show');
   const ab=document.getElementById('adminBtn'); if(ab) ab.style.display=(CUR&&CUR.code==='CEO')?'inline-block':'none';
   const cvb=document.getElementById('ceoViewBtn'); if(cvb) cvb.style.display=(CUR&&CUR.code==='CEO')?'inline-block':'none';
@@ -3666,12 +3747,7 @@ document.getElementById('bellBtn').addEventListener('click',()=>openApp('app-tas
   }
   var _open=null;
   window.openApp=function(id,title){
-    if(id==='app-grat'){   // 감사 칸은 시작화면 맨 위에 상주(2026-09-17) — 모달 대신 그리로 간다
-      try{setPortalMode('home');}catch(e){}
-      var g=document.getElementById('app-grat'); if(g)g.scrollIntoView({behavior:'smooth',block:'center'});
-      var g1=document.getElementById('g1'); if(g1)setTimeout(function(){g1.focus();},350);
-      return;
-    }
+    if(typeof VIEW_OF_APP!=='undefined'&&VIEW_OF_APP[id]){ showView(VIEW_OF_APP[id]); return; }   // 감사·클로징·캘린더·대표 일정은 화면(2026-09-17)
     var s=document.getElementById('appStash');
     var node=s&&s.querySelector('[data-app="'+id+'"]');
     if(!node) return;
@@ -6990,10 +7066,67 @@ async function clHomeRender(){
   box.innerHTML=html;
 }
 
+/* ===== 🗂 사이드바 인덱스 + 화면(view) 전환 (2026-09-17 대표: "인덱스 형식으로 아예 개편") =====
+   화면: home / grat / closing / cal / ceos / page. 앱 격자·홈-인덱스 스위치는 폐기(CSS로 숨김).
+   기존 패널은 지우지 않고 자리만 옮긴다 — 감사 카드·클로징 카드·클로징 앱·캘린더·대표 일정은 보관소에서 각 화면으로. */
+const PAGES={
+  fin:{title:'💰 재무 보드',url:'https://fin.provee.kr/'},
+  intro:{title:'📖 회사 소개',url:'https://kevintheeco.github.io/urp-sogaeso/'},
+  provee:{title:'🎓 Provee 소개',url:'https://provee.kr/'},
+  org:{title:'🧭 조직 · 누가 무엇을 책임지는가',url:'org-2026-09.html'}
+};
+const VIEW_OF_APP={'app-grat':'grat','app-closing':'closing','app-cal':'cal','app-ceoschedule':'ceos'};
+let navReady=false, curView='home';
+function navInit(){
+  if(navReady)return; navReady=true;
+  const c=document.querySelector('.container'); if(!c)return;
+  const mk=(id)=>{const d=document.createElement('div');d.className='view';d.id=id;return d;};
+  const home=mk('view-home'), grat=mk('view-grat'), closing=mk('view-closing'), cal=mk('view-cal'), ceos=mk('view-ceos'), page=mk('view-page');
+  // 홈에 남는 것들을 순서대로 담는다
+  c.insertBefore(home,c.firstChild);
+  ['.hello','#meetingBanner','#pushHint','#gratRemind','#topRow','#weekBoard','.hero-row'].forEach(sel=>{const el=c.querySelector(sel);if(el)home.appendChild(el);});
+  [grat,closing,cal,ceos,page].forEach(v=>home.after(v));
+  const mv=(id,to)=>{const el=document.getElementById(id)||document.querySelector('[data-app="'+id+'"]');if(el)to.appendChild(el);};
+  mv('app-grat',grat); mv('panelTeamGrats',grat);
+  mv('clHome',closing); mv('app-closing',closing);
+  mv('app-cal',cal);
+  mv('app-ceoschedule',ceos);
+  const tr=document.getElementById('topRow'); if(tr)tr.classList.add('solo');
+  page.innerHTML='<div class="pg-head"><b id="pgTitle"></b><a id="pgOpen" href="#" target="_blank" rel="noopener">새 탭에서 열기 ↗</a></div><iframe class="pg-frame" id="pgFrame" title="페이지" referrerpolicy="no-referrer-when-downgrade"></iframe>';
+  // 메시지 배지
+  const dmc=document.getElementById('dmCount'), sd=document.getElementById('snDm');
+  const sync=()=>{if(!dmc||!sd)return;const n=(dmc.textContent||'').trim();const show=dmc.style.display!=='none'&&n&&n!=='0';sd.textContent=n;sd.style.display=show?'inline-block':'none';};
+  if(dmc&&sd){new MutationObserver(sync).observe(dmc,{attributes:true,childList:true,characterData:true,subtree:true});sync();}
+  // 대표 전용 도구
+  const ceo=!!(CUR&&CUR.code==='CEO');
+  document.querySelectorAll('.sn-ceo').forEach(el=>{el.style.display=ceo?'':'none';});
+  let v='home'; try{v=localStorage.getItem('ws:view')||'home';}catch(e){}
+  if(v==='page')v='home';
+  showView(v);
+}
+function showView(name){
+  if(!document.getElementById('view-'+name))name='home';
+  curView=name;
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='view-'+name));
+  document.querySelectorAll('.sn-item[data-view]').forEach(b=>b.classList.toggle('on',b.dataset.view===name));
+  if(name!=='page')document.querySelectorAll('.sn-item[data-page]').forEach(b=>b.classList.remove('on'));
+  try{localStorage.setItem('ws:view',name);}catch(e){}
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(name==='grat'){const g1=document.getElementById('g1');if(g1&&document.getElementById('gratEntry').style.display!=='none')setTimeout(()=>g1.focus(),300);}
+  if(name==='cal'&&typeof renderCal==='function'){try{renderCal();}catch(e){}}
+}
+function pageOpen(key){
+  const p=PAGES[key]; if(!p)return;
+  showView('page');
+  document.querySelectorAll('.sn-item[data-page]').forEach(b=>b.classList.toggle('on',b.dataset.page===key));
+  const t=document.getElementById('pgTitle'), a=document.getElementById('pgOpen'), f=document.getElementById('pgFrame');
+  if(t)t.textContent=p.title; if(a)a.href=p.url; if(f&&f.src!==p.url)f.src=p.url;
+}
+
 /* ===== 홈 / 인덱스 모드 전환 + 인덱스 대시보드 ===== */
 let portalMode='home';
 function setPortalMode(m){
-  portalMode=(m==='index')?'index':'home';
+  portalMode='home';   // 2026-09-17 사이드바 개편으로 인덱스 모드 폐기 — 항상 홈
   try{localStorage.setItem('ws:portalMode',portalMode);}catch(e){}
   const idx=portalMode==='index';
   const im=document.getElementById('indexMode'); if(im)im.style.display=idx?'block':'none';
