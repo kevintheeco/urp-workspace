@@ -2039,6 +2039,23 @@
         #app-closing .cl-attach .cl-drop{margin-top:10px;padding:18px 14px}
         #app-closing .cl-prev{font-size:12px;color:#6a5a48;margin-top:8px}
         #app-closing .cl-prev a{color:#3a6ea5}
+        #app-closing .cl-tlab{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;margin-top:14px}
+        #app-closing .cl-tlab .cl-hlab{font-size:13px;color:#6a5a48;font-weight:700}
+        #app-closing .cl-tgrid{margin-top:8px;display:flex;flex-direction:column;gap:10px;background:#fffdf7;border:1px solid #d6c6a0;border-radius:12px;padding:10px 12px 8px;overflow-x:auto;user-select:none;-webkit-user-select:none}
+        #app-closing .cl-trow{display:grid;grid-template-columns:44px repeat(24,minmax(22px,1fr));grid-template-rows:14px 26px;column-gap:2px;min-width:560px;align-items:end}
+        #app-closing .cl-trow .lab{grid-row:1/3;font-size:10.5px;font-weight:800;color:#8d7a58;line-height:1.2;padding-right:6px;align-self:center}
+        #app-closing .cl-trow .hh{font-size:9.5px;color:#b8a984;text-align:left;white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1}
+        #app-closing .cl-trow .hh.nx{color:#8A1C2B;font-weight:700}
+        #app-closing .cl-tc{height:26px;border-radius:5px;background:#f2ede0;cursor:pointer;border:1px solid transparent;touch-action:none}
+        #app-closing .cl-tc:nth-child(odd){border-right:none}
+        #app-closing .cl-tc.hour{border-left:1px solid #e3d9c6}
+        #app-closing .cl-tc:hover{border-color:#bb924a}
+        #app-closing .cl-tc.on{background:#8A1C2B}
+        #app-closing .cl-tc.on:hover{background:#6B1420}
+        #app-closing .cl-tmanual{margin-top:8px}
+        #app-closing .cl-tmanual summary{font-size:11.5px;color:#9a8a6a;cursor:pointer}
+        #app-closing .cl-tmanual summary span{color:#b8a984;font-weight:600;margin-left:4px}
+        #app-closing .cl-tmanual .cl-hin{margin-top:8px}
         #app-closing .cl-hrow.rd{cursor:pointer}
         #app-closing .cl-hrow.rd:hover{border-color:var(--gold,#bb924a)}
       </style>
@@ -2067,14 +2084,13 @@
         <div class="cl-sec" id="clWriteSec">
           <div class="cl-lab">✍️ 오늘의 클로징 쓰기<span class="hint" id="clDraftHint">쓰는 동안 자동으로 임시저장돼요</span></div>
 
-          <div class="cl-fields">
-            <label class="cl-fld cl-hwrap">
-              <span class="cl-hlab">오늘 투자한 시간<span class="cl-hhint">구간을 그대로 적으면 알아서 더합니다 · 숫자만도 됩니다</span></span>
-              <input id="clHours" class="cl-hin" type="text" autocomplete="off"
-                placeholder="오전 10:40-12:00 / 오후 2:00-3:00 / 오전 1:30-4:00" />
-              <span class="cl-hsum" id="clHoursSum"></span>
-            </label>
-          </div>
+          <!-- 투자 시간 — 칸을 끌어서 칠한다 (2026-09-17 대표: CEO 보드처럼, 새벽 근무자 위해 오늘 06:00 → 다음날 06:00) -->
+          <div class="cl-tlab"><span class="cl-hlab">오늘 투자한 시간<span class="cl-hhint">칸을 누르거나 끌어서 칠하세요 · 30분 단위 · 오늘 06:00부터 다음날 06:00까지</span></span><span class="cl-hsum" id="clHoursSum"></span></div>
+          <div class="cl-tgrid" id="clTimeGrid"></div>
+          <details class="cl-tmanual" id="clManual">
+            <summary>직접 적기 <span>칠하기 어려우면 글로 — 예: 오전 10:40-12:00 / 오후 2:00-3:00, 또는 5.8</span></summary>
+            <input id="clHours" class="cl-hin" type="text" autocomplete="off" placeholder="오전 10:40-12:00 / 오후 2:00-3:00 / 오전 1:30-4:00" />
+          </details>
           <input class="cl-note" id="clNote" placeholder="한 줄 제목 (선택) — 예: 채점 프롬프트 원가 38% 구간 파보기" />
 
           <label class="cl-wlab" for="clDid">한 일<span>Before/After · 공부한 것 · 만들거나 고친 이유 · 분석과 인사이트</span></label>
@@ -6240,19 +6256,61 @@ function clParseHours(raw){
   if(!parts.length)return{hours:0,parts:[],ok:false};
   return{hours:Math.min(Math.round(total/60*100)/100,24),parts,ok:true};
 }
-function clHoursEcho(){
-  const el=document.getElementById('clHours'), out=document.getElementById('clHoursSum');
-  if(!el||!out)return 0;
-  const v=(el.value||'').trim();
-  if(!v){out.textContent='';out.classList.remove('bad');return 0;}
-  const r=clParseHours(v);
-  if(!r.ok||!(r.hours>0)){
-    out.textContent='시간을 못 읽었어요 — 숫자로만 적어주셔도 됩니다 (예: 5.8)';
-    out.classList.add('bad'); return 0;
+/* ── 투자 시간 그리드: 30분 칸 48개, i=0 → 오늘 06:00, i=47 → 다음날 05:30 (2026-09-17) ──
+   칠한 칸이 있으면 그것이 정답(hours=칸수/2, hoursText는 구간 문장으로 자동 생성, slots 배열도 저장).
+   칸이 하나도 없으면 '직접 적기' 글을 clParseHours로 읽는다. */
+const CL_T0=360, CL_TN=48;
+let clSlots=new Set(), clTPaint=false, clTVal=true, clTBound=false;
+function clTMin(i){return CL_T0+30*i;}
+function clTHm(m){m=m%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');}
+function clTimeRender(){
+  const g=document.getElementById('clTimeGrid'); if(!g)return;
+  const row=(from,to,lab)=>{
+    let h='<div class="cl-trow"><div class="lab">'+lab+'</div>';
+    for(let i=from;i<to;i++){const m=clTMin(i);h+=(i%2===0)?'<div class="hh'+(m>=1440?' nx':'')+'" style="grid-column:'+(i-from+2)+'/span 2">'+(m>=1440&&m%1440===0?'다음날 ':'')+clTHm(m).slice(0,2)+'</div>':'';}
+    for(let i=from;i<to;i++)h+='<div class="cl-tc'+(clSlots.has(i)?' on':'')+(i%2===0?' hour':'')+'" data-i="'+i+'" style="grid-row:2;grid-column:'+(i-from+2)+'" title="'+clTHm(clTMin(i))+'~'+clTHm(clTMin(i)+30)+'"></div>';
+    return h+'</div>';
+  };
+  g.innerHTML=row(0,24,'낮<br>06→18')+row(24,48,'밤<br>18→06');
+  if(!clTBound){
+    clTBound=true;
+    g.addEventListener('mousedown',e=>{const c=e.target.closest('.cl-tc');if(!c)return;e.preventDefault();clTPaint=true;clTVal=!clSlots.has(+c.dataset.i);clTSet(+c.dataset.i,clTVal);});
+    g.addEventListener('mouseover',e=>{if(!clTPaint)return;const c=e.target.closest('.cl-tc');if(c)clTSet(+c.dataset.i,clTVal);});
+    g.addEventListener('touchstart',e=>{const c=e.target.closest('.cl-tc');if(!c)return;clTPaint=true;clTVal=!clSlots.has(+c.dataset.i);clTSet(+c.dataset.i,clTVal);},{passive:true});
+    g.addEventListener('touchmove',e=>{if(!clTPaint)return;const t=e.touches[0];const el=document.elementFromPoint(t.clientX,t.clientY);const c=el&&el.closest?el.closest('.cl-tc'):null;if(c){clTSet(+c.dataset.i,clTVal);e.preventDefault();}},{passive:false});
+    window.addEventListener('mouseup',()=>{if(clTPaint){clTPaint=false;clDraftTouch();}});
+    window.addEventListener('touchend',()=>{if(clTPaint){clTPaint=false;clDraftTouch();}});
   }
+}
+function clTSet(i,on){
+  if(on)clSlots.add(i);else clSlots.delete(i);
+  const c=document.querySelector('#clTimeGrid .cl-tc[data-i="'+i+'"]'); if(c)c.classList.toggle('on',on);
+  clHoursEcho();
+}
+/* 칠한 칸 → 구간 문장 "10:30-12:00 / 다음날 01:00-03:00" */
+function clSlotsText(){
+  const arr=Array.from(clSlots).sort((a,b)=>a-b); const parts=[]; let s=null,p=null;
+  arr.forEach(i=>{if(s===null){s=i;p=i;return;} if(i===p+1){p=i;return;} parts.push([s,p]); s=i;p=i;});
+  if(s!==null)parts.push([s,p]);
+  return parts.map(([a,b])=>{const m1=clTMin(a),m2=clTMin(b)+30;return (m1>=1440?'다음날 ':'')+clTHm(m1)+'-'+(m2>=1440&&m1<1440?'다음날 ':'')+clTHm(m2);}).join(' / ');
+}
+/* 지금 유효한 투자 시간 — 칸이 있으면 칸, 없으면 글 */
+function clEffHours(){
+  if(clSlots.size)return{hours:clSlots.size/2,hoursText:clSlotsText(),slots:Array.from(clSlots).sort((a,b)=>a-b),ok:true};
+  const v=((document.getElementById('clHours')||{}).value||'').trim();
+  if(!v)return{hours:0,hoursText:'',slots:[],ok:false};
+  const r=clParseHours(v);
+  return{hours:r.hours,hoursText:v,slots:[],ok:r.ok&&r.hours>0};
+}
+function clHoursEcho(){
+  const out=document.getElementById('clHoursSum'); if(!out)return 0;
+  const e=clEffHours();
+  if(clSlots.size){out.classList.remove('bad');out.textContent='= '+e.hours+'시간 · '+e.hoursText;return e.hours;}
+  if(!e.hoursText){out.textContent='';out.classList.remove('bad');return 0;}
+  if(!e.ok){out.textContent='시간을 못 읽었어요 — 숫자로만 적어주셔도 됩니다 (예: 5.8)';out.classList.add('bad');return 0;}
   out.classList.remove('bad');
-  out.textContent='= '+r.hours+'시간'+(r.parts.length>1?' ('+r.parts.length+'개 구간 합계)':'');
-  return r.hours;
+  out.textContent='= '+e.hours+'시간 (직접 적음)';
+  return e.hours;
 }
 function clSizeTx(b){b=b||0;return b>=1048576?(b/1048576).toFixed(1)+'MB':Math.max(1,Math.round(b/1024))+'KB';}
 
@@ -6263,6 +6321,7 @@ function clOpen(){
   clToday_=clToday();
   clBoardWk=clWeekKey(clToday_);
   clBindOnce();
+  clTimeRender();
   const ex=clIsExempt(CUR.id);
   ['clWriteSec','clMe','clPlan','clHistToggle','clHistList'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=ex?'none':'';});
   const exn=document.getElementById('clExemptNote'); if(exn)exn.style.display=ex?'flex':'none';
@@ -6317,7 +6376,8 @@ function clPickFile(f){
 }
 function clFields(){
   const v=id=>((document.getElementById(id)||{}).value||'');
-  return{hoursText:v('clHours').trim(),note:v('clNote').trim(),did:v('clDid').trim(),todo:v('clTodo').trim(),walk:v('clWalk').trim()};
+  const t=clEffHours();
+  return{hoursText:t.hoursText,hours:t.hours,slots:t.slots,note:v('clNote').trim(),did:v('clDid').trim(),todo:v('clTodo').trim(),walk:v('clWalk').trim()};
 }
 function clCountEcho(){
   const el=document.getElementById('clCount'); if(!el)return;
@@ -6343,7 +6403,7 @@ async function clDraftSave(){
     await _db.collection('ws_closings').doc(clDocId(CUR.id,date)).set({
       email:CUR.id,name:CUR.name,code:CUR.code||'',date,weekKey:clWeekKey(date),dow:clParse(date).getDay(),
       fullTime:clIsFull(CUR.id),status:'임시',
-      hoursText:f.hoursText,hours:clParseHours(f.hoursText).hours,note:f.note,did:f.did,todo:f.todo,walk:f.walk,
+      hoursText:f.hoursText,hours:f.hours,slots:f.slots,note:f.note,did:f.did,todo:f.todo,walk:f.walk,
       draftAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     },{merge:true});
     if(hint){const d=new Date();hint.textContent='임시저장됨 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
@@ -6379,7 +6439,8 @@ function clRenderMe(d){
   // 기존 글(임시저장·제출본)을 칸에 채워두기 — 쓰는 중인 칸은 건드리지 않는다
   if(d){
     const fill=(id,val)=>{const el=document.getElementById(id);if(el&&document.activeElement!==el&&el.value===''&&val)el.value=val;};
-    fill('clHours',d.hoursText||(d.hours!=null?String(d.hours):''));
+    if(Array.isArray(d.slots)&&d.slots.length&&!clSlots.size){clSlots=new Set(d.slots.map(Number));clTimeRender();}
+    else if(!(Array.isArray(d.slots)&&d.slots.length)){fill('clHours',d.hoursText||(d.hours!=null?String(d.hours):''));const mn=document.getElementById('clManual');if(mn&&d.hoursText)mn.open=true;}
     fill('clNote',d.note); fill('clDid',d.did); fill('clTodo',d.todo); fill('clWalk',d.walk);
     clHoursEcho(); clCountEcho();
     const b=document.getElementById('clSubmitBtn');
@@ -6441,14 +6502,14 @@ async function closingSubmit(){
   const btn=document.getElementById('clSubmitBtn');
   const hoursEl=document.getElementById('clHours');
   const f=clFields();
-  const hours=clParseHours(f.hoursText).hours;
+  const hours=f.hours;
   const noAi=!!(document.getElementById('clNoAi')||{}).checked;
   const date=clToday_||clToday();
   let prev=null;
   try{const s=await _db.collection('ws_closings').doc(clDocId(CUR.id,date)).get();prev=s.exists?s.data():null;}catch(e){}
 
   if(!f.did){alert('"한 일"을 적어주세요. 오늘 무엇을 어디까지 했는지, 자기 말로요.');const el=document.getElementById('clDid');if(el)el.focus();return;}
-  if(!(hours>0)){alert('오늘 투자한 시간을 적어주세요. 밀도와 꾸준함을 보는 칸이에요.\n\n리포트에 적은 구간을 그대로 붙여넣어도 되고(예: 오전 10:40-12:00 / 오후 2:00-3:00),\n숫자만 적으셔도 됩니다(예: 5.8).');if(hoursEl)hoursEl.focus();return;}
+  if(!(hours>0)){alert('오늘 투자한 시간을 칠해주세요. 밀도와 꾸준함을 보는 칸이에요.\n\n시간 칸을 끌어서 칠하거나, "직접 적기"에 구간이나 숫자를 적으셔도 됩니다(예: 5.8).');const tg=document.getElementById('clTimeGrid');if(tg)tg.scrollIntoView({behavior:'smooth',block:'center'});return;}
   if(!noAi){alert('AI를 쓰지 않고 직접 썼다는 확인에 체크해주세요. 8/19에 함께 한 약속입니다.');return;}
   if(clPickedFile&&!_storage){alert('첨부 저장소에 연결되지 않았어요. 첨부를 빼고 제출해주세요.');return;}
 
@@ -6475,7 +6536,7 @@ async function closingSubmit(){
     const payload={
       email:CUR.id,name:CUR.name,code:CUR.code||'',date,weekKey:clWeekKey(date),
       dow:clParse(date).getDay(),fullTime:clIsFull(CUR.id),
-      hours,hoursText:f.hoursText,note:f.note,did:f.did,todo:f.todo,walk:f.walk,chars,
+      hours,hoursText:f.hoursText,slots:f.slots,note:f.note,did:f.did,todo:f.todo,walk:f.walk,chars,
       noAiPledge:true,status:'제출',written:true,   // written=본문을 워크스페이스에서 씀 (파일 제출과 구분)
       submittedAt:prev&&prev.submittedAt?prev.submittedAt:firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt:firebase.firestore.FieldValue.serverTimestamp()
