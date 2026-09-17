@@ -240,14 +240,18 @@ exports.timetrackerNudge = functions.pubsub.schedule('0 10,13,17 * * 1-5').timeZ
   // 오늘 가능시간을 실제로 칠한 사람(hours 1칸 이상) 집합
   const av = await db.collection('ws_availability').where('date', '==', today).get();
   const filled = new Set();
-  av.forEach(d => { const v = d.data() || {}; if ((v.hours || []).length > 0) filled.add(v.email); });
-  // 전체 멤버 중 안 칠한 사람에게 어푸가 DM (대표 포함 전원, 현우는 명단에서 이미 빠짐)
+  av.forEach(d => { const v = d.data() || {}; if ((v.hours || []).length > 0 || v.allDayNo) filled.add(v.email); });   // '안돼요'도 적은 것
+  // 2026-09-17부터: 시작화면 표에서 오늘을 클로징 데이로 체크한 사람에게만 (체크 안 한 날은 쉬는 날)
+  const todayP = seoulPaddedKey(0);
+  const daysBy = await closingDaysOfWeek(closingWeekKey(todayP));
+  const dow = dowOf(todayP);
   const members = await db.collection('ws_members').get();
   const msg = `⏱ 오늘 타임트래커에 가능시간이 아직 비어 있어요! 잠깐 칠해주세요 🙏\n<${SITE}|워크스페이스 열기>`;
-  let sent = 0, missed = 0;
+  let sent = 0, missed = 0, rest = 0;
   for (const m of members.docs) {
     const email = m.id; const v = m.data() || {};
     if (filled.has(email)) continue;
+    if (!closingIsDue(email, dow, Object.prototype.hasOwnProperty.call(daysBy, email) ? daysBy[email] : null, v.closingMode)) { rest++; continue; }
     const uid = await slackFindUser(token, email, v.name);
     if (!uid) { missed++; console.warn('타임트래커 알림: 슬랙 유저 못 찾음 —', email, v.name); continue; }
     try {
@@ -257,7 +261,7 @@ exports.timetrackerNudge = functions.pubsub.schedule('0 10,13,17 * * 1-5').timeZ
       sent++;
     } catch (e) { missed++; }
   }
-  console.log(`타임트래커 알림(${today}): ${sent}명 발송, ${missed}명 실패`);
+  console.log(`타임트래커 알림(${today}): ${sent}명 발송, ${missed}명 실패, ${rest}명 쉬는 날 제외`);
   return null;
 });
 
@@ -361,6 +365,26 @@ exports.testMorningBrief = functions.https.onRequest(async (req, res) => {
  * 8/19 대면세션 루틴: 풀타임(수민·지민·정범)=평일 매일 / 파트타임=주 3일 본인 지정.
  * ws_closings는 0패딩 날짜(ckToday 형식)를 쓴다 — seoulDateKey()(패딩 없음)와 섞지 말 것. */
 const CLOSING_FULLTIME = ['soomin020114@gmail.com', 'tangbole0430@gmail.com', 'sjmjis0208@gmail.com'];
+/* 2026-09-17부터 클로징 데이는 전원이 시작화면 표에서 직접 체크한다(ws_closing_days.days).
+ * 체크 문서가 없으면 기본값: 풀타임=월~금, 파트타임·자율=없음. 자율도 체크한 날은 약속으로 본다.
+ * 포털 index.html의 clDefaultDays/clIsDue와 같은 규칙 — 한쪽만 고치지 말 것. */
+function closingDefaultDays(email, mode) {
+  if (mode === '자율') return [];
+  return CLOSING_FULLTIME.includes(email) ? [1, 2, 3, 4, 5] : [];
+}
+function closingIsDue(email, dow, days, mode) {
+  const arr = Array.isArray(days) ? days : closingDefaultDays(email, mode);
+  return arr.includes(dow);
+}
+// weekKey(월요일, 0패딩)로 그 주의 체크표를 {email: days[]}로 — 문서 없는 사람은 키 자체가 없다
+async function closingDaysOfWeek(wk) {
+  const daysBy = {};
+  try {
+    const ds = await db.collection('ws_closing_days').where('weekKey', '==', wk).get();
+    ds.forEach(d => { const r = d.data() || {}; if (r.email) daysBy[r.email] = Array.isArray(r.days) ? r.days : []; });
+  } catch (e) { /* skip */ }
+  return daysBy;
+}
 function seoulPaddedKey(offsetDays) {
   const k = new Date(Date.now() + 9 * 3600 * 1000 + (offsetDays || 0) * 86400000);
   const p = n => String(n).padStart(2, '0');
@@ -380,11 +404,7 @@ async function buildClosingBrief(offsetDays) {
   const dow = dowOf(date);
   const wk = closingWeekKey(date);
   const members = await db.collection('ws_members').get();
-  const daysBy = {};
-  try {
-    const ds = await db.collection('ws_closing_days').where('weekKey', '==', wk).get();
-    ds.forEach(d => { const r = d.data() || {}; daysBy[r.email] = r.days || []; });
-  } catch (e) { /* skip */ }
+  const daysBy = await closingDaysOfWeek(wk);
   const rows = {};
   try {
     const cs = await db.collection('ws_closings').where('date', '==', date).get();
@@ -397,12 +417,13 @@ async function buildClosingBrief(offsetDays) {
     // closingMode '자율' = 대표가 선택권을 준 사람(조건부 합류 등). 내면 기록하되 의무로 잡지 않는다.
     const free = v.closingMode === '자율';
     const full = CLOSING_FULLTIME.includes(email);
-    const due = free ? false : (full ? (dow >= 1 && dow <= 5) : (daysBy[email] || []).includes(dow));
+    const has = Object.prototype.hasOwnProperty.call(daysBy, email);
+    const due = closingIsDue(email, dow, has ? daysBy[email] : null, v.closingMode);
     const r = rows[email];
-    if (r && r.status === '제출') done.push(`${nm} ${r.hours || '?'}시간${r.note ? ' — ' + String(r.note).slice(0, 40) : ''}`);
+    if (r && r.status === '제출') done.push(`${nm} ${r.hours || '?'}시간${r.note ? ' — ' + String(r.note).slice(0, 40) : (r.did ? ' — ' + String(r.did).slice(0, 40) : '')}`);
     else if (r && r.status === '사전보고') excused.push(`${nm} — ${String(r.excuse || '').slice(0, 50)}${r.advanceHours >= 24 ? ' (24시간 전 ✓)' : ''}`);
     else if (due) missing.push(nm);
-    else if (!full && !free && !(daysBy[email] || []).length) unset.push(nm);
+    else if (!full && !free && !has) unset.push(nm);   // 파트타임인데 이번 주 표를 아직 안 체크함
   });
 
   const dueCount = done.length + excused.length + missing.length;
@@ -411,7 +432,7 @@ async function buildClosingBrief(offsetDays) {
   if (done.length) msg += `\n✅ ${done.join('\n✅ ')}`;
   if (excused.length) msg += `\n🕗 ${excused.join('\n🕗 ')}`;
   if (missing.length) msg += `\n⛔ 아직 안 낸 사람: ${missing.join(', ')}`;
-  if (unset.length) msg += `\n🗓 이번 주 클로징 데이 미지정: ${unset.join(', ')}`;
+  if (unset.length) msg += `\n🗓 이번 주 표 미체크: ${unset.join(', ')}`;
   msg += `\n\n<${SITE}|워크스페이스에서 보기>`;
   return { msg, dueCount, quiet: dueCount === 0 && !unset.length };
 }

@@ -239,6 +239,8 @@
   .tt-no-btn.on{background:#9c4a42;color:#f3e6c8;border-color:#9c4a42;}
   td.tt-cell.tt-no{background:repeating-linear-gradient(45deg,#eee5d0 0 5px,#d9cdb0 5px 10px)!important;cursor:default;}
   .tt-th-no{display:block;font-size:9.5px;color:#9c4a42;font-weight:700;letter-spacing:.5px;margin-top:2px;}
+  .tt-th-rest{display:block;font-size:9.5px;color:#a3978a;font-weight:700;letter-spacing:.5px;margin-top:2px;}
+  td.tt-cell.tt-rest{background:#f7f4ec!important;opacity:.45;}
   .tt-best{margin-top:12px;padding:11px 14px;border-radius:10px;background:rgba(50,140,70,.1);border:1px solid rgba(50,140,70,.3);font-size:13px;color:#1f6b38;}
   .tt-best b{font-family:"Nanum Myeongjo",serif;}
 
@@ -914,9 +916,10 @@
     .meeting-banner{order:3;}
     .push-hint{order:4;}
     .grat-remind{order:5;}
-    .hero-row{order:6;}
-    #appStash{order:7;}
-    .footer{order:8;}
+    #weekBoard{order:6;}
+    .hero-row{order:7;}
+    #appStash{order:8;}
+    .footer{order:9;}
 
     .topbar{padding:10px 12px;gap:6px;flex-wrap:wrap;row-gap:8px;}
     .brand .c{width:32px;height:32px;font-size:12px;}
@@ -1299,6 +1302,71 @@
       <span class="gr-tx">🌿 오늘의 감사 3가지, 아직 안 적으셨어요.</span>
       <button onclick="openApp('app-grat','🙏 오늘의 감사')">지금 적기</button>
       <button class="ghost" onclick="dismissGratRemind()">확인</button>
+    </div>
+
+    <!-- 🗓 이번 주 오프닝·클로징 표 (2026-09-17 대표 지시: 감사·클로징이 워크스페이스의 메인 기능)
+         주 시작에 각자 클로징할 날을 체크 → 타임트래커·밤 현황 DM이 이 표를 기준으로 움직인다. -->
+    <style>
+      .week-board{margin:0 0 22px;padding:22px 24px 18px}
+      .wb-head{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px 16px;margin-bottom:12px}
+      .wb-head h3{margin:0}
+      .wb-head .desc{margin:4px 0 0}
+      .wb-nav{display:flex;align-items:center;gap:6px}
+      .wb-nav button{border:1px solid var(--line,#d6c6a0);background:#fff;color:var(--ink,#2b2622);font-family:inherit;font-size:12.5px;font-weight:700;padding:6px 11px;border-radius:9px;cursor:pointer}
+      .wb-nav button:hover{border-color:var(--gold,#bb924a)}
+      .wb-nav b{font-size:13px;color:var(--ink-soft,#5c534b);padding:0 6px;white-space:nowrap}
+      .wb-wrap{overflow-x:auto}
+      table.wb-tb{border-collapse:separate;border-spacing:0;width:100%;min-width:560px}
+      table.wb-tb th{font-size:12px;font-weight:800;color:var(--ink-soft,#5c534b);padding:6px 4px 9px;text-align:center;white-space:nowrap;border-bottom:1px solid var(--line,#d6c6a0)}
+      table.wb-tb th:first-child{text-align:left;padding-left:6px}
+      table.wb-tb th small{display:block;font-weight:600;font-size:10.5px;color:#a3978a}
+      table.wb-tb th.today{color:var(--seal,#7c2d2a)}
+      table.wb-tb th.today small{color:var(--seal,#7c2d2a)}
+      table.wb-tb td{padding:6px 4px;text-align:center;border-bottom:1px solid var(--line,#d6c6a0);vertical-align:middle}
+      table.wb-tb tr:last-child td{border-bottom:none}
+      table.wb-tb td.nm{text-align:left;font-weight:800;color:var(--ink,#2b2622);white-space:nowrap;padding-left:6px;font-size:13.5px}
+      table.wb-tb td.nm small{display:block;font-weight:600;color:#a3978a;font-size:10.5px;margin-top:1px}
+      table.wb-tb td.sum{font-size:12px;color:var(--ink-soft,#5c534b);white-space:nowrap}
+      table.wb-tb td.sum b{color:var(--seal,#7c2d2a)}
+      table.wb-tb td.today{background:rgba(138,28,43,.05)}
+      .wb-cell{display:inline-flex;flex-direction:column;align-items:center;gap:4px;min-width:54px}
+      .wb-chk{width:24px;height:24px;border-radius:8px;border:1.5px solid #cfc4ad;background:#fff;font-size:13px;line-height:1;color:transparent;font-family:inherit;cursor:default;padding:0}
+      .wb-chk.on{background:var(--seal,#7c2d2a);border-color:var(--seal,#7c2d2a);color:#fff}
+      .wb-chk.mine{cursor:pointer}
+      .wb-chk.mine:hover{border-color:var(--seal,#7c2d2a)}
+      .wb-marks{display:flex;gap:3px;min-height:20px;align-items:center}
+      .wb-m{font-size:15px;line-height:1;filter:grayscale(1);opacity:.22;user-select:none}
+      .wb-m.on{filter:none;opacity:1}
+      .wb-m.read{cursor:pointer}
+      .wb-m.read:hover{transform:scale(1.15)}
+      .wb-m.miss{filter:none;opacity:1;font-size:12px;font-weight:800;color:#b0503a}
+      .wb-m.exc{filter:none;opacity:1}
+      .wb-foot{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:11px;font-size:11.5px;color:#a3978a;line-height:1.6}
+      .wb-foot b{color:var(--ink-soft,#5c534b);font-weight:700}
+      .wb-empty{font-size:12.5px;color:#b8a984;padding:12px 2px}
+      @media(max-width:640px){.week-board{padding:16px 14px 14px}.wb-cell{min-width:40px}.wb-chk{width:22px;height:22px}}
+    </style>
+    <div class="panel week-board" id="weekBoard">
+      <div class="wb-head">
+        <div>
+          <h3><span class="ic">🗓</span> 이번 주 오프닝 · 클로징</h3>
+          <p class="desc">주가 시작되면 클로징할 날을 체크하세요. 🙏 감사(오프닝)와 📕 클로징이 날마다 여기 쌓입니다.</p>
+        </div>
+        <div class="wb-nav">
+          <button onclick="wbMove(-1)">◀ 지난 주</button>
+          <b id="wbWeekLabel"></b>
+          <button onclick="wbMove(1)">다음 주 ▶</button>
+          <button id="wbThisWeekBtn" onclick="wbMove(0)" style="display:none">이번 주로</button>
+        </div>
+      </div>
+      <div class="wb-wrap"><table class="wb-tb" id="wbTable"></table></div>
+      <div class="wb-foot">
+        <span><b>✓ 체크</b> = 그날 클로징하기로 한 약속 (내 줄에서 누르면 켜고 끕니다)</span>
+        <span><b>🙏</b> 감사를 적음</span>
+        <span><b>📕</b> 클로징을 냄 (누르면 읽을 수 있어요)</span>
+        <span><b>🕗</b> 못 내는 날 미리 알림</span>
+        <span><b>✕</b> 체크한 날인데 안 냄</span>
+      </div>
     </div>
 
     <!-- 상단 행: 오늘의 말씀(왼쪽 · 크게) + 팀 감사 나눔(오른쪽 위젯) -->
@@ -1838,6 +1906,25 @@
         #app-closing .cl-sum{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
         #app-closing .cl-chipsum{background:var(--paper,#faf4e6);border:1px solid #ece0c2;border-radius:10px;padding:8px 13px;font-size:12.5px;color:#6a5a48;font-weight:700}
         #app-closing .cl-chipsum b{color:var(--seal,#7c2d2a)}
+        /* 2026-09-17 글쓰기 방식 */
+        #app-closing .cl-plan{font-size:13px;color:#6a5a48;margin:-4px 0 4px;display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+        #app-closing .cl-plan b{color:var(--seal,#7c2d2a)}
+        #app-closing .cl-plan small{color:#b8a984;font-size:11.5px}
+        #app-closing .cl-ghost.sm{padding:5px 11px;font-size:11.5px}
+        #app-closing .cl-badge.link{cursor:pointer;color:#3a6ea5;font-family:inherit}
+        #app-closing .cl-wlab{display:flex;align-items:baseline;flex-wrap:wrap;gap:9px;margin:16px 0 6px;font-size:13.5px;font-weight:800;color:var(--seal,#7c2d2a)}
+        #app-closing .cl-wlab span{font-size:11.5px;font-weight:600;color:#b8a984}
+        #app-closing .cl-ta{width:100%;box-sizing:border-box;font-size:14px;line-height:1.7;padding:12px 14px;border:1px solid #d6c6a0;border-radius:11px;background:#fffdf7;font-family:inherit;resize:vertical;min-height:120px}
+        #app-closing .cl-ta.short{min-height:52px}
+        #app-closing .cl-count{font-size:11.5px;color:#b8a984;text-align:right;margin-top:5px;min-height:14px}
+        #app-closing .cl-attach{margin-top:12px;background:var(--paper,#faf4e6);border:1px solid #ece0c2;border-radius:12px;padding:10px 14px}
+        #app-closing .cl-attach summary{cursor:pointer;font-size:13px;font-weight:800;color:#6a5a48}
+        #app-closing .cl-attach summary span{font-weight:600;font-size:11.5px;color:#b8a984;margin-left:6px}
+        #app-closing .cl-attach .cl-drop{margin-top:10px;padding:18px 14px}
+        #app-closing .cl-prev{font-size:12px;color:#6a5a48;margin-top:8px}
+        #app-closing .cl-prev a{color:#3a6ea5}
+        #app-closing .cl-hrow.rd{cursor:pointer}
+        #app-closing .cl-hrow.rd:hover{border-color:var(--gold,#bb924a)}
       </style>
       <div class="panel col-12" id="app-closing" data-app="app-closing">
         <h3><span class="ic">📕</span> 클로징 리포트</h3>
@@ -1850,40 +1937,52 @@
             <li><b>한 일</b> · Before/After · 공부한 것 · 만들거나 고친 이유 · 분석과 인사이트</li>
             <li><b>할 일</b> · 오늘 한 일과의 연결성 · 발전시킬 부분 · 마치지 못한 일</li>
             <li><b>오늘의 동행</b> · 하나님과의 관계에서 느낀 점 한 줄</li>
-            <li>A4 한 페이지 (2/3 이상) · 12pt 흰바탕 · 사진·영상은 본문 분량에서 제외</li>
+            <li>워크스페이스에서 <b>바로 씁니다</b> · 사진·영상은 첨부로만</li>
             <li class="no">AI로 쓰지 않습니다. 자기 일은 자기 말로 설명할 수 있어야 합니다.</li>
             <li>못 내는 날은 <b>24시간 전</b>에 미리 알립니다. 갑작스러운 일은 즉시.</li>
           </ul>
         </div>
 
         <div class="cl-me" id="clMe"></div>
+        <div class="cl-plan" id="clPlan"></div>
 
-        <div id="clDaysWrap" style="display:none">
-          <div class="cl-lab">🗓 이번 주 클로징 데이<span class="hint">주 3일을 직접 고르세요</span></div>
-          <div class="cl-days" id="clDays"></div>
-          <div style="font-size:11.5px;color:#b8a984;line-height:1.6">자유에는 책임이 따릅니다. 고른 날은 스스로 지키기로 한 약속이에요.</div>
-        </div>
-
+        <!-- 2026-09-17부터 클로징은 파일이 아니라 여기서 바로 쓴다 (대표 지시 "클로징 앞으로 다 우리 워크스페이스에서 바로 쓰게") -->
         <div class="cl-sec">
-          <div class="cl-lab">📎 오늘의 리포트 올리기<span class="hint">PDF 권장 · docx · hwpx</span></div>
-          <div class="cl-drop" id="clDrop">
-            <span class="big">📄</span>
-            여기에 파일을 끌어다 놓거나 눌러서 고르세요
-          </div>
-          <input type="file" id="clFileIn" style="display:none" accept=".pdf,.docx,.hwpx,.hwp,.txt,.md,application/pdf" />
-          <div class="cl-picked" id="clPicked"><span class="nm" id="clPickedNm"></span><span class="sz" id="clPickedSz"></span><button class="x" id="clPickedX" title="빼기">✕</button></div>
-          <div class="cl-warn" id="clWarn" style="display:none"></div>
-          <div class="cl-prog" id="clProg"><i id="clBar"></i></div>
+          <div class="cl-lab">✍️ 오늘의 클로징 쓰기<span class="hint" id="clDraftHint">쓰는 동안 자동으로 임시저장돼요</span></div>
 
           <div class="cl-fields">
             <label class="cl-fld cl-hwrap">
-              <span class="cl-hlab">오늘 투자한 시간<span class="cl-hhint">리포트에 적은 그대로 붙여넣으세요 — 알아서 더합니다</span></span>
+              <span class="cl-hlab">오늘 투자한 시간<span class="cl-hhint">구간을 그대로 적으면 알아서 더합니다 · 숫자만도 됩니다</span></span>
               <input id="clHours" class="cl-hin" type="text" autocomplete="off"
                 placeholder="오전 10:40-12:00 / 오후 2:00-3:00 / 오전 1:30-4:00" />
               <span class="cl-hsum" id="clHoursSum"></span>
             </label>
           </div>
           <input class="cl-note" id="clNote" placeholder="한 줄 제목 (선택) — 예: 채점 프롬프트 원가 38% 구간 파보기" />
+
+          <label class="cl-wlab" for="clDid">한 일<span>Before/After · 공부한 것 · 만들거나 고친 이유 · 분석과 인사이트</span></label>
+          <textarea class="cl-ta" id="clDid" rows="9" placeholder="오늘 무엇을 어디까지 했는지, 왜 그렇게 했는지 자기 말로 적어주세요."></textarea>
+
+          <label class="cl-wlab" for="clTodo">할 일<span>오늘 한 일과의 연결 · 발전시킬 부분 · 마치지 못한 일</span></label>
+          <textarea class="cl-ta" id="clTodo" rows="5" placeholder="내일 이어서 할 것, 오늘 못 마친 것"></textarea>
+
+          <label class="cl-wlab" for="clWalk">오늘의 동행<span>하나님과의 관계에서 느낀 점 한 줄</span></label>
+          <textarea class="cl-ta short" id="clWalk" rows="2" placeholder="한 줄이면 충분해요"></textarea>
+
+          <div class="cl-count" id="clCount"></div>
+
+          <details class="cl-attach" id="clAttach">
+            <summary>📎 사진·파일 첨부 <span>선택 · 본문은 위에 쓰고, 화면 캡처나 결과물만 붙이세요</span></summary>
+            <div class="cl-drop" id="clDrop">
+              <span class="big">📄</span>
+              여기에 파일을 끌어다 놓거나 눌러서 고르세요
+            </div>
+            <input type="file" id="clFileIn" style="display:none" />
+            <div class="cl-picked" id="clPicked"><span class="nm" id="clPickedNm"></span><span class="sz" id="clPickedSz"></span><button class="x" id="clPickedX" title="빼기">✕</button></div>
+            <div class="cl-warn" id="clWarn" style="display:none"></div>
+            <div class="cl-prog" id="clProg"><i id="clBar"></i></div>
+            <div class="cl-prev" id="clPrevFile" style="display:none"></div>
+          </details>
 
           <label class="cl-pledge"><input type="checkbox" id="clNoAi" /><span>이 리포트는 <b>AI를 쓰지 않고</b> 제가 직접 썼습니다.</span></label>
 
@@ -2167,7 +2266,7 @@
         <div class="tt-hint" id="ttHint"></div>
         <div class="tt-wrap"><table class="tt-table" id="ttTable"></table></div>
         <div class="tt-best" id="ttBest" style="display:none"></div>
-        <div class="tt-legend">칸을 클릭·드래그하면 <b>내 가능 시간</b>이 칠해져요. 다른 사람 칸은 보기만 가능해요.<br>일정상 하루 종일 안 되는 날은 <b>🚫 이날은 안돼요</b>를 눌러주세요 — 빗금(✕ 불가)으로 표시돼서 "아직 안 적음"과 구분돼요.</div>
+        <div class="tt-legend">칸을 클릭·드래그하면 <b>내 가능 시간</b>이 칠해져요. 다른 사람 칸은 보기만 가능해요.<br>시작화면 표에서 클로징 데이로 체크하지 않은 날은 <b>쉬는 날</b>로 옅게 표시돼요(안돼요를 누를 필요 없음). 일하기로 한 날인데 갑자기 하루 종일 안 되면 <b>🚫 이날은 안돼요</b>를 눌러주세요 — 빗금(✕ 불가)으로 표시돼서 "아직 안 적음"과 구분돼요.</div>
 
         <!-- 실제 투자 시간 — 클로징 리포트에 적은 시간이 쌓인다 (2026-08-25 대표 지시) -->
         <style>
@@ -2284,6 +2383,31 @@
       <div class="v">"My grace is sufficient for you, for my power is made perfect in weakness."</div>
       고린도후서 12장 9절 · URP Corporation
     </div>
+  </div>
+</div>
+
+<!-- 📕 클로징 읽기 창 (팀 전체 공개) -->
+<style>
+  .clr-overlay{position:fixed;inset:0;background:rgba(20,14,10,.55);z-index:1200;display:none;align-items:center;justify-content:center;padding:20px}
+  .clr-overlay.show{display:flex}
+  .clr-box{background:#fffdf9;color:#241f1c;border-radius:18px;max-width:720px;width:100%;max-height:88vh;overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.35);padding:26px 28px 28px;position:relative}
+  .clr-x{position:absolute;top:14px;right:14px;border:none;background:#f3eee2;color:#5b524a;width:32px;height:32px;border-radius:10px;font-size:15px;cursor:pointer;font-family:inherit}
+  .clr-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-bottom:8px;padding-right:40px}
+  .clr-head b{font-size:17px;color:#8A1C2B}
+  .clr-head span{font-size:12.5px;color:#8b8177}
+  .clr-title{font-family:"Nanum Myeongjo",serif;font-size:19px;font-weight:800;line-height:1.4;margin:6px 0 10px}
+  .clr-hours{font-size:12.5px;color:#5b524a;margin-bottom:6px}
+  .clr-sec{margin-top:16px;padding-top:14px;border-top:1px solid #eae2d2}
+  .clr-lab{font-size:12px;font-weight:800;color:#8A1C2B;margin-bottom:6px;letter-spacing:.3px}
+  .clr-tx{font-size:14.5px;line-height:1.75;white-space:pre-wrap;word-break:break-word}
+  .clr-file{font-size:13.5px;color:#3a6ea5}
+  .clr-note{font-size:11.5px;color:#a3978a;margin-top:12px}
+  @media(max-width:640px){.clr-box{padding:20px 16px 22px;border-radius:14px}.clr-tx{font-size:14px}}
+</style>
+<div class="clr-overlay" id="clReadOverlay" onclick="if(event.target===this)clCloseRead()">
+  <div class="clr-box">
+    <button class="clr-x" onclick="clCloseRead()" title="닫기">✕</button>
+    <div id="clReadBody"></div>
   </div>
 </div>
 
@@ -2689,6 +2813,7 @@ function enterDash(){
   subscribeFiles();
   subscribeNotices();
   subscribeTeamGrats();
+  wbInit();               // 시작화면 주간 오프닝·클로징 표
   subscribeBrainstorm();
   subscribeBsComments();
   subscribeDocs();
@@ -5064,6 +5189,16 @@ async function ggImportCalendar(){
 const TT_HOUR_START=7, TT_HOUR_END=26;   // 새벽 2시까지 (24=00:00, 25=01:00, 익일로 표시)
 function ttHourLabel(h){return String(h%24).padStart(2,'0')+':00';}
 let ttDate=null, ttMembers=[], ttMembersLoaded=false, ttUnsub=null, ttData={}, ttSaveTimer=null, ttPainting=false, ttPaintVal=true;
+let ttPlan={}, ttPlanWk=null;   // 그 주의 클로징 데이 체크(ws_closing_days) — 체크 안 한 평일은 '쉬는 날'로 조용히 표시 (2026-09-17)
+/* 그날 그 사람이 쉬는 날인가 — 체크 문서가 있거나 풀타임(기본 월~금)일 때만 판단한다.
+   체크 안 한 파트타임·자율은 미정이라 쉬는 날로 단정하지 않는다. 시간을 칠했거나 '안돼요'를 누른 날도 아니다. */
+function ttIsRest(m){
+  const dow=ds2date(ttDate).getDay(); if(dow<1||dow>5)return false;
+  const d=ttData[m.email]; if(d&&(d.hours.size>0||d.allDayNo))return false;
+  const has=Object.prototype.hasOwnProperty.call(ttPlan,m.email);
+  if(!has&&!clIsFull(m.email))return false;
+  return !clIsDue(m.email,ttDate,has?ttPlan[m.email]:null,m.closingMode);
+}
 
 function ttYmd(d){return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;}
 function ttShift(ds,days){const d=ds2date(ds);d.setDate(d.getDate()+days);return ttYmd(d);}
@@ -5083,6 +5218,15 @@ function ttSubscribe(){
   if(!_db)return;
   if(ttUnsub){ttUnsub();ttUnsub=null;}
   ttData={};
+  const wk=clWeekKey(ttDate);
+  if(ttPlanWk!==wk){
+    ttPlanWk=wk; ttPlan={};
+    _db.collection('ws_closing_days').where('weekKey','==',wk).get().then(s=>{
+      if(ttPlanWk!==wk)return;
+      ttPlan={}; s.forEach(d=>{const r=d.data()||{};if(r.email)ttPlan[r.email]=Array.isArray(r.days)?r.days:[];});
+      ttRender();
+    }).catch(e=>console.warn('tt 클로징 데이 조회 실패',e));
+  }
   ttUnsub=_db.collection('ws_availability').where('date','==',ttDate).onSnapshot(snap=>{
     ttData={};
     snap.forEach(doc=>{const v=doc.data();ttData[v.email]={hours:new Set(v.hours||[]),name:v.name,code:v.code,allDayNo:!!v.allDayNo};});
@@ -5171,15 +5315,20 @@ function ttRender(){
   const label=document.getElementById('ttLabel'); if(!label)return;
   label.textContent=ttLabel(ttDate);
   const hint=document.getElementById('ttHint');
-  if(hint)hint.textContent=(ttDate===today())
-    ?'오늘 가능한 시간대를 칠해주세요.'
-    :(ds2date(ttDate)>ds2date(today())?'앞으로 이 날짜가 오면 참고할 수 있도록 미리 칠해두세요.':'지난 기록이에요.');
+  if(hint){
+    let ht=(ttDate===today())
+      ?'오늘 가능한 시간대를 칠해주세요.'
+      :(ds2date(ttDate)>ds2date(today())?'앞으로 이 날짜가 오면 참고할 수 있도록 미리 칠해두세요.':'지난 기록이에요.');
+    const me=CUR&&ttMembers.find(x=>x.email===CUR.id);
+    if(me&&ttIsRest(me))ht+=' 이날은 클로징 데이로 체크하지 않아 쉬는 날로 표시돼요. 그래도 되는 시간이 있으면 칠해도 됩니다.';
+    hint.textContent=ht;
+  }
 
   const table=document.getElementById('ttTable'); if(!table)return;
   let html='<thead><tr><th></th>';
   ttMembers.forEach(m=>{
     const c=MEMBER_COLORS[m.code]||'#888';
-    const noBadge=(ttData[m.email]&&ttData[m.email].allDayNo)?'<span class="tt-th-no">✕ 불가</span>':'';
+    const noBadge=(ttData[m.email]&&ttData[m.email].allDayNo)?'<span class="tt-th-no">✕ 불가</span>':(ttIsRest(m)?'<span class="tt-th-rest">쉬는 날</span>':'');
     html+=`<th><span class="tt-th-dot" style="background:${c}"></span>${esc(m.name||'')}${noBadge}</th>`;
   });
   html+='<th class="tt-row-count"></th></tr></thead><tbody>';
@@ -5200,7 +5349,8 @@ function ttRender(){
       const c=MEMBER_COLORS[m.code]||'#888';
       const bg=has?c:'#f2ede0';
       const best=(maxCount>=2&&rowCounts[h]===maxCount&&has)?'best':'';
-      html+=`<td class="tt-cell ${mine?'mine':''} ${best} ${no?'tt-no':''}" data-h="${h}" data-email="${esc(m.email)}" style="background:${bg}" title="${esc(m.name||'')}${no?' · 이날 불가':(has?' 가능':'')}"></td>`;
+      const rest=!has&&!no&&ttIsRest(m);
+      html+=`<td class="tt-cell ${mine?'mine':''} ${best} ${no?'tt-no':''} ${rest?'tt-rest':''}" data-h="${h}" data-email="${esc(m.email)}" style="background:${bg}" title="${esc(m.name||'')}${no?' · 이날 불가':(has?' 가능':(rest?' · 쉬는 날':''))}"></td>`;
     });
     const rc=rowCounts[h];
     html+=`<td class="tt-row-count">${rc>0?rc:''}</td></tr>`;
@@ -5272,7 +5422,7 @@ function ttToggleHour(h,val){
   const set=ttData[CUR.id].hours;
   if(val)set.add(h); else set.delete(h);
   const td=document.querySelector(`td.tt-cell.mine[data-h="${h}"]`);
-  if(td)td.style.background=val?(MEMBER_COLORS[CUR.code]||'#888'):'#f2ede0';
+  if(td){td.style.background=val?(MEMBER_COLORS[CUR.code]||'#888'):'#f2ede0';td.classList.remove('tt-rest');}
   clearTimeout(ttSaveTimer);
   ttSaveTimer=setTimeout(ttSaveMine,500);
 }
@@ -5936,17 +6086,15 @@ function clHoursEcho(){
 function clSizeTx(b){b=b||0;return b>=1048576?(b/1048576).toFixed(1)+'MB':Math.max(1,Math.round(b/1024))+'KB';}
 
 /* 앱 열기 */
+let clCurDoc=null, clDraftTimer=null, clDraftDirty=false;
 function clOpen(){
   if(!_db||!CUR){return;}
   clToday_=clToday();
   clBoardWk=clWeekKey(clToday_);
   clBindOnce();
-  // 파트타임만 요일 지정 UI (풀타임·자율은 고를 게 없다)
-  const free=(CUR.closingMode==='자율');
-  const dw=document.getElementById('clDaysWrap');
-  if(dw)dw.style.display=(clIsFull(CUR.id)||free)?'none':'block';
-  if(!clIsFull(CUR.id)&&!free)clSubscribeDays();
+  clSubscribeDays();      // 전원 — 시작화면 표에서 체크한 이번 주 클로징 데이
   clSubscribeToday();
+  clRenderDaysNote();
   const ceo=!!(CUR&&CUR.code==='CEO');
   const cw=document.getElementById('clCeoWrap');
   if(cw)cw.style.display=ceo?'block':'none';
@@ -5966,7 +6114,11 @@ function clBindOnce(){
   const x=document.getElementById('clPickedX');
   if(x)x.addEventListener('click',()=>clPickFile(null));
   const h=document.getElementById('clHours');
-  if(h)h.addEventListener('input',clHoursEcho);
+  if(h)h.addEventListener('input',()=>{clHoursEcho();clDraftTouch();});
+  ['clNote','clDid','clTodo','clWalk'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.addEventListener('input',()=>{clCountEcho();clDraftTouch();});
+  });
 }
 function clPickFile(f){
   clPickedFile=f;
@@ -5976,11 +6128,43 @@ function clPickFile(f){
   box.style.display='flex';
   document.getElementById('clPickedNm').textContent=f.name;
   document.getElementById('clPickedSz').textContent=clSizeTx(f.size);
-  const ext=clFileExt(f.name); let msg='';
-  if(ext==='hwp')msg='구형 한글(.hwp) 파일은 요나단이 글자를 읽지 못해요. <b>PDF로 내보내</b> 올려주시면 흐름 정리까지 됩니다.';
-  else if(['pdf','docx','hwpx','txt','md'].indexOf(ext)<0)msg='문서 파일이 아닌 것 같아요. 리포트 본문은 PDF로, 사진·영상은 첨부로만 부탁드립니다.';
-  else if(f.size>20*1024*1024)msg='파일이 큽니다(20MB 초과). A4 한 장이면 보통 1MB 안쪽이에요.';
+  let msg='';
+  if(f.size>20*1024*1024)msg='파일이 큽니다(20MB 초과). 사진은 줄여서, 영상은 링크로 부탁드립니다.';
   if(warn){warn.innerHTML=msg;warn.style.display=msg?'block':'none';}
+}
+function clFields(){
+  const v=id=>((document.getElementById(id)||{}).value||'');
+  return{hoursText:v('clHours').trim(),note:v('clNote').trim(),did:v('clDid').trim(),todo:v('clTodo').trim(),walk:v('clWalk').trim()};
+}
+function clCountEcho(){
+  const el=document.getElementById('clCount'); if(!el)return;
+  const f=clFields();
+  const n=(f.did+f.todo+f.walk).replace(/\s/g,'').length;
+  el.textContent=n?('본문 '+n.toLocaleString()+'자'):'';
+}
+/* 임시저장 — 아직 제출 전인 날만. 제출된 리포트는 고쳐서 '다시 제출'을 눌러야 바뀐다. */
+function clDraftTouch(){
+  clDraftDirty=true;
+  clearTimeout(clDraftTimer);
+  clDraftTimer=setTimeout(clDraftSave,1500);
+}
+async function clDraftSave(){
+  if(!_db||!CUR||!clDraftDirty)return;
+  const hint=document.getElementById('clDraftHint');
+  if(clCurDoc&&clCurDoc.status==='제출'){if(hint)hint.textContent='제출된 리포트예요 — 고친 내용은 "다시 제출"을 눌러야 반영됩니다';return;}
+  const f=clFields();
+  if(!(f.did||f.todo||f.walk||f.note||f.hoursText))return;
+  clDraftDirty=false;
+  try{
+    const date=clToday_||clToday();
+    await _db.collection('ws_closings').doc(clDocId(CUR.id,date)).set({
+      email:CUR.id,name:CUR.name,code:CUR.code||'',date,weekKey:clWeekKey(date),dow:clParse(date).getDay(),
+      fullTime:clIsFull(CUR.id),status:'임시',
+      hoursText:f.hoursText,hours:clParseHours(f.hoursText).hours,note:f.note,did:f.did,todo:f.todo,walk:f.walk,
+      draftAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+    if(hint){const d=new Date();hint.textContent='임시저장됨 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+  }catch(e){console.warn('임시저장 실패',e);if(hint)hint.textContent='임시저장 실패 — 인터넷을 확인해주세요';}
 }
 
 /* 오늘 내 제출 상태 */
@@ -5991,102 +6175,101 @@ function clSubscribeToday(){
   },err=>console.warn('클로징 구독 실패',err));
 }
 function clRenderMe(d){
+  clCurDoc=d||null;
   const box=document.getElementById('clMe'); if(!box)return;
-  const free=(CUR.closingMode==='자율');
-  const due=clIsDue(CUR.id,clToday_,clMyDays,free?'자율':null);
+  const due=clIsDue(CUR.id,clToday_,clMyDays,CUR.closingMode);
   let html='<span class="cl-badge">'+clFmtDate(clToday_)+'</span>';
   if(d&&d.status==='제출'){
     html+='<span class="cl-badge done">✓ 오늘 제출 완료'+(d.hours?' · '+d.hours+'시간':'')+'</span>';
-    if(d.fileUrl)html+='<a class="cl-badge" href="'+clEsc(d.fileUrl)+'" target="_blank">올린 파일 열기</a>';
+    html+='<button class="cl-badge link" onclick="clOpenRead(\''+clEsc(CUR.id)+'\',\''+clToday_+'\')">낸 글 읽기</button>';
   }else if(d&&d.status==='사전보고'){
     html+='<span class="cl-badge excused">🕗 사전 보고함'+(d.advanceHours>=24?' (24시간 전 ✓)':'')+'</span>';
   }else if(due){
     html+='<span class="cl-badge due">오늘은 클로징 데이 — 아직 제출 전</span>';
-  }else if(free){
+  }else if(CUR.closingMode==='자율'&&!Array.isArray(clMyDays)){
     html+='<span class="cl-badge off">자율 제출 — 내고 싶은 날 내시면 됩니다</span>';
   }else{
-    html+='<span class="cl-badge off">오늘은 의무 제출일이 아니에요</span>';
+    html+='<span class="cl-badge off">오늘은 체크한 클로징 데이가 아니에요 — 그래도 내면 그대로 기록됩니다</span>';
   }
+  if(d&&d.status==='임시')html+='<span class="cl-badge">✎ 쓰던 글이 임시저장돼 있어요</span>';
   box.innerHTML=html;
-  // 기존 제출이 있으면 입력값 채워두기(수정 제출 대비)
+  // 기존 글(임시저장·제출본)을 칸에 채워두기 — 쓰는 중인 칸은 건드리지 않는다
   if(d){
-    const h=document.getElementById('clHours'), n=document.getElementById('clNote'), b=document.getElementById('clSubmitBtn');
-    if(h&&document.activeElement!==h&&h.value===''&&(d.hoursText||d.hours!=null)){h.value=d.hoursText||d.hours;clHoursEcho();}
-    if(n&&document.activeElement!==n&&d.note&&n.value==='')n.value=d.note;
-    if(b&&d.status==='제출')b.textContent='다시 제출(교체)';
+    const fill=(id,val)=>{const el=document.getElementById(id);if(el&&document.activeElement!==el&&el.value===''&&val)el.value=val;};
+    fill('clHours',d.hoursText||(d.hours!=null?String(d.hours):''));
+    fill('clNote',d.note); fill('clDid',d.did); fill('clTodo',d.todo); fill('clWalk',d.walk);
+    clHoursEcho(); clCountEcho();
+    const b=document.getElementById('clSubmitBtn');
+    if(b)b.textContent=(d.status==='제출')?'다시 제출(교체)':'제출';
+    const pv=document.getElementById('clPrevFile');
+    if(pv){
+      if(d.fileUrl){pv.style.display='block';pv.innerHTML='이미 붙인 파일: <a href="'+clEsc(d.fileUrl)+'" target="_blank">'+clEsc(d.fileName||'열기')+'</a> — 새로 올리면 교체됩니다';}
+      else pv.style.display='none';
+    }
   }
+}
+/* 이번 주 내 클로징 데이 안내줄 */
+function clRenderDaysNote(){
+  const el=document.getElementById('clPlan'); if(!el)return;
+  const days=Array.isArray(clMyDays)?clMyDays:clDefaultDays(CUR.id,CUR.closingMode);
+  const set=Array.isArray(clMyDays);
+  const names=days.slice().sort((a,b)=>a-b).map(d=>CL_WK[d]).join('·');
+  el.innerHTML='🗓 이번 주 클로징 데이: <b>'+(names||'없음')+'</b>'
+    +(set?'':(CUR.closingMode==='자율'?' <small>(자율 — 체크하면 그날은 약속이 됩니다)</small>':(clIsFull(CUR.id)?' <small>(풀타임 기본값 — 아직 체크 안 함)</small>':' <small>(아직 체크 안 함)</small>')))
+    +' <button class="cl-ghost sm" onclick="closeApp();wbScrollTo()">시작화면 표에서 체크하기</button>';
 }
 /* 제출 방식 — ws_members.closingMode 가 '자율'이면 의무 없음.
    조건부 합류한 사람(2026-08-25 하승주)에게 대표가 선택권을 준 경우가 여기 해당한다.
-   자율은 내면 그대로 기록되지만 미제출로 잡지 않고, 밤 현황에도 이름이 오르지 않는다. */
+   자율은 내면 그대로 기록되지만 미제출로 잡지 않고, 밤 현황에도 이름이 오르지 않는다.
+   단 시작화면 표에서 스스로 체크한 날은 자율이어도 약속으로 본다(2026-09-17). */
 function clModeOf(m){
   if(m&&m.closingMode==='자율')return '자율';
   return clIsFull((m&&m.email)||m)?'풀타임':'파트타임';
 }
-/* 오늘이 제출 의무일인가 — 풀타임=평일 매일, 파트타임=본인이 고른 요일, 자율=없음 */
+/* 체크 문서가 없을 때의 기본값 — 풀타임=월~금, 파트타임·자율=없음 */
+function clDefaultDays(email,mode){
+  if(mode==='자율')return [];
+  return clIsFull(email)?[1,2,3,4,5]:[];
+}
+/* 그날이 제출 의무일인가 — days 배열이 있으면(체크 문서 존재) 그것만 본다. 없으면 기본값. */
 function clIsDue(email,ds,days,mode){
-  if(mode==='자율')return false;
   const dow=clParse(ds).getDay();
-  if(clIsFull(email))return dow>=1&&dow<=5;
-  return Array.isArray(days)&&days.indexOf(dow)>=0;
+  const arr=Array.isArray(days)?days:clDefaultDays(email,mode);
+  return arr.indexOf(dow)>=0;
 }
 
-/* 파트타임 — 이번 주 클로징 데이 3일 지정 */
+/* 이번 주 내 클로징 데이 구독 (체크는 시작화면 표에서) */
 function clSubscribeDays(){
   if(clDaysUnsub)return;
   const wk=clWeekKey(clToday_);
   clDaysUnsub=_db.collection('ws_closing_days').doc(CUR.id+'_'+wk).onSnapshot(snap=>{
-    clMyDays=(snap.exists&&Array.isArray(snap.data().days))?snap.data().days:[];
-    clRenderDays();
+    clMyDays=(snap.exists&&Array.isArray(snap.data().days))?snap.data().days:null;
+    clRenderDaysNote();
+    if(clCurDoc!==undefined)clRenderMe(clCurDoc);
   },err=>console.warn('클로징 데이 구독 실패',err));
 }
-function clRenderDays(){
-  const box=document.getElementById('clDays'); if(!box)return;
-  const days=clMyDays||[];
-  box.innerHTML=[1,2,3,4,5,6,0].map(d=>
-    '<button class="cl-day'+(days.indexOf(d)>=0?' on':'')+'" onclick="clToggleDay('+d+')">'+CL_WK[d]+'</button>').join('');
-  // 지정일이 바뀌면 오늘이 의무일인지도 다시 판정
-  _db.collection('ws_closings').doc(clDocId(CUR.id,clToday_)).get()
-    .then(s=>clRenderMe(s.exists?s.data():null)).catch(()=>{});
-}
-async function clToggleDay(d){
-  const days=(clMyDays||[]).slice();
-  const i=days.indexOf(d);
-  if(i>=0)days.splice(i,1);
-  else{
-    if(days.length>=3){if(typeof showToast==='function')showToast('🗓','주 3일까지예요. 바꾸시려면 고른 날을 먼저 눌러 빼주세요.');return;}
-    days.push(d);
-  }
-  clMyDays=days; clRenderDays();
-  try{
-    const wk=clWeekKey(clToday_);
-    await _db.collection('ws_closing_days').doc(CUR.id+'_'+wk).set({
-      email:CUR.id,name:CUR.name,code:CUR.code||'',weekKey:wk,days,
-      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-    },{merge:true});
-  }catch(e){alert('클로징 데이 저장 실패: '+((e&&e.message)||e));}
-}
 
-/* 제출 */
+/* 제출 — 본문은 워크스페이스에서 바로 쓴다(2026-09-17). 파일은 선택 첨부. */
 async function closingSubmit(){
-  if(!_db||!_storage||!CUR){alert('로그인 후 이용할 수 있어요.');return;}
+  if(!_db||!CUR){alert('로그인 후 이용할 수 있어요.');return;}
   const btn=document.getElementById('clSubmitBtn');
   const hoursEl=document.getElementById('clHours');
-  const hoursText=((hoursEl&&hoursEl.value)||'').trim();
-  const hours=clParseHours(hoursText).hours;
-  const note=((document.getElementById('clNote')||{}).value||'').trim();
+  const f=clFields();
+  const hours=clParseHours(f.hoursText).hours;
   const noAi=!!(document.getElementById('clNoAi')||{}).checked;
   const date=clToday_||clToday();
   let prev=null;
   try{const s=await _db.collection('ws_closings').doc(clDocId(CUR.id,date)).get();prev=s.exists?s.data():null;}catch(e){}
 
-  if(!clPickedFile&&!(prev&&prev.fileUrl)){alert('리포트 파일을 먼저 올려주세요. (PDF 권장)');return;}
+  if(!f.did){alert('"한 일"을 적어주세요. 오늘 무엇을 어디까지 했는지, 자기 말로요.');const el=document.getElementById('clDid');if(el)el.focus();return;}
   if(!(hours>0)){alert('오늘 투자한 시간을 적어주세요. 밀도와 꾸준함을 보는 칸이에요.\n\n리포트에 적은 구간을 그대로 붙여넣어도 되고(예: 오전 10:40-12:00 / 오후 2:00-3:00),\n숫자만 적으셔도 됩니다(예: 5.8).');if(hoursEl)hoursEl.focus();return;}
   if(!noAi){alert('AI를 쓰지 않고 직접 썼다는 확인에 체크해주세요. 8/19에 함께 한 약속입니다.');return;}
+  if(clPickedFile&&!_storage){alert('첨부 저장소에 연결되지 않았어요. 첨부를 빼고 제출해주세요.');return;}
 
   const prog=document.getElementById('clProg'), bar=document.getElementById('clBar'), st=document.getElementById('clStatus');
+  clearTimeout(clDraftTimer); clDraftDirty=false;
   try{
-    if(btn){btn.disabled=true;btn.textContent='올리는 중…';}
+    if(btn){btn.disabled=true;btn.textContent='제출하는 중…';}
     let fileMeta=null;
     if(clPickedFile){
       const safe=clPickedFile.name.replace(/[^\w.\-가-힣]/g,'_');
@@ -6102,13 +6285,16 @@ async function closingSubmit(){
       const url=await task.snapshot.ref.getDownloadURL();
       fileMeta={fileName:clPickedFile.name,filePath:path,fileUrl:url,fileType:clPickedFile.type||clFileExt(clPickedFile.name),fileSize:clPickedFile.size};
     }
+    const chars=(f.did+f.todo+f.walk).replace(/\s/g,'').length;
     const payload={
       email:CUR.id,name:CUR.name,code:CUR.code||'',date,weekKey:clWeekKey(date),
       dow:clParse(date).getDay(),fullTime:clIsFull(CUR.id),
-      hours,hoursText,note,noAiPledge:true,status:'제출',   // 적은 원문(hoursText)도 남긴다 — 합산은 hours
+      hours,hoursText:f.hoursText,note:f.note,did:f.did,todo:f.todo,walk:f.walk,chars,
+      noAiPledge:true,status:'제출',written:true,   // written=본문을 워크스페이스에서 씀 (파일 제출과 구분)
       submittedAt:prev&&prev.submittedAt?prev.submittedAt:firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     };
+    if(prev&&prev.status==='제출')payload.revisedAt=firebase.firestore.FieldValue.serverTimestamp();
     if(fileMeta){
       Object.assign(payload,fileMeta);
       payload.versions=firebase.firestore.FieldValue.arrayUnion({
@@ -6118,7 +6304,8 @@ async function closingSubmit(){
     await _db.collection('ws_closings').doc(clDocId(CUR.id,date)).set(payload,{merge:true});
     clPickFile(null);
     if(st){st.textContent='✓ 제출되었습니다';setTimeout(()=>{if(st)st.textContent='';},4000);}
-    if(typeof showToast==='function')showToast('📕','오늘의 클로징 리포트를 제출했어요. 수고하셨습니다.');
+    const hint=document.getElementById('clDraftHint'); if(hint)hint.textContent='제출 완료';
+    if(typeof showToast==='function')showToast('📕','오늘의 클로징을 제출했어요. 수고하셨습니다.');
     if(clHistShown)clLoadHist();
   }catch(e){
     alert('제출 실패: '+((e&&e.message)||e));
@@ -6167,17 +6354,41 @@ async function clLoadHist(){
   l.innerHTML='<div class="cl-empty">불러오는 중…</div>';
   try{
     const snap=await _db.collection('ws_closings').where('email','==',CUR.id).get();
-    const rows=snap.docs.map(d=>d.data()).sort((a,b)=>(a.date<b.date?1:-1)).slice(0,30);
+    const rows=snap.docs.map(d=>d.data()).filter(r=>r.status!=='임시').sort((a,b)=>(a.date<b.date?1:-1)).slice(0,30);
     if(!rows.length){l.innerHTML='<div class="cl-empty">아직 낸 리포트가 없어요.</div>';return;}
     l.innerHTML=rows.map(r=>{
-      const tag=r.status==='사전보고'?'🕗 사전 보고 — '+clEsc(r.excuse||''):clEsc(r.note||r.fileName||'제출');
-      return '<div class="cl-hrow"><span class="d">'+clFmtDate(r.date)+'</span>'+
+      const tag=r.status==='사전보고'?'🕗 사전 보고 — '+clEsc(r.excuse||''):clEsc(r.note||(r.did?String(r.did).slice(0,60):'')||r.fileName||'제출');
+      const readable=(r.status==='제출');
+      return '<div class="cl-hrow'+(readable?' rd':'')+'"'+(readable?' onclick="clOpenRead(\''+clEsc(r.email)+'\',\''+r.date+'\')"':'')+'><span class="d">'+clFmtDate(r.date)+'</span>'+
         '<span class="t">'+tag+'</span>'+
         '<span class="h">'+(r.hours?r.hours+'시간':'')+'</span>'+
-        (r.fileUrl?'<a href="'+clEsc(r.fileUrl)+'" target="_blank">열기</a>':'')+'</div>';
+        (readable?'<a>읽기</a>':'')+'</div>';
     }).join('');
   }catch(e){l.innerHTML='<div class="cl-empty">불러오기 실패</div>';}
 }
+
+/* ===== 클로징 읽기 (팀 전체 공개 — 2026-09-17 대표 결정) ===== */
+async function clOpenRead(email,date){
+  if(!_db)return;
+  const ov=document.getElementById('clReadOverlay'), body=document.getElementById('clReadBody');
+  if(!ov||!body)return;
+  ov.classList.add('show');
+  body.innerHTML='<div class="cl-empty">불러오는 중…</div>';
+  let r=null;
+  try{const s=await _db.collection('ws_closings').doc(clDocId(email,date)).get();r=s.exists?s.data():null;}catch(e){}
+  if(!r){body.innerHTML='<div class="cl-empty">이 날의 클로징을 찾지 못했어요.</div>';return;}
+  const sec=(t,v)=>v?'<div class="clr-sec"><div class="clr-lab">'+t+'</div><div class="clr-tx">'+clEsc(v)+'</div></div>':'';
+  const when=r.submittedAt&&r.submittedAt.toDate?r.submittedAt.toDate():null;
+  body.innerHTML=
+    '<div class="clr-head"><b>'+clEsc(r.name||email)+'</b><span>'+clFmtDate(r.date)+(r.hours?' · '+r.hours+'시간':'')+(when?' · '+String(when.getHours()).padStart(2,'0')+':'+String(when.getMinutes()).padStart(2,'0')+' 제출':'')+(r.revisedAt?' · 수정됨':'')+'</span></div>'
+    +(r.note?'<div class="clr-title">'+clEsc(r.note)+'</div>':'')
+    +(r.hoursText&&r.hoursText!==String(r.hours)?'<div class="clr-hours">⏱ '+clEsc(r.hoursText)+'</div>':'')
+    +sec('한 일',r.did)+sec('할 일',r.todo)+sec('오늘의 동행',r.walk)
+    +(r.fileUrl?'<div class="clr-sec"><div class="clr-lab">첨부</div><a class="clr-file" href="'+clEsc(r.fileUrl)+'" target="_blank">📎 '+clEsc(r.fileName||'파일 열기')+'</a>'+(!r.did?'<div class="clr-note">파일로 낸 리포트예요 (글쓰기 방식 이전)</div>':'')+'</div>':'')
+    +(r.noAiPledge?'<div class="clr-note">✓ AI를 쓰지 않고 직접 썼다는 확인이 있는 글입니다</div>':'');
+}
+function clCloseRead(){const ov=document.getElementById('clReadOverlay');if(ov)ov.classList.remove('show');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')clCloseRead();});
 
 /* 대표님 전용 — 주간 제출 현황 보드 */
 function clBoardMove(delta){
@@ -6197,8 +6408,8 @@ async function clRenderBoard(){
       _db.collection('ws_closing_days').where('weekKey','==',clBoardWk).get()
     ]);
     const members=mSnap.docs.map(d=>d.data()).sort((a,b)=>(clIsFull(b.email)?1:0)-(clIsFull(a.email)?1:0));
-    const byKey={}; cSnap.forEach(d=>{const r=d.data();byKey[r.email+'_'+r.date]=r;});
-    const daysBy={}; dSnap.forEach(d=>{const r=d.data();daysBy[r.email]=r.days||[];});
+    const byKey={}; cSnap.forEach(d=>{const r=d.data();if(r.status!=='임시')byKey[r.email+'_'+r.date]=r;});
+    const daysBy={}; dSnap.forEach(d=>{const r=d.data();daysBy[r.email]=Array.isArray(r.days)?r.days:[];});
     const dates=[]; for(let i=0;i<7;i++){const t=clParse(clBoardWk);t.setDate(t.getDate()+i);dates.push(clDateStr(t));}
     const todayStr=clToday();
     let html='<table class="cl-tb"><thead><tr><th>이름</th>'+dates.map(ds=>{
@@ -6208,11 +6419,10 @@ async function clRenderBoard(){
     members.forEach(m=>{
       const mode=clModeOf(m);
       const full=(mode==='풀타임'), free=(mode==='자율');
-      const days=(full||free)?null:(daysBy[m.email]||[]);
+      const days=Object.prototype.hasOwnProperty.call(daysBy,m.email)?daysBy[m.email]:null;   // 체크 문서 없으면 null → 기본값
       let hrs=0;
-      const sub=free?'자율 · 의무 없음'
-        :full?'풀타임 · 평일 매일'
-        :'파트타임 · 주 3일'+((days&&days.length)?'':' (미지정)');
+      const eff=Array.isArray(days)?days:clDefaultDays(m.email,mode);
+      const sub=(free?'자율':full?'풀타임':'파트타임')+' · '+(eff.length?eff.slice().sort((a,b)=>a-b).map(d=>CL_WK[d]).join(''):'체크 없음')+(Array.isArray(days)||!eff.length?'':' (기본값)');
       html+='<tr><td class="nm">'+clEsc(m.name)+'<small>'+sub+'</small></td>';
       dates.forEach(ds=>{
         const r=byKey[m.email+'_'+ds];
@@ -6220,7 +6430,7 @@ async function clRenderBoard(){
         if(due&&ds<=todayStr)teamDue++;
         if(r&&r.status==='제출'){
           hrs+=Number(r.hours)||0; if(due)teamDone++;
-          html+='<td><a class="cl-cell ok" href="'+clEsc(r.fileUrl||'#')+'" target="_blank" title="'+clEsc(r.note||r.fileName||'')+'">'+(r.hours||'✓')+'</a></td>';
+          html+='<td><span class="cl-cell ok" onclick="clOpenRead(\''+clEsc(m.email)+'\',\''+ds+'\')" title="'+clEsc(r.note||r.fileName||'읽기')+'">'+(r.hours||'✓')+'</span></td>';
         }else if(r&&r.status==='사전보고'){
           html+='<td><span class="cl-cell exc" title="'+clEsc(r.excuse||'')+'">🕗</span></td>';
         }else if(due&&ds<=todayStr){
@@ -6237,8 +6447,129 @@ async function clRenderBoard(){
     if(sum)sum.innerHTML=
       '<span class="cl-chipsum">의무일 제출 <b>'+teamDone+' / '+teamDue+'</b></span>'+
       '<span class="cl-chipsum">팀 투자 시간 <b>'+Math.round(teamHours*10)/10+'시간</b></span>'+
-      '<span class="cl-chipsum">초록=제출(숫자는 투자 시간) · 노랑=사전 보고 · 빨강=미제출</span>';
+      '<span class="cl-chipsum">초록=제출(숫자는 투자 시간, 누르면 읽기) · 노랑=사전 보고 · 빨강=미제출</span>';
   }catch(e){box.innerHTML='<div class="cl-empty">불러오기 실패: '+clEsc((e&&e.message)||e)+'</div>';}
+}
+
+/* ===== 🗓 이번 주 오프닝·클로징 표 (시작화면 맨 위) — 2026-09-17 대표 지시 =====
+   "감사와 클로징이 메인 기능. 주 시작에 각자 클로징할 날을 체크하고, 월~금 한 주치가 한눈에 보이게."
+   행=팀원 전원, 열=월~금. 체크는 ws_closing_days/{email}_{weekKey}.days 그대로(기존 파트타임 지정 문서와 같은 자리).
+   전원이 직접 체크하되 풀타임 3명은 문서가 없으면 월~금이 켜진 것으로 본다(clDefaultDays).
+   🙏 = ws_mygrats/{email}__{패딩 없는 날짜} 존재, 📕 = ws_closings 제출, 🕗 = 사전보고.
+   본문은 팀 전체가 읽을 수 있다(2026-09-17 대표 결정). */
+let wbWk=null, wbMembers=[], wbDays={}, wbClos={}, wbGrats={}, wbUnsubs=[], wbMembersLoaded=false;
+function wbDates(){const out=[];for(let i=0;i<5;i++){const t=clParse(wbWk);t.setDate(t.getDate()+i);out.push(clDateStr(t));}return out;}
+function wbNp(ds){const a=ds.split('-').map(Number);return a[0]+'-'+a[1]+'-'+a[2];}   // 0패딩 → ws_mygrats 형식
+function wbPlanOf(email){
+  if(Array.isArray(wbDays[email]))return{days:wbDays[email],set:true};
+  const m=wbMembers.find(x=>x.email===email)||{};
+  return{days:clDefaultDays(email,m.closingMode),set:false};
+}
+function wbInit(){
+  if(!_db||!CUR)return;
+  wbWk=clWeekKey(clToday());
+  wbSubscribe();
+}
+function wbMove(delta){
+  if(delta===0)wbWk=clWeekKey(clToday());
+  else{const d=clParse(wbWk);d.setDate(d.getDate()+7*delta);wbWk=clDateStr(d);}
+  wbSubscribe();
+}
+async function wbLoadMembers(){
+  if(wbMembersLoaded)return;
+  try{
+    const snap=await _db.collection('ws_members').orderBy('createdAt').get();
+    wbMembers=snap.docs.map(d=>d.data()).filter(m=>m&&m.email);
+    // 대표 → 풀타임 → 나머지(합류 순)
+    wbMembers.sort((a,b)=>{
+      const ra=(a.code==='CEO')?0:clIsFull(a.email)?1:2, rb=(b.code==='CEO')?0:clIsFull(b.email)?1:2;
+      return ra-rb;
+    });
+    wbMembersLoaded=true;
+  }catch(e){console.warn('wbLoadMembers',e);}
+}
+async function wbSubscribe(){
+  wbUnsubs.forEach(u=>{try{u();}catch(e){}}); wbUnsubs=[];
+  wbDays={}; wbClos={}; wbGrats={};
+  await wbLoadMembers();
+  wbRender();
+  const wk=wbWk;
+  wbUnsubs.push(_db.collection('ws_closing_days').where('weekKey','==',wk).onSnapshot(s=>{
+    if(wk!==wbWk)return;
+    wbDays={}; s.forEach(d=>{const r=d.data()||{};if(r.email)wbDays[r.email]=Array.isArray(r.days)?r.days:[];});
+    wbRender();
+  },err=>console.warn('주간표 체크 구독 실패',err)));
+  wbUnsubs.push(_db.collection('ws_closings').where('weekKey','==',wk).onSnapshot(s=>{
+    if(wk!==wbWk)return;
+    wbClos={}; s.forEach(d=>{const r=d.data()||{};wbClos[r.email+'_'+r.date]=r;});
+    wbRender();
+  },err=>console.warn('주간표 클로징 구독 실패',err)));
+  wbUnsubs.push(_db.collection('ws_mygrats').where('date','in',wbDates().map(wbNp)).onSnapshot(s=>{
+    if(wk!==wbWk)return;
+    wbGrats={}; s.forEach(d=>{const r=d.data()||{};if((r.items||[]).some(x=>x&&String(x).trim()))wbGrats[r.email+'_'+r.date]=true;});
+    wbRender();
+  },err=>console.warn('주간표 감사 구독 실패',err)));
+}
+function wbRender(){
+  const tb=document.getElementById('wbTable'), lab=document.getElementById('wbWeekLabel'), tw=document.getElementById('wbThisWeekBtn');
+  if(!tb||!wbWk)return;
+  const dates=wbDates(), todayStr=clToday(), thisWk=(wbWk===clWeekKey(todayStr));
+  const mon=clParse(dates[0]), fri=clParse(dates[4]);
+  if(lab)lab.textContent=(mon.getMonth()+1)+'/'+mon.getDate()+' ~ '+(fri.getMonth()+1)+'/'+fri.getDate()+(thisWk?' · 이번 주':'');
+  if(tw)tw.style.display=thisWk?'none':'';
+  if(!wbMembers.length){tb.innerHTML='<tr><td class="wb-empty">팀원 목록을 불러오는 중…</td></tr>';return;}
+  let html='<thead><tr><th>이름</th>'+dates.map(ds=>{
+    const d=clParse(ds);
+    return '<th'+(ds===todayStr?' class="today"':'')+'>'+CL_WK[d.getDay()]+'<small>'+(d.getMonth()+1)+'/'+d.getDate()+(ds===todayStr?' 오늘':'')+'</small></th>';
+  }).join('')+'<th>이번 주</th></tr></thead><tbody>';
+  wbMembers.forEach(m=>{
+    const mine=(m.email===CUR.id);
+    const plan=wbPlanOf(m.email);
+    const free=(m.closingMode==='자율');
+    const sub=free?'자율':clIsFull(m.email)?'풀타임':'파트타임';
+    let planned=0, done=0, grats=0;
+    html+='<tr><td class="nm">'+clEsc(m.name||m.email)+'<small>'+sub+(plan.set?'':(free?'':' · 미체크'))+'</small></td>';
+    dates.forEach(ds=>{
+      const dow=clParse(ds).getDay();
+      const on=plan.days.indexOf(dow)>=0;
+      const r=wbClos[m.email+'_'+ds];
+      const g=!!wbGrats[m.email+'_'+wbNp(ds)];
+      if(on)planned++;
+      if(g)grats++;
+      let cMark;
+      if(r&&r.status==='제출'){done++;cMark='<span class="wb-m on read" title="'+clEsc(m.name)+' · '+clFmtDate(ds)+' 클로징 읽기" onclick="clOpenRead(\''+clEsc(m.email)+'\',\''+ds+'\')">📕</span>';}
+      else if(r&&r.status==='사전보고')cMark='<span class="wb-m exc" title="'+clEsc(r.excuse||'못 내는 날 미리 알림')+'">🕗</span>';
+      else if(on&&ds<todayStr)cMark='<span class="wb-m miss" title="체크한 날인데 클로징이 없어요">✕</span>';
+      else cMark='<span class="wb-m" title="'+(on?'아직 클로징 전':'클로징 없는 날')+'">📕</span>';
+      const gMark='<span class="wb-m'+(g?' on':'')+'" title="'+(g?'감사를 적었어요':'아직 감사 전')+'">🙏</span>';
+      html+='<td'+(ds===todayStr?' class="today"':'')+'><div class="wb-cell">'
+        +'<button class="wb-chk'+(on?' on':'')+(mine?' mine':'')+'" '+(mine?'onclick="wbToggle('+dow+')" title="'+(on?'이날 클로징 약속 빼기':'이날 클로징하기로 체크')+'"':'tabindex="-1" title="'+(on?'클로징하는 날':'')+'"')+'>✓</button>'
+        +'<div class="wb-marks">'+gMark+cMark+'</div></div></td>';
+    });
+    html+='<td class="sum">📕 <b>'+done+'</b>/'+planned+' · 🙏 <b>'+grats+'</b></td></tr>';
+  });
+  html+='</tbody>';
+  tb.innerHTML=html;
+}
+async function wbToggle(dow){
+  if(!_db||!CUR)return;
+  const cur=wbPlanOf(CUR.id).days.slice();
+  const i=cur.indexOf(dow);
+  if(i>=0)cur.splice(i,1); else cur.push(dow);
+  cur.sort((a,b)=>a-b);
+  wbDays[CUR.id]=cur; wbRender();
+  try{
+    await _db.collection('ws_closing_days').doc(CUR.id+'_'+wbWk).set({
+      email:CUR.id,name:CUR.name,code:CUR.code||'',weekKey:wbWk,days:cur,
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+    if(wbWk===clWeekKey(clToday())){clMyDays=cur;if(clToday_)clRenderDaysNote();}
+  }catch(e){alert('체크 저장 실패: '+((e&&e.message)||e));}
+}
+function wbScrollTo(){
+  const el=document.getElementById('weekBoard'); if(!el)return;
+  try{setPortalMode('home');}catch(e){}
+  el.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 /* ===== 홈 / 인덱스 모드 전환 + 인덱스 대시보드 ===== */
@@ -6249,6 +6580,7 @@ function setPortalMode(m){
   const idx=portalMode==='index';
   const im=document.getElementById('indexMode'); if(im)im.style.display=idx?'block':'none';
   const hr=document.querySelector('.hero-row'); if(hr)hr.style.display=idx?'none':'';
+  const wbp=document.getElementById('weekBoard'); if(wbp)wbp.style.display=idx?'none':'';
   const ag=document.getElementById('appGrid'); if(ag)ag.style.display=idx?'none':'';
   const agb=document.getElementById('appGridBar'); if(agb)agb.style.display=idx?'none':'flex';
   const hb=document.getElementById('modeHomeBtn'), ib=document.getElementById('modeIndexBtn');
