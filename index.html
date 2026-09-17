@@ -7121,7 +7121,12 @@ tick();
 #ceoOverlay .cb-wchip.on{background:#8A1C2B;border-color:#8A1C2B;color:#f6eed6;font-weight:700;}
 #ceoOverlay .cb-save{background:#8A1C2B;color:#f6eed6;border:none;border-radius:9px;padding:9px 20px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
 #ceoOverlay .cb-save:hover{background:#6d1522;}
-#ceoOverlay .cb-quick{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;}
+#ceoOverlay .cb-quick{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;align-items:center;}
+#ceoOverlay .cb-quick .cb-qt{font-size:12px;color:#8a7a68;flex:none;margin-right:2px;}
+#ceoOverlay .cb-qbtn.fx{border-style:dashed;}
+#ceoOverlay .cb-fixed{display:flex;align-items:center;gap:7px;border:1px solid #ddd2bd;border-radius:9px;padding:8px 11px;font-size:13px;color:#5c4a3a;cursor:pointer;background:#fff;font-family:inherit;user-select:none;}
+#ceoOverlay .cb-fixed.on{background:#5c6b7a;border-color:#5c6b7a;color:#fff;font-weight:700;}
+#ceoOverlay .cb-li .fx{font-size:10.5px;padding:1px 7px;border-radius:20px;background:#5c6b7a;color:#fff;flex:none;}
 #ceoOverlay .cb-qbtn{background:#f3ecdd;border:1px solid #e3d9c6;border-radius:999px;padding:6px 13px;font-size:12.5px;cursor:pointer;color:#5c4a3a;font-family:inherit;}
 #ceoOverlay .cb-qbtn:hover{background:#ece2cd;}
 #ceoOverlay .cb-stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;padding-top:13px;border-top:1px dashed #e3d9c6;}
@@ -7186,6 +7191,7 @@ tick();
         <select id="cbMethod">
           <option>카드</option><option>계좌이체</option><option>현금</option>
         </select>
+        <button type="button" class="cb-fixed" id="cbFixed" title="구독·정액·교통비처럼 달마다 나가는 돈이면 켜세요. 재무보드에서 고정지출로 집계됩니다.">고정지출</button>
         <button class="cb-save" id="cbSave">기록</button>
       </div>
       <div class="cb-who">
@@ -7216,7 +7222,7 @@ tick();
 (function(){
   "use strict";
   const DEFAULT_COLS=['법인·지분','자금·지원사업','제품','팀·사람','영업·고객','오늘 결정할 것'];
-  const PEOPLE=['정범','지민','세빈','은우','승주','준서','팀 전체','회사'];
+  const PEOPLE=['수민','정범','지민','세빈','은우','승주','준서','팀 전체','회사'];
   const QUICK=[
     {label:'정범 식대 12,000',what:'정범 식대',amt:12000,who:['정범'],cat:'식대'},
     {label:'지민 식대 12,000',what:'지민 식대',amt:12000,who:['지민'],cat:'식대'},
@@ -7224,6 +7230,21 @@ tick();
     {label:'세빈 저녁 12,000',what:'세빈 저녁',amt:12000,who:['세빈'],cat:'식대'},
     {label:'토요일 회의식사',what:'토요일 대면회의 식사',amt:'',who:['팀 전체'],cat:'회의비'}
   ];
+  /* 고정지출 프리셋 — 2026-09-16부터 구독·정액은 환율 추정치 대신 실제 결제액을 여기서 기록한다.
+     금액은 비워 두어 청구된 그대로 적게 한다(교통비만 정액). */
+  const QUICK_FIXED=[
+    {label:'정범 교통비 20만',what:'정범 교통비',amt:200000,who:['정범'],cat:'교통',method:'계좌이체'},
+    {label:'지민 교통비 10만',what:'지민 교통비',amt:100000,who:['지민'],cat:'교통',method:'계좌이체'},
+    {label:'Codex 정범',what:'Codex (정범)',amt:'',who:['정범'],cat:'도구·구독'},
+    {label:'Claude Max 정범',what:'Claude Max (정범)',amt:'',who:['정범'],cat:'도구·구독'},
+    {label:'Claude Max 지민',what:'Claude Max (지민)',amt:'',who:['지민'],cat:'도구·구독'},
+    {label:'Claude Max 수민',what:'Claude Max 20x (수민)',amt:'',who:['수민'],cat:'도구·구독'},
+    {label:'Claude 준서',what:'Claude (준서)',amt:'',who:['준서'],cat:'도구·구독'},
+    {label:'Figma 세빈',what:'Figma (세빈)',amt:'',who:['세빈'],cat:'도구·구독'},
+    {label:'Higgsfield',what:'Higgsfield (수민·은우)',amt:'',who:['수민','은우'],cat:'도구·구독'},
+    {label:'Google Workspace',what:'Google Workspace (urpedu.com)',amt:'',who:['회사'],cat:'도구·구독'}
+  ];
+  let fixedOn=false;
   let cols=null, unsubBoard=null, unsubLedger=null, ledger=[], whoSel=[];
 
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
@@ -7334,18 +7355,31 @@ tick();
 
   /* ---- 지출 ---- */
   function renderQuick(){
-    document.getElementById('cbQuick').innerHTML=QUICK.map(function(q,i){
-      return '<button class="cb-qbtn" data-qi="'+i+'">'+esc(q.label)+'</button>';
-    }).join('');
+    document.getElementById('cbQuick').innerHTML=
+      '<span class="cb-qt">자주 쓰는 것</span>'+QUICK.map(function(q,i){
+        return '<button class="cb-qbtn" data-qi="'+i+'">'+esc(q.label)+'</button>';
+      }).join('')
+      +'<span class="cb-qt" style="flex-basis:100%;margin-top:4px;">고정지출 (구독·정액 — 결제된 금액 그대로)</span>'
+      +QUICK_FIXED.map(function(q,i){
+        return '<button class="cb-qbtn fx" data-qf="'+i+'">'+esc(q.label)+'</button>';
+      }).join('');
   }
+  function setFixed(on){
+    fixedOn=!!on;
+    document.getElementById('cbFixed').classList.toggle('on',fixedOn);
+  }
+  document.getElementById('cbFixed').addEventListener('click',function(){ setFixed(!fixedOn); });
   document.getElementById('cbQuick').addEventListener('click',function(e){
-    const b=e.target.closest('[data-qi]'); if(!b) return;
-    const q=QUICK[+b.dataset.qi];
+    const b=e.target.closest('[data-qi],[data-qf]'); if(!b) return;
+    const isFx=b.dataset.qf!=null;
+    const q=isFx?QUICK_FIXED[+b.dataset.qf]:QUICK[+b.dataset.qi];
     document.getElementById('cbWhat').value=q.what;
     document.getElementById('cbAmt').value=q.amt||'';
     whoSel=(q.who||[]).slice();
     renderWho();
     document.getElementById('cbCat').value=q.cat||'식대';
+    document.getElementById('cbMethod').value=q.method||'카드';
+    setFixed(isFx);
     document.getElementById('cbAmt').focus();
   });
 
@@ -7374,16 +7408,19 @@ tick();
     const ts=(day===today)?Date.now():new Date(day+'T12:00:00').getTime();
     const btn=document.getElementById('cbSave'); btn.disabled=true; btn.textContent='저장 중…';
     try{
-      await _db.collection('ws_ledger').add({
+      const rec={
         what:what, amount:amt,
         who:whoSel.join(', '), whoList:whoSel.slice(),
         cat:document.getElementById('cbCat').value||'기타',
         method:document.getElementById('cbMethod').value||'카드',
         day:day, ts:ts, by:CUR.id
-      });
+      };
+      // 고정지출로 표시한 것은 재무보드가 일회성·실비가 아니라 고정지출로 센다 (2026-09부터 실제 결제액 기준)
+      if(fixedOn) rec.kind='fixed';
+      await _db.collection('ws_ledger').add(rec);
       document.getElementById('cbWhat').value='';
       document.getElementById('cbAmt').value='';
-      whoSel=[]; renderWho();
+      whoSel=[]; renderWho(); setFixed(false);
     }catch(e){ alert('저장에 실패했어요.\n'+((e&&e.message)||e)); }
     btn.disabled=false; btn.textContent='기록';
   }
@@ -7394,20 +7431,21 @@ tick();
 
   function renderLedger(){
     const today=dayKey(Date.now()), ym=today.slice(0,7);
-    let tSum=0,mSum=0,all=0;
+    let tSum=0,mSum=0,mFix=0,all=0;
     ledger.forEach(function(r){
       all+=r.amount||0;
       if(r.day===today) tSum+=r.amount||0;
-      if((r.day||'').slice(0,7)===ym) mSum+=r.amount||0;
+      if((r.day||'').slice(0,7)===ym){ mSum+=r.amount||0; if(r.kind==='fixed') mFix+=r.amount||0; }
     });
     document.getElementById('cbToday').textContent=won(tSum);
-    document.getElementById('cbMonth').textContent=won(mSum);
+    document.getElementById('cbMonth').innerHTML=won(mSum)+(mFix?' <small style="font-size:11.5px;font-weight:400;color:#8a7a68">고정 '+won(mFix)+' 포함</small>':'');
     document.getElementById('cbTotal').textContent=won(all);
 
     document.getElementById('cbList').innerHTML=ledger.slice(0,12).map(function(r){
       return '<div class="cb-li">'
         +'<span class="d">'+esc((r.day||'').slice(5))+'</span>'
         +'<span class="w">'+esc(r.what||'')+'</span>'
+        +(r.kind==='fixed'?'<span class="fx">고정</span>':'')
         +(r.who?'<span class="who">'+esc(r.who)+'</span>':'')
         +'<span class="a">'+won(r.amount)+'</span>'
         +'<button class="x" data-del="'+r._id+'" title="삭제">✕</button>'
