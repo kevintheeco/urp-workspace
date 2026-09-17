@@ -1434,6 +1434,9 @@
       .gv-name i{font-style:normal;font-size:10.5px;opacity:.5}
       .gv-none{font-size:12.5px;color:#b8a984;padding:6px 0}
       .gv-notyet{font-size:11.5px;color:#a3978a;margin-top:8px}
+      #gvTeamWrap{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line,#d6c6a0)}
+      .gv-lock{font-size:12.5px;color:#8b8177;line-height:1.6;background:var(--fill,#f3eee2);border-radius:10px;padding:9px 12px}
+      .gv-lock b{color:var(--seal,#7c2d2a)}
       /* 오늘의 클로징 카드 */
       .cl-home{display:flex;flex-direction:column}
       .cl-home .gh-top h3{margin:0}.cl-home .gh-top .desc{margin:4px 0 0}
@@ -1510,10 +1513,11 @@
             <div class="gv-lab"><span>✓ 오늘 나의 감사</span><button class="gv-edit" onclick="gratEdit()">수정</button></div>
             <ol class="gv-list" id="gvMine"></ol>
           </div>
-          <div class="gv-team">
-            <div class="gv-lab"><span>🌿 오늘 서로의 감사</span><small id="gvCount"></small></div>
-            <div id="gvTeam"></div>
-          </div>
+        </div>
+        <!-- 서로의 감사 제목은 늘 보인다 (2026-09-18 대표). 내용은 내 감사를 적은 뒤 열린다 -->
+        <div class="gv-team" id="gvTeamWrap">
+          <div class="gv-lab"><span>🌿 오늘 서로의 감사</span><small id="gvCount"></small></div>
+          <div id="gvTeam"></div>
         </div>
         <div class="grat-yday" id="gratYday"></div>
       </div>
@@ -7052,8 +7056,8 @@ function gratViewUpdate(){
   if(done){
     const g=LS.get(gratKey(),['','','']).filter(x=>x&&String(x).trim());
     const ol=document.getElementById('gvMine'); if(ol)ol.innerHTML=g.map(t=>'<li>'+esc(String(t))+'</li>').join('');
-    gvRender();
   }
+  gvRender();
 }
 function subscribeTodayGrats(){
   if(!_db||gvUnsub)return;
@@ -7070,6 +7074,7 @@ async function gvRender(){
   const others=wbMembers.filter(m=>m.email!==CUR.id);
   const wrote=others.filter(m=>gvToday[m.email]), notyet=others.filter(m=>!gvToday[m.email]);
   if(cnt)cnt.textContent=wrote.length+' / '+others.length+'명';
+  if(!(gratHasToday()&&!gratEditing)){box.innerHTML='<div class="gv-lock">'+(wrote.length?wrote.map(m=>esc(m.name||m.email)).join(', ')+' 님이 오늘 감사를 적었어요. ':'아직 아무도 적지 않았어요. ')+'<b>내 세 가지를 적으면 펼쳐집니다.</b></div>';return;}
   let html=wrote.map(m=>'<div class="gv-person"><div class="gv-name" onclick="gnbOpen(\''+esc(m.email)+'\',\''+esc(m.name||'')+'\')" title="감사노트">'+esc(m.name||m.email)+' <i>📖</i></div><ol class="gv-list">'
     +gvToday[m.email].map(t=>'<li>'+esc(String(t))+'</li>').join('')+'</ol></div>').join('');
   if(!wrote.length)html='<div class="gv-none">아직 아무도 적지 않았어요. 오늘은 내가 첫 번째 🌿</div>';
