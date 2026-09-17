@@ -251,7 +251,8 @@ exports.timetrackerNudge = functions.pubsub.schedule('0 10,13,17 * * 1-5').timeZ
   for (const m of members.docs) {
     const email = m.id; const v = m.data() || {};
     if (filled.has(email)) continue;
-    if (!closingIsDue(email, dow, Object.prototype.hasOwnProperty.call(daysBy, email) ? daysBy[email] : null, v.closingMode)) { rest++; continue; }
+    // 대표는 클로징이 없어도 평일엔 가능시간을 적는다(회의 조율 기준) — 나머지는 오늘 클로징 데이인 사람만
+    if (!CLOSING_EXEMPT.includes(email) && !closingIsDue(email, dow, Object.prototype.hasOwnProperty.call(daysBy, email) ? daysBy[email] : null, v.closingMode)) { rest++; continue; }
     const uid = await slackFindUser(token, email, v.name);
     if (!uid) { missed++; console.warn('타임트래커 알림: 슬랙 유저 못 찾음 —', email, v.name); continue; }
     try {
@@ -364,15 +365,17 @@ exports.testMorningBrief = functions.https.onRequest(async (req, res) => {
 /* ===== 📕 클로징 리포트 밤 현황 — 대표에게만 (팀원 독촉 DM 없음, 2026-08-25 대표 지시) =====
  * 8/19 대면세션 루틴: 풀타임(수민·지민·정범)=평일 매일 / 파트타임=주 3일 본인 지정.
  * ws_closings는 0패딩 날짜(ckToday 형식)를 쓴다 — seoulDateKey()(패딩 없음)와 섞지 말 것. */
-const CLOSING_FULLTIME = ['soomin020114@gmail.com', 'tangbole0430@gmail.com', 'sjmjis0208@gmail.com'];
+const CLOSING_FULLTIME = ['tangbole0430@gmail.com', 'sjmjis0208@gmail.com'];
+const CLOSING_EXEMPT = ['soomin020114@gmail.com'];   // 대표 — 클로징 의무 없음 (2026-09-17). 타임트래커 DM은 평일마다 그대로 받는다.
 /* 2026-09-17부터 클로징 데이는 전원이 시작화면 표에서 직접 체크한다(ws_closing_days.days).
  * 체크 문서가 없으면 기본값: 풀타임=월~금, 파트타임·자율=없음. 자율도 체크한 날은 약속으로 본다.
  * 포털 index.html의 clDefaultDays/clIsDue와 같은 규칙 — 한쪽만 고치지 말 것. */
 function closingDefaultDays(email, mode) {
-  if (mode === '자율') return [];
+  if (CLOSING_EXEMPT.includes(email) || mode === '자율') return [];
   return CLOSING_FULLTIME.includes(email) ? [1, 2, 3, 4, 5] : [];
 }
 function closingIsDue(email, dow, days, mode) {
+  if (CLOSING_EXEMPT.includes(email)) return false;
   const arr = Array.isArray(days) ? days : closingDefaultDays(email, mode);
   return arr.includes(dow);
 }
@@ -414,6 +417,7 @@ async function buildClosingBrief(offsetDays) {
   const done = [], excused = [], missing = [], unset = [];
   members.forEach(m => {
     const email = m.id, v = m.data() || {}, nm = v.name || email;
+    if (CLOSING_EXEMPT.includes(email)) return;   // 대표는 현황에 오르지 않는다
     // closingMode '자율' = 대표가 선택권을 준 사람(조건부 합류 등). 내면 기록하되 의무로 잡지 않는다.
     const free = v.closingMode === '자율';
     const full = CLOSING_FULLTIME.includes(email);
